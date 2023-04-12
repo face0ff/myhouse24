@@ -1,0 +1,82 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Пригласить владельца квартир </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owners_list' %}">Владельцы квартир</a></li>
+                <li class="active">Пригласить владельца квартир</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Отправить приглашение</h3>
+                </div>
+                <div class="box-body">
+                    <form id="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group field-phone">
+                                    <label class="control-label" for="phone">Телефон</label>
+                                    {{ form.telephone }}</div>
+
+                                <div class="form-group field-email">
+                                    <label class="control-label" for="email">Email</label>
+
+
+                                    {{ form.email }}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success">Отправить приглашение</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js"
+            type="text/javascript"></script>
+    <script>
+        $("#form").validate({
+            rules: {
+                email: {
+                    required: true,
+                    email: true
+                },
+            },
+            messages: {
+                email: {
+                    required: "* Обязательное поле",
+                    email: "* Адрес электронной почты некорректен"
+                }
+            },
+            wrapper: 'span',
+            errorPlacement: function (error, element) {
+                error.css({'text-align': 'left', 'font-size': '14px', 'color': 'red', 'width': '100%'});
+                error.insertAfter(element);
+            }
+        });
+
+        $(function () {
+            $("#id_telephone").mask("+380(099) 999-99-99");
+        });
+    </script>
+{% endblock %}

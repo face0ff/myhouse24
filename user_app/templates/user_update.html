@@ -1,0 +1,108 @@
+{% extends 'admin/base.html'%}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+    <section class="content-header">
+        <h1>Пользователи </h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li><a href="{% url 'users_list' %}">Пользователь</a></li>
+            <li><a href="{% url 'user_detail' userprofile.id %}">Пользователь</a></li>
+            <li class="active">Редактирование</li>
+        </ul>
+    </section>
+    <div class="my-box" style="min-height: 300px">
+        <form method="post" id="form">
+            {% csrf_token %}
+            <div class="row" style="margin: 8px">
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.first_name.label }}</p>
+                    {{ form.first_name|add_class:'form-control' }}
+                </div>
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.email.label }}</p>
+                    {{ form.email|add_class:'form-control'  }}
+                </div>
+            </div>
+            <div class="row" style="margin: 8px">
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.last_name.label }}</p>
+                    {{ form.last_name|add_class:'form-control'  }}
+                </div>
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.password1.label }}</p>
+                    <div>
+                        <div class="input-group">
+                            {{ form.password1|add_class:'form-control'  }}
+                            <div class="input-group-btn">
+                                <button class="btn btn-default generatePassword" type="button" onclick="generatePassword()">
+                                    Сгенерировать
+                                </button>
+                            </div>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-primary showPassword" id="showPass">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error|escape }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        <p style="font-size: 14px; padding: 0; margin: 0">* Пароль должен содержать как минимум 8 символов.</p>
+                        <p style="font-size: 14px; padding: 0; margin: 0">* Пароли должны совпадать.</p>
+                        <p style="font-size: 14px; padding: 0; margin: 0">* Пароль должен сожержать цифры, буквы.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="row" style="margin: 8px">
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.telephone.label }}</p>
+                    {{ form.telephone|add_class:'form-control'  }}
+                </div>
+                <div class="col-xl-6 col-md-6" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.password2.label }}</p>
+                    {{ form.password2|add_class:'form-control'  }}
+                </div>
+            </div>
+
+            <div style="float: right; padding-right: 16px; padding-top: 15px">
+                <a href="{% url 'users_list' %}" class="btn btn-default">Отменить</a>
+                <button type="submit" class="btn btn-success">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+
+    let generatePassword = function (){
+        let randomstring = Math.random().toString(36).slice(-8);
+        $('#id_password1, #id_password2').val(randomstring);
+    }
+    $('#showPass').on('click', function(){
+        let inputText = $('#id_password1, #id_password2');
+        let inputType = inputText.prop('type');
+        if (inputType === 'password') {
+            inputText.prop('type', 'text');
+            $(this).children().removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            inputText.prop('type', 'password');
+            $(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+    $(function(){
+        $("#id_telephone").mask("+380(099) 999-99-99");
+    });
+</script>
+
+
+{% endblock %}

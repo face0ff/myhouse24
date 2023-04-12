@@ -1,0 +1,263 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css">
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Новая заявка </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'requests_list' %}">Вызов мастера</a></li>
+                <li class="active">Новая заявка</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+
+            <form id="form" method="post">
+                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xs-12 col-md-7 col-lg-6">
+                        <div class="page-header-spec">
+                            <div class="input-group date">
+                                <div class="input-group bootstrap-datepicker">
+                                    {{ form.date }}
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="label-mid">от</span>
+                            <div class="input-group time">
+                                <div class="input-group bootstrap-timepicker">
+                                    {{ form.time }}
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-body">
+                        <div class="row">
+
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="user_id">Владелец квартиры</label>
+                                    {{ form.errors }}
+                                    {{ form.owner }}
+                                </div>
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group ">
+                                    <label class="control-label">Дом:</label>
+                                    <a href="{% url 'house_detail' request.apartment.house_id %}">{{ request.apartment.house }}</a>
+
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="control-label">Секция:</label>
+                                    {{ request.apartment.section }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="control-label">Этаж:</label>
+                                    {{ request.apartment.floor }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+
+                            <div class="clearfix"></div>
+
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group ">
+                                    <label class="control-label">Описание</label>
+                                    {{ form.description }}
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+
+
+
+
+                                <div class="form-group ">
+                                    <label class="control-label">Квартира</label>
+                                    {{ form.apartment }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Тип мастера</label>
+                                    {{ form.type_master }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Статус</label>
+                                    {{ form.status }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Мастер</label>
+                                    {{ form.master }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label">Комментарий</label>
+                                    {{ form.comment }}
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="form-group">
+                                    <a href="{% url 'requests_list' %}" class="btn btn-default">Отменить</a>
+                                    <button type="submit" class="btn btn-success">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            if ({{ request.apartment.owner_id }}){
+                $("#id_owner").val('{{ request.apartment.owner_id }}')
+            }
+            else{
+                console.log('hmm')
+            }
+
+
+        });
+
+
+        function selectUser(element) {
+            var element_id = element.id.split("-").slice(0, 2).join("-")
+
+            console.log(element_id)
+            if (element.value) {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'select_apart' %}",
+                    data: {
+                        'user_id': element.value,
+                    },
+                    success: function (data) {
+                        // Очистить выбор в другом поле
+                        $('#id_apartment').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
+                        $.each(data.user_apart, function (key, value) {
+
+                            $('#id_apartment')
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        });
+                    },
+
+                })
+            }
+        }
+
+        $(document).ready(function () {
+            $('#id_comment').summernote({
+                lang: 'ru-RU',
+                styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                ]
+            });
+
+        });
+        $('input[name="date"]').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+        $('input[name="date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY'));
+        });
+        $('input[name="date"]').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+        $('input[name="date"]').mask('99.99.9999');
+        $('input[name="time"]').timepicker({
+            showInputs: false,
+            showMeridian: false,
+        });
+    </script>
+
+
+{% endblock %}

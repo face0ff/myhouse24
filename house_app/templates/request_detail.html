@@ -1,0 +1,113 @@
+{% extends 'admin/base.html' %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Заявка №{{ request.id }}       </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'requests_list' %}">Заявки вызова мастера</a></li>
+                <li class="active">Заявка №{{ request.id }} </li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12 col-md-7 col-lg-6">
+                    <div class="page-header-spec">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </div>
+                                <div class="form-control pull-right">{{ request.date|date:"d.m.Y" }}</div>
+                            </div>
+                        </div>
+                        <span class="label-mid">от</span>
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    <i class="glyphicon glyphicon-time"></i>
+                                </div>
+                                <div class="form-control pull-right">{{ request.time|date:"H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'request_update' request.id %}" class="btn btn-primary btn-sm">
+                                    <span class="hidden-xs">Редактировать заявку</span><i
+                                        class="fa fa-pencil visible-xs"
+                                        aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table class="table table-bordered table-striped table-view">
+                                <tbody>
+                                <tr>
+                                    <td>Статус</td>
+                                    <td><small class="label label-primary">{{ request.get_status_display}}</small></td>
+                                </tr>
+                                <tr>
+                                    <td>Владелец</td>
+                                    <td>
+                                        <a href="{% url 'user_detail' request.master.id %}">
+                                            {{ request.apartment.owner.first_name }} {{ request.apartment.owner.last_name }} {{ request.apartment.owner.patronymic }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Телефон</td>
+                                    <td>{{ request.master.telephone }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Квартира</td>
+                                    <td>
+                                        <a href="{% url 'apartment_detail' request.apartment.id %}">
+                                            {{ request.apartment.number }} </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Тип мастера</td>
+                                    <td>{{ request.get_type_master_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Мастер</td>
+                                    <td>
+                                        {{ request.master.first_name }} {{ request.master.last_name }} {{ request.master.patronymic }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Описание</td>
+                                    <td>
+                                        {{ request.description }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Добавлено</td>
+                                    <td>{{ request.date|date:"d.m.Y" }} - {{ request.time|date:"H:i" }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+
+
+
+{% endblock %}

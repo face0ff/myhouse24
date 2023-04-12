@@ -1,0 +1,120 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Роли</h1>
+        <ul class="breadcrumb">
+            <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li><a href="{% url 'roles' %}">Роли</a></li>
+        </ul>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+            <div class="box">
+                <form id="roles" method="post">
+                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                    {% csrf_token %}
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th>Роль</th>
+                                <th class="text-center">Статистика</th>
+                                <th class="text-center">Касса</th>
+                                <th class="text-center">Квитанции на оплату</th>
+                                <th class="text-center">Лицевые счета</th>
+                                <th class="text-center">Квартиры</th>
+                                <th class="text-center">Владельцы квартир</th>
+                                <th class="text-center">Дома</th>
+                                <th class="text-center">Сообщения</th>
+                                <th class="text-center">Заявки вызова мастера</th>
+                                <th class="text-center">Счетчики</th>
+                                <th class="text-center">Управление сайтом</th>
+                                <th class="text-center">Услуги</th>
+                                <th class="text-center">Тарифы</th>
+                                <th class="text-center">Роли</th>
+                                <th class="text-center">Пользователи</th>
+                                <th class="text-center">Платежные реквизиты</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{ role_formset.management_form }}
+                                {% for form in role_formset %}
+                            {{ form.id }}
+                            <tr>
+                                <td>{{ form.instance.get_roles_display }}</td>
+                                <td class="text-center">
+                                    {{ form.statistics }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.cashbox }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.invoice }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.personal_account }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.apartment }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.owner }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.house }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.message }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.application }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.meter }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.site_management }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.service }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.tariff }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.rol }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.users }}
+                                </td>
+                                <td class="text-center">
+                                    {{ form.requisites }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 text-right">
+                            <div class="form-group margin-top-15 margin-right-15">
+                                <a href="{% url 'roles' %}" class="btn btn-default">Отменить</a>
+                                <button type="submit" class="btn btn-success">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "admin/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Редактирование страницы </h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li class="active">Контакты</li>
+        </ul>
+    </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Редактирование страницы "Контакты"</h3>
+                        </div>
+                        <div class="box-body">
+                            <form id="w0" action="" method="post">
+                                {% csrf_token %}
+                                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                                <div class="row">
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <h3 class="page-header">Контактная информация</h3>
+                                                {{ contacts_form.header|as_crispy_field }}
+                                                {{ contacts_form.text|as_crispy_field }}
+                                                {{ contacts_form.url|as_crispy_field }}
+                                        </div>
+
+
+
+                                    <div class="col-xs-12 col-md-4">
+                                        <h3 class="page-header">Контакты</h3>
+                                        {{ contacts_form.fio|as_crispy_field }}
+                                        {{ contacts_form.location|as_crispy_field }}
+                                        {{ contacts_form.address|as_crispy_field }}
+                                        {{ contacts_form.phone|as_crispy_field }}
+                                        {{ contacts_form.email|as_crispy_field }}
+                                    </div>
+
+
+
+                                        <div class="col-xs-12">
+                                            <h3 class="page-header">Карта</h3>
+                                            {{ contacts_form.map|as_crispy_field }}
+                                        </div>
+
+
+
+                                        <div class="col-md-12">
+                                            <h3 class="page-header">Настройки SEO</h3>
+                                            {{ seo_form.titles|as_crispy_field }}
+                                            {{ seo_form.descriptions|as_crispy_field }}
+                                            {{ seo_form.keywords|as_crispy_field }}
+
+
+                                        </div>
+
+
+
+
+                                        <div class="col-xs-12 text-center">
+                                            <div class="form-group">
+                                                <a href="" class="btn btn-default">Отменить</a>
+                                                <button type="submit" class="btn btn-success">Сохранить</button>
+                                            </div>
+                                        </div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $('[name="text"]').summernote({
+             lang:'ru-RU',
+             styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+            ]
+  });
+        });
+    </script>
+{% endblock %}
+
+
+

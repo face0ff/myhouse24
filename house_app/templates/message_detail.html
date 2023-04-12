@@ -1,0 +1,52 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Сообщение </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'messages_list' %}">Сообщения</a></li>
+                <li class="active">Сообщение</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-body no-padding">
+                    <div class="mailbox-read-info">
+                        <h3>{{ message.topic }}</h3>
+                        <h5>От: {{ message.sender }} <span class="mailbox-read-time pull-right">{{ message.date.date }} - {{ message.date.time }}</span>
+                        </h5>
+                    </div>
+                    <div class="mailbox-read-message">
+                        <p>{% autoescape off %}{{ message.text }}{% endautoescape %}</p></div>
+                </div>
+                <div class="box-footer">
+                    <a href="{% url 'message_delete' message.id %}" data-confirm="Удалить?" data-method="post">
+                        <button type="button" id="delete" class="btn btn-default"><i class="fa fa-trash-o"></i> Удалить</button>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'messages_list' %}');
+            } else {
+                window.location.replace('{% url 'messages_list' %}');
+                return false
+            }
+        });
+
+    </script>
+{% endblock %}

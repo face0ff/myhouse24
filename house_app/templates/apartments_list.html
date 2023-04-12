@@ -1,0 +1,367 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Квартиры </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Квартиры</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <!--<div class="col-xs-12 col-sm-6">-->
+                <!--<h2 class="page-header">Квартиры</h2>-->
+                <!--</div>-->
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'apartment_create' %}">Добавить квартиру</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'apartments_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <form method="get" id="form">
+                            <table class="table table-hover table-striped table-responsive no-padding"
+                                   style="color: #333333; font-size: 14px">
+                                <thead>
+                                <tr>
+                                    <th style="width: 8%" class="sort-number"><span style="color: #72afd2"
+                                                                                    id="sort-number-span">№квартиры </span>
+                                    </th>
+                                    <th style="width: 30%" class="sort-house"><span style="color: #72afd2"
+                                                                                    id="sort-house-span">Дом </span>
+                                    </th>
+                                    <th style="width: 10%" class="sort-section"><span style="color: #72afd2"
+                                                                                      id="sort-section-span">Секция </span>
+                                    </th>
+                                    <th style="width: 10%" class="sort-floor"><span style="color: #72afd2"
+                                                                                    id="sort-floor-span">Этаж </span>
+                                    </th>
+                                    <th style="width: 20%" class="sort-owner"><span style="color: #72afd2"
+                                                                                    id="sort-owner-span">Владелец </span>
+                                    </th>
+                                    <th style="width: 7%">Остаток(грн)</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td style="padding: 5px; min-width: 90px"><input type="text" class="form-control"
+                                                                                     name="input_number"
+                                                                                     id="input_number"></td>
+                                    <td style="padding: 5px; min-width: 150px">
+                                        <select class="form-control" name="input_house" id="input_house">
+                                            <option hidden disabled selected value></option>
+                                            {% for house in houses %}
+                                                <option value="{{ house.id }}">{{ house.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td style="padding: 5px; min-width: 150px">
+                                        <select class="form-control" name="input_section" id="input_section"
+                                                {% if not sections %}style=" color: grey"{% endif %}>
+                                            <option hidden disabled selected value></option>
+                                            {% if sections %}
+                                                {% for section in sections %}
+                                                    <option value="{{ section.name }}">{{ section.name }}</option>
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="" disabled selected hidden>Выберите дом</option>
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td style="padding: 5px; min-width: 150px">
+                                        <select class="form-control" name="input_floor" id="input_floor"
+                                                {% if not floors %}style="color: grey"{% endif %}>
+                                            <option hidden disabled selected value></option>
+                                            {% if floors %}
+                                                {% for floor in floors %}
+                                                    <option value="{{ floor.name }}">{{ floor.name }}</option>
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="" disabled selected hidden>Выберите дом</option>
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td style="padding: 5px; min-width: 150px">
+                                        <select class="form-control" name="input_owner" id="input_owner">
+                                            <option hidden disabled selected value></option>
+                                            {% for owner in owners %}
+                                                <option value="{{ owner.id }}">{{ owner }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td style="padding: 5px; min-width: 90px">
+                                        <select class="form-control" name="debt" id="debt">
+                                            <option hidden disabled selected value></option>
+                                            <option value="yes">Есть долг</option>
+                                            <option value="no">Нет долга</option>
+                                        </select>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                {% for apartment in apartments %}
+                                    <tr data-href="{% url 'apartment_detail' apartment.id %}"
+                                        class="tr-link">
+                                        <td>{{ apartment.number }}</td>
+                                        <td>
+                                            {% for house in houses %}{% for section in house.section_set.all %}
+                                                {% if section.id == apartment.section.id %}{{ house.name }}{% endif %}
+                                            {% endfor %}{% endfor %}</td>
+                                        <td>{{ apartment.section.name }}</td>
+                                        <td>{{ apartment.floor.name }}</td>
+                                        <td>
+                                            {% if apartment.owner %}
+                                                {{ apartment.owner }}
+                                            {% else %}(нет
+                                                владельца){% endif %}</td>
+                                        <td>
+                                            {% for personal_account in personal_accounts %}
+                                                {% if personal_account.apartment == apartment %}
+                                                    {% if personal_account.balance > 0 %}
+                                                        <span style="color: #00a65a">{{ personal_account.balance }}</span>
+                                                    {% elif personal_account.balance < 0 %}
+                                                        <span style="color: red">{{ personal_account.balance }}</span>
+                                                    {% else %}
+                                                        {{ personal_account.balance }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if apartment.id not in idx %}
+                                                (нет счета)
+                                            {% endif %}
+                                        </td>
+                                        <td style="padding: 6px 5px 7px 4px">
+                                            <div class="btn-group pull-right">
+                                                <a class="btn btn-default btn-sm"
+                                                   href="{% url 'apartment_update' apartment.id %}"
+                                                   title="Редактировать" data-toggle="tooltip"><i
+                                                        class="fa fa-pencil"></i></a>
+                                                <a class="delete btn btn-default btn-sm"
+                                                   href="{% url 'apartment_delete' apartment.pk %}"
+                                                   title="Удалить" data-toggle="tooltip" data-pjax="0"
+                                                   data-method="post"
+                                                   data-confirm="Вы уверены, что хотите удалить этот элемент?">
+                                                    <i class="fa fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <input type="hidden" name="filter-number" value="" id="filter-number">
+                            <input type="hidden" name="filter-house" value="" id="filter-house">
+                            <input type="hidden" name="filter-section" value="" id="filter-section">
+                            <input type="hidden" name="filter-floor" value="" id="filter-floor">
+                            <input type="hidden" name="filter-owner" value="" id="filter-owner">
+                            {% include "pagination.html" with page=apartments %}
+                        </form>
+
+
+                        <div class="box-footer">
+                            <div>Количество квартир: <span class="text-bold">{{ apartments|length }}</span></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function (link) {
+            link.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
+
+        $('#clear').on('click', function () {
+            localStorage.removeItem('input_number');
+            localStorage.removeItem('input_house');
+            localStorage.removeItem('input_section');
+            localStorage.removeItem('input_floor');
+            localStorage.removeItem('input_owner');
+            localStorage.removeItem('debt');
+
+
+        });
+        // loading init data if exist
+
+        $('#input_number').attr('value', localStorage.input_number)
+        $('#input_house option[value="' + localStorage.input_house + '"]').prop('selected', true)
+        $('#input_section option[value="' + localStorage.input_section + '"]').prop('selected', true)
+        $('#input_floor option[value="' + localStorage.input_floor + '"]').prop('selected', true)
+        $('#input_owner option[value="' + localStorage.input_owner + '"]').prop('selected', true)
+        $('#debt option[value="' + localStorage.debt + '"]').prop('selected', true)
+        if (localStorage.number == 1) {
+            $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.number == 0) {
+            $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.house == 1) {
+            $('#sort-house-span').html('Дом <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.house == 0) {
+            $('#sort-house-span').html('Дом <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.section == 1) {
+            $('#sort-section-span').html('Секция <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.section == 0) {
+            $('#sort-section-span').html('Секция <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.floor == 1) {
+            $('#sort-floor-span').html('Этаж <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.floor == 0) {
+            $('#sort-floor-span').html('Этаж <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.owner == 1) {
+            $('#sort-owner-span').html('Владелец <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.owner == 0) {
+            $('#sort-owner-span').html('Владелец <i class="fa fa-sort-alpha-desc"></i>')
+        }
+
+
+        //filter data by input
+        $('#input_number').blur(function () {
+            localStorage.input_number = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#input_house').change(function () {
+            localStorage.input_house = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#input_section').change(function () {
+            localStorage.input_section = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#input_floor').change(function () {
+            localStorage.input_floor = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#input_owner').change(function () {
+            localStorage.input_owner = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#debt').change(function () {
+            localStorage.debt = $(this).val()
+            $('#form').submit()
+        })
+
+
+        // sort data by click
+        $('.sort-number').click(function () {
+            if (localStorage.number == 1) {
+                $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-down"></i>')
+                localStorage.number = 0
+                $('#filter-number').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-up"></i>')
+                localStorage.number = 1
+                $('#filter-number').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-house').click(function () {
+            if (localStorage.house == 1) {
+                $('#sort-house-span').html('Дом <i class="fa fa-sort-alpha-down"></i>')
+                localStorage.house = 0
+                $('#filter-house').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-house-span').html('Дом <i class="fa fa-sort-alpha-up"></i>')
+                localStorage.house = 1
+                $('#filter-house').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-section').click(function () {
+            if (localStorage.section == 1) {
+                $('#sort-section-span').html('Секция <i class="fa fa-sort-alpha-down"></i>')
+                localStorage.section = 0
+                $('#filter-section').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-section-span').html('Секция <i class="fa fa-sort-alpha-up"></i>')
+                localStorage.section = 1
+                $('#filter-section').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-floor').click(function () {
+            if (localStorage.floor == 1) {
+                $('#sort-section-span').html('Этаж <i class="fa fa-sort-alpha-down"></i>')
+                localStorage.floor = 0
+                $('#filter-floor').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-floor-span').html('Этаж <i class="fa fa-sort-alpha-up"></i>')
+                localStorage.floor = 1
+                $('#filter-floor').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-owner').click(function () {
+            if (localStorage.owner == 1) {
+                $('#sort-owner-span').html('Владелец <i class="fa fa-sort-alpha-down"></i>')
+                localStorage.owner = 0
+                $('#filter-owner').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-owner-span').html('Владелец <i class="fa fa-sort-alpha-up"></i>')
+                localStorage.owner = 1
+                $('#filter-owner').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+        $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'apartments_list' %}');
+            } else {
+                window.location.replace('{% url 'apartments_list' %}');
+                return false
+            }
+        });
+    </script>
+{% endblock %}

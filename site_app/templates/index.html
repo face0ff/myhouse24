@@ -1,0 +1,110 @@
+{% extends "base_site.html" %}
+{% load static %}
+{% load static %}
+{% block content %}
+{% for item in main %}
+        <div class="slider">
+            <div>
+                <div class="slideTitle hidden-xs" >О управляющей компании</div>
+                <img src="{{ item.slider_1.url }}" class="img-responsive" alt="">
+            </div>
+            <div>
+                <div class="slideTitle hidden-xs">О управляющей компании</div>
+                <img src="{{ item.slider_2.url }}" class="img-responsive" alt="">
+            </div>
+            <div>
+                <div class="slideTitle hidden-xs">О управляющей компании</div>
+                <img src="{{ item.slider_3.url }}" class="img-responsive" alt="">
+            </div>
+        </div>
+<div class="info">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-7 col-md-8">
+                <div class="page-header">
+
+
+
+                     <h1>{{ item.header }}</h1>
+
+
+                </div>
+                <div class="box">
+                    {% autoescape off %}{{ item.description }}{% endautoescape %}<div class="row">
+
+                    <div class="col-xs-4">
+                            <a href="/about" class="btn btn-primary">Подробнее</a>
+                        </div>
+
+
+                  {% if item.show_url %}
+
+
+                        <div class="col-xs-8">
+                            <a href="https://itunes.apple.com/us/app/%D0%BC%D0%BE%D0%B9%D0%B4%D0%BE%D0%BC24/id1308075440?l=ru&amp;ls=1&amp;mt=8">
+                                <img src="{% static '/img/appstore.png' %}" class="img-responsive imgStore" alt="">
+                            </a>
+                                <a href="https://play.google.com/store/apps/details?id=com.avadamedia.program.myhouse24&amp;hl=uk">
+                                <img src="{% static '/img/googleplay.png' %}" class="img-responsive imgStore" alt="">
+                            </a>
+                        </div>
+                    {% endif%}
+                    {% endfor%}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-5 col-md-4">
+                <div class="page-header">
+                    <h3>Контакты</h3>
+                </div>
+                <div class="box">
+                    {% for item in contacts%}
+                    <p><i class="fas fa-user-circle"></i> {{ item.fio }}</p>
+                    <p><i class="fas fa-compass"></i> {{ item.location }}</p>
+                    <p><i class="fas fa-map-marker"></i> {{ item.address }}</p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:{{ item.fio }}"> {{ item.phone }}</a></p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:{{ item.fio }}"> {{ item.email }}</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="advantages">
+        <div class="container">
+            <div class="row row-eq-height">
+                <div class="col-xs-12">
+                    <div class="page-header">
+                        <h3>Рядом с нами</h3>
+                    </div>
+                </div>
+                {% for bl in blockk %}
+                    <div class="col-xs-12 col-sm-6 col-md-4 advantage-item">
+
+                        <div class="thumbnail">
+                            <img src="{{ bl.image.url }}">
+                            <div class="caption">
+                                <h3>{{ bl.header }}</h3>
+                               {% autoescape off %}{{ bl.description}}{% endautoescape %}
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+  $('.slider').slick({
+    setting-name: setting-value
+  });
+});
+</script>
+{% endblock %}

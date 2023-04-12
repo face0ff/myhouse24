@@ -1,0 +1,184 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Дома</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'houses_list' %}">Дома </a></li>
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'house_create' %}">Добавить дома</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'houses_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="w0" class="grid-view">
+
+                            <div class="box-body table-responsive no-padding">
+                                <form method="get" id="form">
+                                    <table class="table table-bordered table-hover table-striped linkedRow"
+                                           style="color: #333333; font-size: 14px">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 4%">#</th>
+                                            <th style="width: 48%" class="sort-name"><span style="color: #72afd2"
+                                                                                           id="sort-name-span">Название </span>
+                                            </th>
+                                            <th style="width: 48%" class="sort-address"><span style="color: #72afd2"
+                                                                                              id="sort-address-span">Адрес </span>
+                                            </th>
+                                            <th style="width: 80px; min-width: 80px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control" name="name"
+                                                                            id="name"></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="address" id="address"></td>
+                                            <td>  </td>
+                                        </tr>
+                                        {% for house in object_list %}
+                                            <tr data-href="{% url 'house_detail' house.id %}"
+                                                    class="tr-link">
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ house.name }}</td>
+                                                <td>{{ house.address }}</td>
+                                                <td>
+                                                    <div class="btn-group pull-right">
+                                                        <a class="btn btn-default btn-sm"
+                                                           href="{% url 'house_update' house.id %}"
+                                                           title="Редактировать" data-toggle="tooltip">
+                                                            <i class="fa fa-pencil"></i></a>
+                                                        <a class="delete btn btn-default btn-sm" href="{% url 'house_delete' house.id %}"
+                                                           title="Удалить" data-toggle="tooltip" data-pjax="0"
+                                                           data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?">
+                                                            <i class="fa fa-trash"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="filter-name" value="" id="filter-name">
+                                    <input type="hidden" name="filter-address" value="" id="filter-address">
+                                </form>
+                                <div style="padding-left: 15px">
+                                    <span>Колличество домов: <b>{{ object_list|length }}</b></span>
+                                </div>
+                            </div>
+
+
+                            <div class="box-footer clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+            link_to_update.forEach(function(link){
+                link.addEventListener('click', function(){
+                    window.location = this.dataset.href;
+                });
+            });
+        $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'houses_list' %}');
+            } else {
+                window.location.replace('{% url 'houses_list' %}');
+                return false
+            }
+        });
+        $('#name').attr('value', localStorage.name_input)
+        $('#address').attr('value', localStorage.address_input)
+
+        $('#name').blur(function () {
+            localStorage.name_input = $(this).val()
+            $('#form').submit()
+        })
+         $('#address').blur(function () {
+            localStorage.address_input = $(this).val()
+            $('#form').submit()
+        })
+        $('#clear').on('click', function() {
+          localStorage.removeItem('name_input');
+          localStorage.removeItem('address_input');
+        });
+
+
+        if (localStorage.name == 1) {
+            $('#sort-name-span').html('Название <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.name == 0) {
+            $('#sort-name-span').html('Название <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.address == 1) {
+            $('#sort-address-span').html('Адрес <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.address == 0) {
+            $('#sort-address-span').html('Адрес <i class="fa fa-sort-alpha-desc"></i>')
+        }
+
+        $('.sort-name').click(function () {
+            if (localStorage.name == 1) {
+                $('#sort-name-span').html('Название <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.name = 0
+                $('#filter-name').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-name-span').html('Название<i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.name = 1
+                $('#filter-name').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+        $('.sort-address').click(function () {
+            if (localStorage.address == 1) {
+                $('#sort-address-span').html('Адрес <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.address = 0
+                $('#filter-address').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-address-span').html('Адрес <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.address = 1
+                $('#filter-address').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+
+    </script>
+
+
+
+{% endblock %}

@@ -1,0 +1,364 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Владельцы квартир </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Владельцы квартир</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <!--<div class="col-xs-12 col-sm-6">-->
+                <!--<h2 class="page-header">Владельцы квартир</h2>-->
+                <!--</div>-->
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            Выберите действие <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'owner_create' %}">Добавить владельца квартиры</a></li>
+                            <li><a href="{% url 'message_create' %}?is_dept=True">Отправить сообщение должникам</a></li>
+                            <li><a href="{% url 'owner_invite' %}">Отправить приглашение</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'owners_list' %}" class="btn btn-default btn-sm">
+                                    <span id="clear" class="hidden-xs">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <form method="get" id="form">
+                            <div class="box-body table-responsive no-padding">
+
+                                <table class="table table-bordered table-hover table-striped ">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 110px; min-width: 110px">ID</th>
+                                        <th style="width: 20%; min-width: 10px" class="sort-name"><span
+                                                style="color: #72afd2" id="sort-name-span">ФИО</span>
+                                        <th style="width: 140px; min-width: 140px">Телефон</th>
+                                        <th style="width: 140px; min-width: 140px">Email</th>
+                                        <th style="min-width: 250px">Дом</th>
+                                        <th style="min-width: 300px">Квартира</th>
+                                        <th style="width: 8%; min-width: 10px" class="sort-date"><span
+                                                style="color: #72afd2" id="sort-date-span">Добавлен</span>
+                                        <th>Статус</th>
+                                        <th style="width: 80px; min-width: 80px">Есть долг</th>
+                                        <th style="width: 114px; min-width: 114px">&nbsp;</th>
+                                    </tr>
+                                    <tr id="w0-filters" class="filters">
+                                        <td><input type="text" class="form-control" name="id" id="id"></td>
+                                        <td><input type="text" class="form-control" name="name" id="name">
+                                        </td>
+                                        <td><input type="text" class="form-control" name="telephone" id="telephone">
+                                        </td>
+                                        <td><input type="text" class="form-control" name="email" id="email"></td>
+                                        <td>
+                                            <select class="form-control" name="house" id="house">
+                                                <option hidden disabled selected value></option>
+
+                                                {% for house in houses %}
+                                                    <option value="{{ house.id }}">{{ house.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td><input type="text" class="form-control" name="apartment" id="apartment">
+                                        </td>
+                                        <td style="padding: 5px"><input type="date" class="form-control" name="date"
+                                                                        id="date"></td>
+                                        <td>
+                                            <select class="form-control" name="status" id="status">
+                                                <option hidden disabled selected value></option>
+                                                <option value="is_active">Активный</option>
+                                                <option value="new">Новый</option>
+                                                <option value="disable">Отключен</option>
+                                            </select></td>
+                                        <td>
+                                            <select class="form-control" name="debt" id="debt">
+                                                <option hidden disabled selected value></option>
+                                                <option value="yes">Да</option>
+                                                <option value="no">Нет</option>
+                                            </select>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for owner in object_list %}
+                                        {% if owner.role == None %}
+                                            <tr data-href="{% url 'owner_detail' owner.id %}">
+                                                <td>{{ owner.user_id }}</td>
+                                                {% if owner.last_name %}
+                                                    <td>{{ owner }}</td>
+                                                {% else %}
+                                                    <td>(не заданно)</td>
+                                                {% endif %}
+                                                <td>{{ owner.telephone }}</td>
+                                                <td>{{ owner.email }}</td>
+
+
+                                                <td>
+                                                    {% for item in owner.apartment.all %}
+                                                        <a href="{% url 'house_detail' item.house.id %}">
+                                                            <p>{{ item.house }}</p></a>
+                                                    {% endfor %}
+
+                                                </td>
+
+                                                <td>
+                                                    {% for item in owner.apartment.all %}
+                                                        <a href="{% url 'apartment_detail' item.id %}"><p>
+                                                            №{{ item.number }}, {{ item.house }}</p></a>
+
+                                                    {% endfor %}
+                                                </td>
+                                                <td>{{ owner.date_joined }}</td>
+                                                {% if owner.status == 'disable' %}
+                                                    <td><small class="label label-danger">Отключен</small></td>
+                                                {% elif owner.status == 'is_active' %}
+                                                    <td><small class="label label-success">Активен</small></td>
+                                                {% else %}
+                                                    <td><small class="label label-warning">Новый</small></td>
+                                                {% endif %}
+                                                <td>{{ owner }}</td>
+                                                <td>
+                                                    <div class="btn-group pull-right"><a
+                                                            class="btn btn-default btn-sm"
+                                                            href="{% url 'message_create' %}?user_id={{ owner.id }}"
+                                                            title="Отправить сообщение"
+                                                            data-toggle="tooltip"><i
+                                                            class="fa fa-envelope"></i></a> <a
+                                                            class="btn btn-default btn-sm"
+                                                            href="{% url 'owner_update' owner.id %}"
+                                                            title="Редактировать"
+                                                            data-toggle="tooltip"><i
+                                                            class="fa fa-pencil"></i></a> <a
+                                                            class="btn btn-default btn-sm"
+                                                            href="{% url 'owner_delete' owner.id %}"
+                                                            title="Удалить"
+                                                            data-toggle="tooltip" data-pjax="0"
+                                                            data-method="post"
+                                                            data-confirm="Вы уверены, что хотите удалить этот элемент?"><i
+                                                            class="fa fa-trash"></i></a></div>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                    <input type="hidden" name="filter-name" value="" id="filter-name">
+                                    <input type="hidden" name="filter-date" value="" id="filter-date">
+                                </table>
+                            </div>
+
+                            {% include "pagination.html" with page=object_list %}
+                        </form>
+
+                    </div>
+                    <div class="box-footer">
+                        <div>Количество владельцев: <span class="text-bold">{{ object_list|length }}</span></div>
+                    </div>
+
+                </div>
+            </div>
+    </div>
+    </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $('#clear').on('click', function () {
+            localStorage.clear();
+        });
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function (link) {
+            link.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
+        $(document).on('click', '.delete', function (e) {
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'owners_list' %}');
+            } else {
+                window.location.replace('{% url 'owners_list' %}');
+                return false
+            }
+        });
+
+        $('#id').attr('value', localStorage.id)
+        $('#name').attr('value', localStorage.input_name)
+        $('#telephone').attr('value', localStorage.telephone)
+        $('#email').attr('value', localStorage.email)
+        $('#apartment').attr('value', localStorage.apartment)
+        $('#date').attr('value', localStorage.date)
+        $('#status option[value="' + localStorage.status + '"]').prop('selected', true)
+        $('#house option[value="' + localStorage.house + '"]').prop('selected', true)
+        $('#debt option[value="' + localStorage.debt + '"]').prop('selected', true)
+        if (localStorage.sort_date == 1) {
+            $('#sort-date-span').html('Добавлен <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.sort_date == 0) {
+            $('#sort-date-span').html('Добавлен <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.name == 1) {
+            $('#sort-name-span').html('ФИО <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.name == 0) {
+            $('#sort-name-span').html('ФИО <i class="fa fa-sort-alpha-desc"></i>')
+        }
+
+
+        //filter data by input
+        $('#id').blur(function () {
+            localStorage.id = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#name').blur(function () {
+            localStorage.input_name = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#telephone').blur(function () {
+            localStorage.telephone = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#email').blur(function () {
+            localStorage.email = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#house').change(function () {
+            localStorage.house = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#apartment').blur(function () {
+            localStorage.apartment = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#date').blur(function () {
+            localStorage.date = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#status').change(function () {
+            localStorage.status = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#debt').change(function () {
+            localStorage.debt = $(this).val()
+            $('#form').submit()
+        })
+
+
+        // sort data by click
+        $('.sort-name').click(function () {
+            if (localStorage.name == 1) {
+                $('#sort-name-span').html('ФИО <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.name = 0
+                $('#filter-name').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-name-span').html('ФИО <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.name = 1
+                $('#filter-name').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-date').click(function () {
+            if (localStorage.sort_date == 1) {
+                $('#sort-date-span').html('Добавлен <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.sort_date = 0
+                $('#filter-date').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-date-span').html('Добавлен <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.sort_date = 1
+                $('#filter-date').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+
+        // if debt YES or NO - get YES
+        $(function () {
+            $('.debt').each(function (index, element) {
+                if ($(element).text().indexOf('Да') >= 0) {
+                    $(element).text('Да')
+                }
+                if ($(element).text().indexOf('Нет') >= 0) {
+                    $(element).text('Нет')
+                }
+            })
+        })
+        $('input[name="date"]').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+
+    </script>
+{% endblock %}

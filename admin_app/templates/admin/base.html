@@ -1,0 +1,225 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="icon" type="image/png" href="http://myhouse24.avada-media.ua/favicon.png">
+    <meta name="csrf-param" content="_csrf-backend">
+    <meta name="csrf-token"
+          content="nWDbWQE2Uj-0ttl0EKNmG0CFptn60ha0tq2k3THQ_W_aVugwaHo5YOvukRZUzxNPLtHx6r-cYtOAyuqUa6qnQg==">
+    <title>Статистика</title>
+
+    <link href="{% static '/admin/bower_components/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/bower_components/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/bower_components/Ionicons/css/ionicons.min.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/bower_components/jvectormap/jquery-jvectormap.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/dist/css/AdminLTE.min.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/dist/css/skins/_all-skins.min.css' %}" rel="stylesheet">
+    <link href="{% static '/admin/dist/css/style.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
+          rel="stylesheet">
+    <link href="{% static '/admin/custom.css' %}" rel="stylesheet">
+</head>
+<link rel="stylesheet" href="{% static '/admin/plugins/summernote/summernote-bs4.min.css' %}">
+<body class="hold-transition skin-black-light sidebar-mini fixed">
+<div class="wrapper">
+
+
+    <header class="main-header">
+
+        <!-- Logo -->
+        <a href="/admin/" class="logo">
+        <span class="logo-mini">
+            <img src="{% static 'img/logo-mini.svg' %}" class="img-responsive" alt="">
+        </span>
+            <span class="logo-lg">
+            <img src="{% static 'img/logo.svg' %}" class="img-responsive" alt="">
+        </span>
+        </a>
+
+        <!-- Header Navbar -->
+        <nav class="navbar navbar-static-top">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                <span class="sr-only">Toggle navigation</span>
+            </a>
+            <!-- Header title -->
+            <div class="header-title">Панель администратора</div>
+            <!-- Navbar Right Menu -->
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- Notifications -->
+                    <li class="dropdown notifications-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-child fa-lg"></i>
+                            <span class="label label-warning">{{ new_users|length }}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+
+                            <span class="dropdown-header">Новых пользователей: {{ new_users|length }}</span>
+                            {% for user in new_users %}
+                                <li>
+                                                <a href="{% url 'owner_detail' user.id %}" class="dropdown-item">
+                                                    {{ user }}
+                                                </a>
+
+
+                                </li>
+                            {% endfor %}
+                            <li class="footer"><a href="{% url 'users_list' %}">Перейти в раздел пользователей</a></li>
+
+                        </ul>
+                    </li>
+
+
+                    <!-- User Account -->
+                    <li class="dropdown user user-menu">
+
+
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="nav-link" style="font-size: 15px"><img src="
+
+                                        {% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'img/logo-mini.svg' %}{% endif %}"
+                                                                                    class="img-circle" height="25"
+                                                                                    style="padding-right: 9px; margin-bottom: 4px">{{ user }}</span>
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <!-- User image -->
+                            <li class="user-header" style="background-color: #f39c12">
+                                <img src="
+
+                                        {% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}"
+                                     class="img-circle">
+                                <p style="color: white">{{ user }}
+                                    ({{ user.role.get_roles_display }})</p>
+                            </li>
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <div style="display: inline-block">
+                                    <a class="btn btn-default" href="{% url 'user_update' user.id %}">Профиль</a>
+                                </div>
+                                <div style="display: inline-block; float: right">
+                                    <a class="btn btn-default" href="{% url 'logout_page' %}"
+                                       data-method="post">Выход</a>
+                                </div>
+                            </li>
+                        </ul>
+
+
+                    </li>
+                </ul>
+            </div>
+
+        </nav>
+    </header>
+
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar -->
+        <section class="sidebar">
+
+            <ul class="sidebar-menu" data-widget="tree">
+                <li class="active"><a href="/admin/"><i class="fa fa-line-chart"></i> <span>Статистика</span></a></li>
+                <li><a href=""></i>  <span>Касса</span></a></li>
+                <li><a href="{% url 'invoices_list' %}"><i class="fa fa-files-o"></i>  <span>Квитанции на оплату</span></a></li>
+                <li><a href="{% url 'accounts_list' %}"><i class="fa fa-credit-card"></i> <span>Лицевые счета</span></a>
+                </li>
+                <li><a href="{% url 'apartments_list' %}"><i class="fa fa-key"></i> <span>Квартиры</span></a></li>
+                <li><a href="{% url 'owners_list' %}"><i class="fa fa-users"></i> <span>Владельцы квартир</span></a>
+                </li>
+                <li><a href="{% url 'houses_list' %}"><i class="fa fa-building"></i> <span>Дома</span></a></li>
+                <li><a href="{% url 'messages_list' %}"><i class="fa fa-envelope-o"></i> <span>Сообщения</span></a></li>
+                <li><a href="{% url 'requests_list' %}"><i class="fa fa-wrench"></i> <span>Заявки вызова мастера</span></a>
+                </li>
+                <li><a href="{% url 'meter_list' %}"><i class="fa fa-dashboard"></i>
+                    <span>Показания счетчиков</span></a></li>
+                <li class="treeview"><a href="#!"><i class="fa fa-desktop"></i> <span>Управление сайтом</span> <span
+                        class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                    <ul class='treeview-menu'>
+                        <li><a href="{% url 'main_page' %}"><i class="fa fa-circle-o"></i> <span>Главная страница</span></a>
+                        </li>
+                        <li><a href="{% url 'info_page' %}"><i class="fa fa-circle-o"></i> <span>О нас</span></a></li>
+                        <li><a href="{% url 'service_page' %}"><i class="fa fa-circle-o"></i> <span>Услуги</span></a>
+                        </li>
+                        <li><a href="{% url 'contacts_page' %}"><i class="fa fa-circle-o"></i> <span>Контакты</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview"><a href="#!"><i class="fa fa-cogs"></i> <span>Настройки системы</span> <span
+                        class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                    <ul class='treeview-menu'>
+                        <li><a href="{% url 'services' %}"><i class="fa fa-briefcase"></i> <span>Услуги</span></a></li>
+                        <li><a href="{% url 'tariffs' %}"><i class="fa fa-money"></i> <span>Тарифы</span></a></li>
+                        <li><a href="{% url 'users_list' %}"><i class="fa fa-user-plus"></i>
+                            <span>Пользователи</span></a></li>
+                        <li><a href="{% url 'requisite' %}"><i class="fa fa-credit-card"></i>
+                            <span>Платежные реквизиты</span></a></li>
+                        <li><a href="{% url 'items' %}"><i class="fa fa-list-ol"></i> <span>Статьи платежей</span></a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer class="main-footer">
+        Разработано <a href="https://avada-media.ua/">AVADA-MEDIA</a>. На базе системы управления <a
+            href="https://avada-media.ua/moydom24/">"МойДом24"</a>.
+        Документация API доступна <a href="/doc">по ссылке</a>.
+    </footer>
+
+</div>
+
+{#    <script src="{% static '/admin/assets/jquery.js' %}"></script>#}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+        integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+<script src="{% static '/admin/dist/js/adminlte.min.js' %}"></script>
+<script src="{% static '/admin/plugins/summernote/summernote-bs4.min.js' %}"></script>
+<script src="{% static '/admin/plugins/summernote/lang/summernote-ru-RU.js' %}"></script>
+<script>
+
+    // Get all elements
+    var links = document.querySelectorAll("li");
+    var menu = document.querySelector("ul");
+
+    // Add click handlers
+    links.forEach(function (link) {
+        link.addEventListener("click", function () {
+
+            // Remove active class from all links
+            links.forEach(function (link) {
+                link.classList.remove("active");
+            });
+
+            // Add active class to clicked link
+            link.classList.add("active");
+
+            // Remove active class from menu
+            menu.classList.remove("active");
+
+            // Add active class to menu
+            menu.classList.add("active");
+        });
+    });
+</script>
+
+{% block script %}
+{% endblock %}
+
+</body>
+</html>

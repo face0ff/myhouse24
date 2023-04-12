@@ -1,0 +1,108 @@
+{% extends "base_site.html" %}
+{% load static %}
+{% block content %}
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index'%}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Про нас</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="about">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box clearfix">
+                    <div class="page-header">
+                        <h1>{{form.header }}</h1>
+                    </div>
+                    <img src="{{ form.photo.url }}" class="img-responsive imgFloatRight" alt="">
+                    <p>
+                    {{form.text}}
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="gallery g1">
+        <div class="container">
+            <div class="row">
+                {% for image in gallery %}
+                    <div class="col-xs-12 col-sm-6 col-md-3 item" data-src="{{ image.image.url }}">
+                        <a href="{{ image.image.url }}" class="big">
+                            <img src="{{ image.image.url }}" alt="" class="img-responsive img-thumbnail">
+                        </a>
+                    </div>
+                {% endfor%}
+            </div>
+        </div>
+    </div>
+<div class="about">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box clearfix">
+                    <div class="page-header">
+                        <h3>{{ form.adit_header }}</h3>
+                    </div>
+                    <p>
+
+</p><p></p><p><b>{{ form.adit_text}}</b></p>
+
+<p></p>                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="gallery g2">
+        <div class="container">
+            <div class="row">
+                      {% for image in aditGallery %}
+                    <div class="col-xs-12 col-sm-6 col-md-3 item" data-src="{{ image.adit_image.url }}">
+                        <a href="{{ image.adit_image.url }}" class="big">
+                            <img src="{{ image.adit_image.url }}" alt="" class="img-responsive img-thumbnail">
+                        </a>
+                    </div>
+                {% endfor%}
+            </div>
+        </div>
+    </div>
+
+    <div class="documents">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="page-header">
+                            <h3>Документы</h3>
+                        </div>
+                            <div class="media">
+                                {% for form in file %}
+                                <div class="media-left">
+                                    <div class="media-object">
+                                        <img src="{{ form.files.url }}" style="width: 32px; margin-right: 10px;" aria-hidden="true">
+                                    </div>
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{form.name}}</h4>
+                                    <a href="{{ form.files.url }}" download><i class="fa fa-download" aria-hidden="true"></i> Скачать</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block script %}
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Квитанция </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'invoices_list' %}">Квитанции</a></li>
+                <li class="active">Квитанция №{{ invoice.number }}</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12 col-md-7 col-lg-6">
+                    <div class="page-header-spec">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    №
+                                </div>
+                                <div class="form-control pull-right">{{ invoice.number }}</div>
+                            </div>
+                        </div>
+                        <span class="label-mid">от</span>
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </div>
+                                <div class="form-control pull-right">{{ invoice.date }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Просмотр квитанции</h3>
+                    <div class="box-tools">
+                        <a href="/admin/invoice/print/742" class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Печать</span><i class="fa fa-print visible-xs"
+                                                                    aria-hidden="true"></i>
+                        </a>
+                        <a href="/admin/invoice/print/742" class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Отправить на e-mail</span><i class="fa fa-envelope-o visible-xs"
+                                                                                 aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'invoice_update' invoice.id %}" class="btn btn-primary btn-sm">
+                            <span class="hidden-xs">Редактировать квитанцию</span><i class="fa fa-pencil visible-xs"
+                                                                                     aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped table-view">
+                        <tbody>
+                        <tr>
+                            <td>{{ invoice.done }}</td>
+                            <td>
+                                <small class="label label-success">Проведена</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Статус</td>
+                            <td>
+                                <small class="label label-danger">{{ invoice.get_status_display }}</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Период</td>
+                            <td>
+                                {{ invoice.date_from }} - {{ invoice.date_before }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Владелец</td>
+                            <td>
+                                {% if invoice.apartment.owner %}
+                                    <a href="{% url 'owner_detail' invoice.apartment.owner.id %}">{{ invoice.apartment.owner }}</a>{% else %}
+                                    (не задано){% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Лицевой счет</td>
+                            <td>
+                                {% if invoice.apartment.account %}
+                                    <a href="{% url 'account_detail' invoice.apartment.account.id %}">{{ invoice.apartment.account.number }}</a>{% else %}
+                                    (не задано){% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Телефон</td>
+                            <td>{% if invoice.apartment.owner.telephone %}
+                                {{ invoice.apartment.owner.telephone }}{% else %}
+                                (не задано){% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Дом</td>
+                            <td>
+                                {% if invoice.apartment.house %}
+                                    <a href="{% url 'house_detail' invoice.apartment.house.id %}">{{ invoice.apartment.house }}</a>{% else %}
+                                    (не задано){% endif %}
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Квартира</td>
+                            <td>
+                                {% if invoice.apartment %}
+                                    <a href="{% url 'apartment_detail' invoice.apartment.id %}">{{ invoice.apartment }}</a>{% else %}
+                                    (не задано){% endif %}
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Секция</td>
+                            <td>{% if invoice.apartment.section %}
+                                {{ invoice.apartment.section }}{% else %}
+                                (не задано){% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Тариф</td>
+                            <td>
+                                {% if invoice.apartment.tariff %}
+                                    {{ invoice.apartment.tariff }}{% else %}
+                                    (не задано){% endif %}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="table-responsive no-padding margin-top-15">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th style="width: 40px; min-width: 40px;">#</th>
+                                <th>Услуга</th>
+                                <th>Количество потребления (расход)</th>
+                                <th style="width: 80px; min-width: 80px;">Ед. изм.</th>
+                                <th>Цена за ед., грн</th>
+                                <th>Стоимость, грн</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <td colspan="5"></td>
+                                <td colspan="2"><b>Итого: {{ invoice.amount }}</b></td>
+                            </tr>
+                            </tfoot>
+                            <tbody>
+                            {% for serv in invoice_service %}
+                                <tr role="row">
+
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ serv.service }}</td>
+                                    <td>{{ serv.cost_for_unit }}</td>
+                                    <td>{{ serv.service.unit }}</td>
+                                    <td>{{ serv.expense }}</td>
+                                    <td>{{ serv.full_cost }}</td>
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+    <script>
+
+    </script>
+{% endblock %}

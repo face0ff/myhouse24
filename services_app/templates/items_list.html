@@ -1,0 +1,90 @@
+{% extends 'admin/base.html'%}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Статьи приходов/расходов</h1>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="pull-right margin-bottom">
+                    <a class="btn btn-success" href="{% url 'item_create' %}">Добавить Статью</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div id="w0" class="grid-view">
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-bordered table-hover table-striped linkedRow" id="example">
+                                <thead>
+                                    <tr>
+                                        <th>Название</th>
+                                        <th><a href="#" data-sort="name">Приход/расход</a></th>
+                                        <th style="width: 114px; min-width: 114px">&nbsp;</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for item in object_list %}
+                                    <tr data-href="{% url 'item_update' item.pk %}" data-key="{{ item.pk }}">
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.get_income_invoice_display }}</td>
+                                        <td>
+                                            <div class="btn-group pull-right">
+                                                <a class="btn btn-default btn-sm" href="{% url 'item_update' item.pk %}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>
+                                                <a class="delete btn btn-default btn-sm" href="{% url 'item_delete' item.pk %}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                               {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="box-footer clearfix">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+{% block script %}
+
+    <script>
+    const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function(link){
+            link.addEventListener('click', function(){
+                window.location = this.dataset.href;
+            });
+        });
+    $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+
+            } else {
+                return false
+            }
+        });
+    $(document).ready(function() {
+
+        $('#example').DataTable({
+
+            paging: false,
+            info: false,
+            searching: false,
+        })
+
+    } );
+    </script>
+{% endblock %}

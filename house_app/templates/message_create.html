@@ -1,0 +1,172 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Новое сообщение </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'messages_list' %}">Сообщения</a></li>
+                <li class="active">Новое сообщение</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+
+                <form id="form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                    <div class="box-header with-border">
+                        <h3 class="box-title"></h3>
+                    </div>
+                    <div class="box-body">
+                        <input type="hidden" id="message-user_admin_from_id" name="Message[user_admin_from_id]"
+                               value="1"> <input type="hidden" id="message-status" name="Message[status]" value="5">
+                        <input type="hidden" id="message-type" name="Message[type]" value="default">
+                        <div class="form-group field-message-name required">
+
+                            {{ form.topic }}
+
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group field-message-description required">
+                            {{ form.text }}
+                        </div>
+                        <div class="row">
+
+                            <div class="col-xs-12 col-md-6">
+                                <h4>Кому отправить:</h4>
+                                <div id="user" style="opacity: 0">
+                                    <label class="control-label" for="owner">Владелец квартиры</label>
+                                    {{ form.owner }}
+                                </div>
+                                <div id="no_user">
+
+                                    <div class="form-group field-messageaddress-user_has_debt">
+                                        {{ form.is_dept }}
+                                        <label class="control-label" for="is_dept">Владельцам с задолженностями</label>
+                                        <div class="help-block"></div>
+                                    </div>
+                                    <div class="form-group field-messageaddress-house_id">
+                                        <label class="control-label" for="house">ЖК</label>
+                                        {{ form.house }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                    <div class="form-group field-messageaddress-section_id">
+                                        <label class="control-label" for="section">Секция</label>
+                                        {{ form.section }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                    <div class="form-group field-messageaddress-floor_id">
+                                        <label class="control-label" for="floor">Этаж</label>
+                                        {{ form.floor }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                    <div class="form-group field-messageaddress-flat_id">
+                                        <label class="control-label" for="apartment">Квартира</label>
+                                        {{ form.apartment }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="pull-right">
+                            <button type="submit" class="btn btn-success"><i class="fa fa-envelope-o"></i> Отправить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            let url = window.location.href;
+            let params = new URL(url).searchParams;
+
+
+            if (params.get('is_dept')){
+                let is_dept = params.get('is_dept');
+                let checkbox = document.getElementById('id_is_dept');
+                if (is_dept === 'True') {
+                checkbox.checked = true;
+                console.log('dep')
+            }}
+            if(params.get('user_id')){
+                let user = params.get('user_id');
+                console.log('user')
+                $('#user').css('opacity', '1')
+                $("select[name='owner']").val(user);
+                $('#no_user').css('opacity', '0')
+            }
+
+
+
+            $('#id_house').change(function () {
+                $.ajax({
+                    url: '{% url 'message_select_house' %}',
+                    type: 'GET',
+                    data: {id_house: $(this).val()},
+                    success: function (data) {
+                        // Очистить выбор в другом поле
+                        $('#id_apartment').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_apartment").append("<option value selected>Всем</option>")
+                        $.each(data.apart_data, function (key, value) {
+                            $('#id_apartment').append($("<option value=" + value.id + ">" + value.number + "</option>"));
+
+                        });
+                        $('#id_section').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_section").append("<option value selected>Всем</option>")
+                        $.each(data.section_data, function (key, value) {
+                            $('#id_section').append($("<option value=" + value.id + ">" + value.name + "</option>"));
+
+                        });
+                        $('#id_floor').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_floor").append("<option value selected>Всем</option>")
+                        $.each(data.floor_data, function (key, value) {
+                            $('#id_floor').append($("<option value=" + value.id + ">" + value.name + "</option>"));
+
+                        });
+
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            $('#id_text').summernote({
+                lang: 'ru-RU',
+                styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                ]
+            });
+
+        });
+
+    </script>
+
+
+{% endblock %}

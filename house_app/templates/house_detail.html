@@ -1,0 +1,103 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Дома</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'houses_list' %}">Дома</a></li>
+                {% if house.name %}<li class="active"><a>{{ house }}</a></li>
+                {% else %}<li class="active"><a>Дом №{{ house.id }}</a></li>
+                {% endif %}
+
+
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"></h3>
+                    <div class="box-tools">
+                        <a href="{% url 'house_update' house.id %}" class="btn btn-primary btn-sm">
+                            <span class="hidden-xs">Редактировать дом</span><i class="fa fa-pencil visible-xs"
+                                                                               aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-lg-4">
+                            <table class="table table-bordered table-striped table-view">
+                                <tbody>
+                                <tr>
+                                    <td>Название</td>
+                                    <td>{{ house.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Адрес</td>
+                                    <td>{{ house.address }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Секций</td>
+                                    <td>{{ house.section_set.all|length }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Этажей</td>
+                                    <td>{{ house.floor_set.all|length }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Пользователи</td>
+                                    <td>
+                                        {% if house.users.all %}{% for user in house.users.all %}
+                                            <p style="padding: 0; margin: 0"><b>{{ user.role.get_roles_display }}: </b>
+                                            <a href="{% url 'user_detail' user.id %}" style="text-decoration: none"> {{ user.first_name }} {{ user.last_name }}</a>
+                                        {% endfor %}
+                                        {% else %}<b>Не назначено</b>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-xs-12 col-lg-8">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-6">
+                                    <img src="{% if house.image_1 %}{{ house.image_1.url }}{% else %}{% static 'img/empty.jpg' %}{% endif %}"
+                                         class="img-responsive largeImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    <img src="{% if house.image_2 %}{{ house.image_2.url }}{% else %}{% static 'admin/dist/img/empty-photo.png' %}{% endif %}"
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    <img src="{% if house.image_3 %}{{ house.image_3.url }}{% else %}{% static 'admin/dist/img/empty-photo.png' %}{% endif %}"
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    <img src="{% if house.image_4 %}{{ house.image_4.url }}{% else %}{% static 'admin/dist/img/empty-photo.png' %}{% endif %}"
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    <img src="{% if house.image_5 %}{{ house.image_5.url }}{% else %}{% static 'admin/dist/img/empty-photo.png' %}{% endif %}"
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}
+{% block script %}
+
+
+
+{% endblock %}

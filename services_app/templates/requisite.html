@@ -1,0 +1,38 @@
+{% extends 'admin/base.html'%}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+    <section class="content-header">
+        <h1>Платежные реквизиты </h1>
+    </section>
+    <div class="my-box" style="min-height: 300px">
+        <form method="post" id="form">
+
+            {% csrf_token %}
+            <div class="row" style="margin: 8px">
+                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                <div class="col-xl-7" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.name.label }}</p>
+                    {{ form.name|add_class:'form-control' }}
+                </div>
+            </div>
+            <div class="row" style="margin: 8px; padding-top: 15px">
+                <div class="col-xl-7" style="padding: 0 10px">
+                    <p style="margin: 0; font-weight: 600; font-size: 15px">{{ form.information.label }}</p>
+                    {{ form.information|add_class:'form-control' }}
+                </div>
+            </div>
+            <div style="float: right; padding-right: 16px; padding-top: 35px">
+                <a href="{% url 'requisite' %}" class="btn btn-default">Отменить</a>
+                <button type="submit" class="btn btn-success">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load filters %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Редактирование страницы </h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li class="active">Главная страница</li>
+        </ul>
+    </section>
+
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Редактирование страницы "Главная"</h3>
+                        <div class="box-tools">
+                            <a href="" class="btn btn-default btn-sm updateSeoFiles">
+                                <span class="hidden-xs">Обновить robots и sitemap</span><i class="fa fa-refresh visible-xs" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <form action="" method="post" enctype="multipart/form-data">
+                        </form>
+                    <form id="w0" action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        <h3 class="page-header">Слайдер</h3>
+                        <div class="row site-main-slider">
+                            <div class="col-md-4">
+                                        <h4>Слайд 1</h4>
+                                        {% if main_form.instance.slider_1 %}
+                                        <img src="{{ main_form.instance.slider_1.url }}" alt="" class="img-responsive margin-bottom-15">
+                                         {% else %}
+                                         <img src="{% static '/img/empty.jpg' %}" alt="" class="img-responsive margin-bottom-15">
+                                         {% endif %}
+                                        <label class="control-label" for="">Рекомендуемый размер: (1920x800)</label>
+                                            {{ main_form.slider_1 }}
+                            </div>
+                            <div class="col-md-4">
+                                        <h4>Слайд 2</h4>
+                                        {% if main_form.instance.slider_2 %}
+                                        <img src="{{ main_form.instance.slider_2.url }}" alt="" class="img-responsive margin-bottom-15">
+                                         {% else %}
+                                         <img src="{% static '/img/empty.jpg' %}" alt="" class="img-responsive margin-bottom-15">
+                                         {% endif %}
+                                        <label class="control-label" for="">Рекомендуемый размер: (1920x800)</label>
+                                            {{ main_form.slider_2 }}
+                            </div>
+                            <div class="col-md-4">
+                                        <h4>Слайд 3</h4>
+                                        {% if main_form.instance.slider_3 %}
+                                        <img src="{{ main_form.instance.slider_3.url }}" alt="" class="img-responsive margin-bottom-15">
+                                         {% else %}
+                                         <img src="{% static '/img/empty.jpg' %}" alt="" class="img-responsive margin-bottom-15">
+                                         {% endif %}
+                                        <label class="control-label" for="">Рекомендуемый размер: (1920x800)</label>
+                                            {{ main_form.slider_3 }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="page-header">Краткая информация</h3>
+
+                                <label class="control-label" for="">Заголовок</label>
+                                    {{ main_form.header}}
+
+
+                                <label class="control-label" for="">Краткий текст</label>
+                                {{ main_form.description}}
+
+
+                                {{ main_form.show_url}} <label>Показать ссылки на приложения</label>
+
+
+                                </div>
+                            </div>
+
+
+                        <div class="row near-img">
+                            <div class="col-xs-12">
+                                <h3 class="page-header">Рядом с нами</h3>
+                            </div>
+                            {{ block_formset.management_form }}
+                            {% for form in block_formset %}
+                            {{ form.id }}
+                                <div class="col-md-4">
+                                    <h4>Блок {{ form.prefix|to_int }}</h4>
+                                    {% if form.instance.image %}
+                                        <img src="{{ form.instance.image.url }}" alt="" class="img-responsive margin-bottom-15">
+                                         {% else %}
+                                         <img src="{% static 'dist/img/empty.jpg' %}" alt="" class="img-responsive margin-bottom-15">
+                                         {% endif %}
+                                        <label class="control-label" for="">Рекомендуемый размер: (1000x600)</label>
+                                            {{ form.image }}
+
+
+                                        <label class="control-label" for="">Заголовок блока</label>
+                                        {{ form.header }}
+
+
+                                        <label class="control-label" for="websitehomefeature-0-description">Описание</label>
+                                        {{ form.description }}
+                                </div>
+                            {% endfor%}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="page-header">Настройки SEO</h3>
+
+                                    <label class="control-label" for="">Title</label>
+                                    {{ seo_form.titles }}
+                                    <label class="control-label" for="w">Description</label>
+                                    {{ seo_form.descriptions }}
+
+
+                                    <label class="control-label" for="">Keywords</label>
+                                    {{ seo_form.keywords }}
+
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                <div class="form-group">
+                                    <a href="{% url 'main_page' %}" class="btn btn-default">Отменить</a>
+                                    <button type="submit" class="btn btn-success">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $('.description').summernote({
+             lang:'ru-RU',
+             styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+            ]
+        });
+        });
+    </script>
+{% endblock %}
+
+
+

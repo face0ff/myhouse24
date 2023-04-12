@@ -1,0 +1,193 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Лицевые счета </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'accounts_list' %}">Лицевые счета</a></li>
+                <li><a href="{% url 'account_detail' account.id %}">Лицевой счет №{{ account.number }}</a></li>
+                <li class="active">Редактирование</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+
+            <form id="form" method="post">
+                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xs-12 col-md-7 col-lg-6">
+                        <div class="page-header-spec">
+                            <div class="form-group field-account-uid required">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        №
+                                    </div>
+                                    {{ form.number }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group field-account-status">
+                                    <label class="control-label" for="account-status">Статус</label>
+                                    <select id="status" class="form-control" name="status">
+                                        <option value="active">Активен</option>
+                                        <option value="inactive">Неактивен</option>
+                                    </select>
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="house">Дом</label>
+                                    {{ form.houses }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="section">Секция</label>
+                                    {{ form.section }}
+                                </div>
+                                <div class="form-group field-account-flat_id">
+                                    <label class="control-label" for="apartment">Квартира</label>
+                                    {{ form.apartment }}
+                                    {{ form.errors }}
+                                    <div class="help-block"></div>
+                                </div>
+                                <p><b>Владелец:</b> <span id="name"><a
+                                        href="{% url 'owner_detail' account.id %}">{{ account.apartment.owner }}</a></span>
+                                </p>
+                                <p><b>Телефон:</b> <span id="telephone"><a
+                                        href="tel:{{ account.apartment.owner.telephone }}">{{ account.apartment.owner.telephone }}</a></span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="form-group">
+                                    <a href="{% url 'accounts_list' %}" class="btn btn-default">Отменить</a>
+                                    <button type="submit" class="btn btn-success">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+
+
+
+{% endblock %}
+{% block script %}
+    <script>
+
+        $(document).ready(function () {
+            $('#id_houses').change(function () {
+                $.ajax({
+                    url: '{% url 'select_account' %}',
+                    type: 'GET',
+                    data: {house_field: $(this).val()},
+                    success: function (data) {
+                        // Очистить выбор в другом поле
+                        $('#id_section').empty()
+                        $('#id_apartment').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_section").append("<option value selected>Выберите...</option>")
+                        $.each(data.section_data, function (key, value) {
+
+                            $('#id_section')
+                                .append($("<option value=" + value.id + ">" + value.name + "</option>"));
+                        });
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
+                        $.each(data.apartment_data, function (key, value) {
+                            $('#id_apartment')
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        });
+
+
+                    },
+                    error: (data) => {
+                        $('#id_section').empty()
+                        $('#id_apartment').empty()
+                        $('#name').empty()
+                        $('#name').text('не выбран')
+                        $('#telephone').empty()
+                        $('#telephone').text('не выбран')
+                        $("#id_section").append("<option value selected>Выберите...</option>")
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
+                    }
+
+                });
+            });
+        });
+        $(document).ready(function () {
+            $('#id_section').change(function () {
+                $.ajax({
+                    url: '{% url 'select_account' %}',
+                    type: 'GET',
+                    data: {section_field: $(this).val()},
+                    success: function (data) {
+                        // Очистить выбор в другом поле
+                        $('#id_apartment').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
+                        $.each(data.apartment_data, function (key, value) {
+                            $('#id_apartment')
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        });
+
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function () {
+            $('#id_apartment').change(function () {
+                $.ajax({
+                    url: '{% url 'select_account' %}',
+                    type: 'GET',
+                    data: {apartment_field: $(this).val()},
+                    success: function (data) {
+                        console.log(data.owners_data)
+                        // Очистить выбор в другом поле
+                        $('#name').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#name').append($('<a href="/admin/owner/' + data.owners_data.id + '">' + data.owners_data.first + ' ' + data.owners_data.last + '</a>'));
+                        $('#telephone').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#telephone').append($(' <a href="tel:' + data.owners_data.telephone + '">' + data.owners_data.telephone + '</a>'));
+
+
+                    }
+                });
+            });
+        });
+
+
+    </script>
+
+
+{% endblock %}
+$(document).ready(function () {
+$('#id_houses').trigger('change');
+})
+$('.select_account').select2({
+placeholder: 'Или выберите из списка...',
+width: '100%',
+language: {
+"noResults": function () {
+return 'Свободные лицевые счета отсутствуют.'
+}
+}
+})

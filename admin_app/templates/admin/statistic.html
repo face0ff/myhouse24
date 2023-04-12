@@ -1,0 +1,175 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block content%}
+    <div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            Статистика        </h1>
+
+            </section>
+
+    <section class="content">
+                <div class="row">
+    <div class="col-xs-12 col-sm-6">
+        <h2 class="page-header">В вашем обслуживании</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>46</h3>
+                <p>Домов</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-building"></i>
+            </div>
+            <a href="/admin/house/index" class="small-box-footer">
+                Перейти в дома <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-green">
+            <div class="inner">
+                <h3>20</h3>
+                <p>Активных владельцев</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-users"></i>
+            </div>
+            <a href="/admin/user/index" class="small-box-footer">
+                Перейти к владельцам <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-yellow">
+            <div class="inner">
+                <h3>14</h3>
+                <p>Заявок мастера в работе</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-wrench"></i>
+            </div>
+            <a href="/admin/master-request/index" class="small-box-footer">
+                Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>140</h3>
+                <p>Квартир</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-key"></i>
+            </div>
+            <a href="/admin/flat/index" class="small-box-footer">
+                Перейти в квартиры <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-green">
+            <div class="inner">
+                <h3>87</h3>
+                <p>Лицевых счетов</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-child"></i>
+            </div>
+            <a href="/admin/account/index" class="small-box-footer">
+                Перейти к счетам <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6 col-xs-12">
+        <div class="small-box bg-yellow">
+            <div class="inner">
+                <h3>36</h3>
+                <p>Новых заявок мастера</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-user-plus"></i>
+            </div>
+            <a href="/admin/master-request/index" class="small-box-footer">
+                Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-8 col-md-7 col-xs-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">График погашения квитанций, грн</h3>
+            </div>
+            <div class="box-body">
+                <div class="chart">
+                    <canvas id="barChart" style="height: 201px;"></canvas>
+                    <div id="barChart-legend" class="text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-5 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-red"><i class="fa fa-money"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Задолженность по счетам, грн</span>
+                <span class="info-box-number">353 217.10</span>
+            </div>
+        </div>
+        <div class="info-box">
+            <span class="info-box-icon bg-blue"><i class="fa fa-money"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Баланс по счетам, грн</span>
+                <span class="info-box-number">460 018.62</span>
+            </div>
+        </div>
+        <div class="info-box">
+            <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Состояние кассы, грн</span>
+                <span class="info-box-number">303 691.94</span>
+            </div>
+        </div>
+<!--        <div class="info-box">
+            <span class="info-box-icon bg-green"><i class="fa fa-cog"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Задолженность за месяц, грн</span>
+                <span class="info-box-number">0.00</span>
+            </div>
+        </div>
+        <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="fa fa-cog"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Задолженность за квартал, грн</span>
+                <span class="info-box-number">70 880.50</span>
+            </div>
+        </div>-->
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">График приходов и расходов по кассе, грн</h3>
+            </div>
+            <div class="box-body">
+                <div class="chart">
+                    <canvas id="barChart2" style="height: 230px;"></canvas>
+                    <div id="barChart2-legend" class="text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </section>
+
+{% endblock%}
+

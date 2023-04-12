@@ -1,0 +1,204 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Новый тариф</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'meter_list' %}">Новое показание</a></li>
+                <li class="active">Новое показание</li>
+            </ul>
+        </section>
+        <div style="padding-left: 1%">
+            <form id="create_meter_data" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xs-12 col-md-7 col-lg-6">
+                        <div class="page-header-spec">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        №
+                                    </div>
+
+                                    {{ form.number|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <span class="label-mid">от</span>
+                            <div class="form-group">
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                    {{ form.date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    {{ form.errors }}
+                                    <label class="control-label">Дом</label>
+                                    {{ form.house }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Секция</label>
+                                    {{ form.section }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Квартира</label>
+                                    {{ form.apartment }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Счетчик</label>
+                                    {{ form.meter|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label">Статус</label>
+                                    {{ form.status|add_class:"form-control" }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Показания счетчика</label>
+                                    {{ form.expense|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="form-group">
+                                    <a href="{% url 'meter_list' %}"
+                                       class="btn btn-default margin-bottom-15">Отменить
+                                    </a>
+                                    <button type="submit"
+                                            class="btn btn-success margin-bottom-15"
+                                            name="action_save">
+                                        Сохранить
+                                    </button>
+                                    <button type="submit"
+                                            class="btn btn-success margin-bottom-15 bg-green-active"
+                                            name="action_save_add">
+                                        Сохранить и добавить новые показания
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+    // AJAX запрос
+        $(document).ready(function(){
+            $('#house_field').change(function(){
+                $.ajax({
+                    url: '{% url 'select_field' %}',
+                    type: 'GET',
+                    data: {house_field: $(this).val()},
+                    success: function(data) {
+                        // Очистить выбор в другом поле
+                        $('#section_field').empty()
+                        $('#apartment_field').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#section_field").append("<option value selected>Выберите...</option>")
+                        $.each(data.section_data, function(key, value) {
+
+                            $('#section_field')
+                                .append($("<option value=" + value.id + ">" + value.name + "</option>"));
+                        });
+                        $("#apartment_field").append("<option value selected>Выберите...</option>")
+                        $.each(data.apart_data, function(key, value) {
+                            $('#apartment_field')
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        });
+
+                    }
+                });
+            });
+        });
+
+    // AJAX запрос
+        $(document).ready(function(){
+            $('#section_field').change(function(){
+                $.ajax({
+                    url: '{% url 'select_field' %}',
+                    type: 'GET',
+                    data: {section_field: $(this).val()},
+                    success: function(data) {
+                        // Очистить выбор в другом поле
+                        $('#apartment_field').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#apartment_field").append("<option value selected>Выберите...</option>")
+                        $.each(data.apartament_data, function(key, value) {
+                            $('#apartment_field').append($("<option value=" + value.id + ">" + value.number + "</option>"));
+
+                        });
+
+                    }
+                });
+            });
+        });
+        $(document).ready(function(){
+
+            if (window.location.href.split('/')[6]){
+                var update_id = window.location.href.split('/')[6]; // получаем индекс из ссылки
+                console.log(update_id)
+                $.ajax({
+                    url: '{% url 'select_field' %}', // адрес запроса
+                    type: 'GET', // тип запроса
+                    data: { update_id: update_id }, // данные для запроса
+                success: function(data) { // при удачном выполнении запроса
+                    // Очистить выбор в другом поле
+
+                    // Заполнить другое поле данными, полученными с сервера
+                    $.each(data.house_data, function(key, value) {
+
+                        $('#house_field').val(value.id)
+                        {#$("#house_field").trigger("change");#}
+
+
+                    });
+                    $.each(data.all_apart, function(key, value) {
+                        $('#apartment_field').val(value.id)
+                            .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        $('#section_field').val(value.id)
+                            .append($("<option value=" + value.id + ">" + value.section + "</option>"));
+
+
+                    });
+                    $.each(data.apartment_data, function(key, value) {
+                        $('#apartment_field').val(value.id)
+
+                        $('#section_field').val(value.id)
+
+
+
+                    });
+                    $.each(data.meter_data, function(key, value) {
+
+                        $('#id_meter').val(value.id)
+
+                    });
+                    $.each(data.number, function(key, value) {
+                         $('#id_number').val(value.id)
+                    });
+                }
+                });
+            }
+        })
+    </script>
+
+
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Счетчики</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'meter_list' %}">Показания </a></li>
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'meter_create' %}">Добавить показания</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'meter_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="w0" class="grid-view">
+
+                            <div class="box-body table-responsive no-padding">
+                                <form method="get" id="form">
+                                    <table class="table table-bordered table-hover table-striped linkedRow"
+                                           id="example">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 25%">Дом</th>
+                                            <th style="width: 17%; min-width: 200px">Секция</th>
+                                            <th style="width: 8%; min-width: 10px" class="sort-number"><span style="color: #72afd2" id="sort-number-span">№квартиры</span></th>
+                                            <th style="width: 17%; min-width: 150px">Счетчик</th>
+                                            <th style="width: 2%; min-width: 200px">Текущие показания</th>
+                                            <th style="width: 2%; min-width: 120px">Ед. изм.</th>
+                                            <th style="width: 80px; min-width: 80px"></th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <tr>
+{% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="house" id="house">
+                                                    <option hidden disabled selected value></option>
+                                                    {% for house in houses %}
+                                                        <option value="{{ house.id }}">{{ house.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control" name="section" id="section"
+                                                        {% if not sections %}{% endif %}>
+                                                    <option hidden disabled selected value></option>
+                                                    {% if sections %}
+                                                        {% for section in sections %}
+                                                            <option value="{{ section.id }}">{{ section.name }}</option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option value="" disabled selected hidden>Выберите дом</option>
+                                                    {% endif %}
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="input_number" id="input_number"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="meter" id="meter">
+                                                    <option hidden disabled selected value></option>
+                                                    {% for meter in meters %}
+                                                        <option value="{{ meter.id }}">{{ meter.main }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        {% for meter_reading in meter_readings %}
+                                            <tr data-meter="{{ meter_reading.meter.id }}"
+                                                    data-href="{% url 'meter_apartment_list' %}?apartment_id={{ meter_reading.apartment.id }}&service_id={{ meter_reading.meter.id }}"
+                                                    class="tr-link">
+                                                <td>
+                                                    {% for house in houses %}
+                                                        {% for section in house.section_set.all %}
+                                                            {% if section.id == meter_reading.apartment.section.id %}
+                                                                {{ house.name }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                </td>
+                                                <td>{{ meter_reading.apartment.section }}</td>
+                                                <td>{{ meter_reading.apartment.number }}</td>
+                                                <td>{{ meter_reading.meter }}</td>
+                                                <td style="background-color: #DFD5; font-weight: normal">{{ meter_reading.expense }}</td>
+                                                <td style="background-color: #DFD5; font-weight: normal">{{ meter_reading.meter.unit }}</td>
+                                                <td style="padding: 6px 5px 7px 4px">
+                                                    <div class="btn-group pull-right">
+                                                        <a class="btn btn-default btn-sm" target="_blank" rel="noopener noreferrer"
+                                                           href="{% url 'meter_create' %}?apartment_id={{ meter_readings.0.apartment.id}}&?service_id={{ meter_readings.0.meter.id}}"
+                                                           title="Снять новое показание счетчика"
+                                                           data-toggle="tooltip"><i class="fa fa-dashboard"></i>
+                                                        </a>
+                                                        <a class="btn btn-default btn-sm" target="_blank"
+                                                           href="{% url 'meter_apartment_list' %}?apartment_id={{ meter_reading.apartment.id }}"
+                                                           title="Открыть историю показаний для счетчика"
+                                                           data-toggle="tooltip"><i class="fa fa-eye"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                                        <input type="hidden" name="filter-number" value="" id="filter-number">
+                                    </table>
+                                    {% include "pagination.html" with page=meter_readings %}
+                                </form>
+                            </div>
+
+
+                            <div class="box-footer clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function(link){
+            link.addEventListener('click', function(){
+                window.location = this.dataset.href;
+            });
+        });
+
+            $('#input_number').attr('value', localStorage.input_number)
+            $('#house option[value="' + localStorage.house + '"]').prop('selected', true)
+            $('#section option[value="' + localStorage.section + '"]').prop('selected', true)
+            $('#meter option[value="' + localStorage.meter + '"]').prop('selected', true)
+            if (localStorage.number == 1) {
+                $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-desc"></i>')
+            }
+            if (localStorage.number == 0) {
+                $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-asc"></i>')
+            }
+
+
+
+            //filter data by input
+            $('#house').change(function () {
+                localStorage.house = $(this).val()
+                $('#form').submit()
+            })
+
+            $('#section').change(function () {
+                localStorage.section = $(this).val()
+                $('#form').submit()
+            })
+
+            $('#input_number').blur(function () {
+                localStorage.input_number = $(this).val()
+                $('#form').submit()
+            })
+
+            $('#meter').change(function () {
+                localStorage.meter = $(this).val()
+                $('#form').submit()
+            })
+
+
+            // sort data by click
+            $('.sort-number').click(function () {
+
+                if (localStorage.number == 1) {
+                    $('#sort-number-span').html('№квартиры <i class="fa-sort-alpha-desc"></i>')
+                    localStorage.number = 0
+                    $('#filter-number').attr('value', 0)
+                    $('#form').submit()
+
+                } else {
+                    $('#sort-number-span').html('№квартиры <i class="fa fa-sort-alpha-asc"></i>')
+                    localStorage.number = 1
+                    $('#filter-number').attr('value', 1)
+                    $('#form').submit()
+                }
+            })
+        $('#clear').on('click', function () {
+            localStorage.removeItem('house');
+            localStorage.removeItem('input_number');
+            localStorage.removeItem('section');
+            localStorage.removeItem('meter');
+
+
+        });
+
+    </script>
+{% endblock %}

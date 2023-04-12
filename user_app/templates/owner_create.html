@@ -1,0 +1,197 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Новый владелец </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owners_list' %}">Владельцы квартир</a></li>
+                <li class="active">Новый владелец</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-body">
+
+                    <form id="form" method="post" enctype="multipart/form-data">
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        {% csrf_token %}
+                        <input type="hidden" id="is_new_record" value="1">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="userAvatar">
+                                    <img class="img-circle pull-left img-responsive"
+                                         style="width: 160px; height: 160px;"
+                                         src="{% static 'img/empty.jpg' %}">
+                                    <div class="form-group field-userform-image">
+                                        <label class="control-label" for="avatar">Сменить изображение</label>
+                                        {{ form.avatar }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group field-userform-status">
+                                    <label class="control-label" for="status">Статус</label>
+                                    {{ form.status }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-uid">
+                                    <label class="control-label" for="user_id">ID</label>
+                                    {{ form.user_id }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group field-userform-lastname">
+                                    <label class="control-label" for="last_name">Фамилия</label>
+                                    {{ form.last_name }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-firstname">
+                                    <label class="control-label" for="first_name">Имя</label>
+                                    {{ form.first_name }}
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-middlename">
+                                    <label class="control-label" for="patronymic">Отчество</label>
+                                    {{ form.patronymic }}
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-birthdate">
+                                    <label class="control-label" for="birth_date">Дата рождения</label>
+                                    {{ form.birth_date }}
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group field-userform-note">
+                                    <label class="control-label" for="notes">О владельце (заметки)</label>
+                                    {{ form.notes }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <h2 class="page-header">Контактные данные</h2>
+                                <div class="form-group field-userform-phone">
+                                    <label class="control-label" for="telephone">Телефон</label>
+                                    {{ form.telephone }}
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-viber">
+                                    <label class="control-label" for="viber">Viber</label>
+                                    {{ form.viber }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-telegram">
+                                    <label class="control-label" for="telegram">Telegram</label>
+                                    {{ form.telegram }}
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-email required">
+                                    <label class="control-label" for="email">Email (логин)</label>
+                                    {{ form.email }}
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <h2 class="page-header">Изменить пароль</h2>
+                                <div class="form-group field-userform-password">
+                                    <label class="control-label" for="password1">Пароль</label>
+
+                                    <div class="input-group">
+                                        {{ form.password1|add_class:'form-control' }}
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-default generatePassword" type="button"
+                                                    onclick="generatePassword()">
+                                                Сгенерировать
+                                            </button>
+                                        </div>
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-primary showPassword" id="showPass">
+                                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-userform-password2">
+                                    <label class="control-label" for="password2">Повторить пароль</label>
+
+
+                                    {{ form.password2|add_class:'form-control' }}
+
+                                </div>
+                            </div>
+                        </div>
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error|escape }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            <p style="font-size: 14px; padding: 0; margin: 0">* Пароль должен содержать как минимум 8
+                                символов.</p>
+                            <p style="font-size: 14px; padding: 0; margin: 0">* Пароли должны совпадать.</p>
+                            <p style="font-size: 14px; padding: 0; margin: 0">* Пароль должен сожержать цифры,
+                                буквы.</p>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <a href="{% url 'owners_list' %}" class="btn btn-default">Отменить</a>
+                                <button type="submit" class="btn btn-success">Сохранить</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        let generatePassword = function () {
+            let randomstring = Math.random().toString(36).slice(-8);
+            $('#id_password1, #id_password2').val(randomstring);
+        }
+        $('#showPass').on('click', function () {
+            let inputText = $('#id_password1, #id_password2');
+            let inputType = inputText.prop('type');
+            if (inputType === 'password') {
+                inputText.prop('type', 'text');
+                $(this).children().removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                inputText.prop('type', 'password');
+                $(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+        $(function () {
+            $("#id_telephone").mask("+380(099) 999-99-99");
+        });
+    </script>
+
+
+{% endblock %}

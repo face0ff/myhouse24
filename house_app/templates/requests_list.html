@@ -1,0 +1,385 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Заявки вызова мастера</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'requests_list' %}">Заявки вызова мастера </a></li>
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'request_create' %}">Добавить показания</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'requests_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="w0" class="grid-view">
+
+                            <div class="box-body table-responsive no-padding">
+                                <form method="get" id="form">
+                                    <table class="table table-bordered table-hover table-striped linkedRow"
+                                           id="example">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 8%; min-width: 10px" class="sort-number"><span
+                                                    style="color: #72afd2" id="sort-number-span">№заявки</span></th>
+                                            <th style="width: 8%; min-width: 10px" class="sort-date"><span
+                                                    style="color: #72afd2" id="sort-date-span">Удобное время</span></th>
+                                            <th style="width: 8%; min-width: 10px" class="sort-master"><span
+                                                    style="color: #72afd2" id="sort-master-span">Тип мастера</span></th>
+                                            <th style="width: 25%">Описание</th>
+                                            <th style="width: 17%; min-width: 200px">Квартира</th>
+                                            <th style="width: 17%; min-width: 150px">Владелец</th>
+                                            <th style="width: 17%; min-width: 150px">Телефон</th>
+                                            <th style="width: 2%; min-width: 200px">Мастер</th>
+                                            <th style="width: 2%; min-width: 120px">Статус</th>
+                                            <th style="width: 80px; min-width: 80px"></th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <tr>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="number" id="number"></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="input_date" id="input_date"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="input_type" id="input_type">
+                                                    <option hidden disabled selected value></option>
+                                                    <option value="electric">Электрик</option>
+                                                    <option value="plumber">Сантехник</option>
+                                                    <option value="any">Любой специалист</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="description" id="description"></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="apartment" id="apartment"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="owner" id="owner">
+                                                    <option hidden disabled selected value></option>
+                                                    {% for owner in owners %}
+                                                        <option value="{{ owner.id }}">{{ owner.last_name }} {{ owner.first_name }} {{ owner.patronymic }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="telephone" id="telephone"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="master" id="master">
+                                                    <option hidden disabled selected value></option>
+                                                    {% for master in masters %}
+                                                        <option value="{{ master.id }}">{{ master.role.get_roles_display }}
+                                                            - {{ master.last_name }} {{ master.first_name }} {{ master.patronymic }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="status" id="status">
+                                                    <option hidden disabled selected value></option>
+                                                    <option value="new">Новое</option>
+                                                    <option value="in_progress">В работе</option>
+                                                    <option value="complete">Выполнено</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+
+                                        {% for request in request_list %}
+                                            <tr data-href="{% url 'request_detail' request.id %}" class="tr-link">
+                                                <td>
+                                                    {{ request.id }}</td>
+                                                <td>{{ request.date|date:"d.m.Y" }} -
+                                                    {{ request.time|date:"H:i" }}</td>
+                                                <td>{{ request.get_type_master_display }}</td>
+                                                <td>{{ request.description }}</td>
+                                                <td>
+                                                    <a href="{% url 'apartment_detail' request.apartment.id %}">кв. {{ request.apartment.number }},
+                                                        {% for house in houses %}
+                                                            {% for section in house.sections.all %}
+                                                                {% if section == request.apartment.section %}
+                                                                    {{ house.name }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </a>
+                                                </td>
+                                                <td>{% if request.apartment.owner %}
+                                                    <a href="{% url 'owner_detail' request.apartment.owner.id %}">{{ request.apartment.owner.last_name }} {{ request.apartment.owner.first_name }} {{ request.apartment.owner.patronymic }}</a>{% else %}
+                                                    (Нет владельца){% endif %}</td>
+                                                <td>{% if request.apartment.owner.telephone %}
+                                                    {{ request.apartment.owner.telephone }}{% else %}(Не
+                                                    указан){% endif %}</td>
+                                                <td>{% if request.master %}
+                                                    <a href="{% url 'user_detail' request.master.id %}">{{ request.master.first_name }} {{ request.master.last_name }}</a>{% else %}
+                                                    (Не назначен){% endif %}</td>
+                                                <td>
+                                                    {% if request.status == 'new' %}
+                                                        <small class="btn btn-sm btn-warning status">Новое</small>
+                                                    {% elif request.status == 'done' %}
+                                                        <small class="btn btn-sm btn-success status">Выполнено</small>
+                                                    {% elif request.status == 'in_work' %}
+                                                        <small class="btn btn-sm btn-primary status">В работе</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td style="padding: 6px 5px 7px 4px">
+                                                    <div class="btn-group pull-right">
+                                                        <a class="btn btn-default btn-sm"
+                                                           href="{% url 'request_update' request.id %}"
+                                                           title="Редактировать" data-toggle="tooltip"><i
+                                                                class="fa fa-pencil"></i></a>
+                                                        <a class="delete btn btn-default btn-sm"
+                                                           href="{% url 'request_delete' request.pk %}"
+                                                           title="Удалить" data-toggle="tooltip" data-pjax="0"
+                                                           data-method="post"
+                                                           data-confirm="Вы уверены, что хотите удалить этот элемент?">
+                                                            <i class="fa fa-trash"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="filter-number" value="" id="filter-number">
+                                    <input type="hidden" name="filter-date" value="" id="filter-date">
+                                    <input type="hidden" name="filter-master" value="" id="filter-master">
+                                    </table>
+                                    {% include "pagination.html" with page=request_list %}
+                                </form>
+                            </div>
+
+
+                            <div class="box-footer clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function (link) {
+            link.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
+
+        $('#clear').on('click', function () {
+            localStorage.removeItem('input_date');
+            localStorage.removeItem('input_number');
+            localStorage.removeItem('apartment');
+            localStorage.removeItem('description');
+            localStorage.removeItem('telephone');
+            localStorage.removeItem('input_type');
+            localStorage.removeItem('master');
+            localStorage.removeItem('owner');
+            localStorage.removeItem('status');
+
+        });
+
+
+        $('input[name="input_date"]').daterangepicker({
+            opens: 'center',
+            autoUpdateInput: false,
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+        $('input[name="input_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+        });
+        $('input[name="input_date"]').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+        // loading init data if exist
+
+        $('#input_number').attr('value', localStorage.input_number)
+        $('#input_date').attr('value', localStorage.input_date)
+        $('#description').attr('value', localStorage.description)
+        $('#apartment').attr('value', localStorage.apartment)
+        $('#telephone').attr('value', localStorage.telephone)
+        $('#input_type option[value="' + localStorage.input_type + '"]').prop('selected', true)
+        $('#owner option[value="' + localStorage.owner + '"]').prop('selected', true)
+        $('#master option[value="' + localStorage.master + '"]').prop('selected', true)
+        $('#status option[value="' + localStorage.status + '"]').prop('selected', true)
+        if (localStorage.number == 1) {
+            $('#sort-number-span').html('№ <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.number == 0) {
+            $('#sort-number-span').html('№ <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.date == 1) {
+            $('#sort-date-span').html('Удобное время <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.date == 0) {
+            $('#sort-date-span').html('Удобное время <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.type == 1) {
+            $('#sort-master-span').html('Тип мастера <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.type == 0) {
+            $('#sort-master-span').html('Тип мастера <i class="fa fa-sort-alpha-desc"></i>')
+        }
+
+
+        //filter data by input
+        $('#input_number').blur(function () {
+            localStorage.input_number = $(this).val()
+            $('#form').submit()
+        })
+
+        $(function () {
+            $('.applyBtn').click(function () {
+                setTimeout(function () {
+                    localStorage.input_date = $('#input_date').val()
+                    $('#form').submit()
+                }, 100)
+            })
+        })
+
+        $('#input_type').change(function () {
+            localStorage.input_type = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#description').blur(function () {
+            localStorage.description = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#apartment').blur(function () {
+            localStorage.apartment = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#owner').change(function () {
+            localStorage.owner = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#telephone').blur(function () {
+            localStorage.telephone = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#master').change(function () {
+            localStorage.master = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#status').change(function () {
+            localStorage.status = $(this).val()
+            $('#form').submit()
+        })
+
+
+        // sort data by click
+        $('.sort-number').click(function () {
+            if (localStorage.number == 1) {
+                $('#sort-number-span').html('№ <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.number = 0
+                $('#filter-number').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-number-span').html('№ <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.number = 1
+                $('#filter-number').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-date').click(function () {
+            if (localStorage.date == 1) {
+                $('#sort-date-span').html('Удобное время <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 0
+                $('#filter-date').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-date-span').html('Удобное время <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 1
+                $('#filter-date').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-master').click(function () {
+            if (localStorage.type == 1) {
+                $('#sort-master-span').html('Тип мастера <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.type = 0
+                $('#filter-master').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-master-span').html('Тип мастера <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.type = 1
+                $('#filter-master').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+        $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'requests_list' %}');
+            } else {
+                window.location.replace('{% url 'requests_list' %}');
+                return false
+            }
+        });
+    </script>
+{% endblock %}

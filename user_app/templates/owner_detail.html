@@ -1,0 +1,113 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Профиль владельца </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owners_list' %}">Владельцы квартир</a></li>
+                <li class="active">Профиль владельца</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"></h3>
+                    <div class="box-tools">
+                        <a href="http://myhouse24.avada-media.ua/cabinet/?token=lojuY98RyJtnTM6Q4dftvI1gfZz7RU4C"
+                           target="_blank" class="btn btn-default btn-sm"><i class="fa fa-external-link"></i> Перейти в
+                            кабинет</a>
+                        <a href="{% url 'owner_update' object.id %}" class="btn btn-primary btn-sm">
+                            <span class="hidden-xs">Редактировать профиль</span><i class="fa fa-pencil visible-xs"
+                                                                                   aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="userAvatar">
+                                {% if object.avatar %}
+                                    <img class="img-circle img-responsive"
+                                         src="{{ object.avatar.url }}"
+                                         style="width:160px; height: 160px;"
+                                         alt="profile">
+                                {% else %}
+                                    <img class="img-circle img-responsive"
+                                         src="{% static 'img/empty.jpg' %}"
+                                         style="width:160px; height: 160px;"
+                                         alt="profile">
+                                {% endif %}
+                            </div>
+                            <div class="table-responsive no-padding">
+                                <table class="table table-bordered table-striped table-view">
+                                    <tbody>
+                                    <tr>
+                                        <td>Статус</td>
+                                        <td><small class="label label-danger">{{ object.get_status_display }}</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>ID</td>
+                                        <td>{{ object.user_id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Фамилия</td>
+                                        <td>{{ object.last_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Имя</td>
+                                        <td>{{ object.first_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Отчество</td>
+                                        <td>{{ object.patronymic }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Дата рождения</td>
+                                        <td>{{ object.birth_date }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>О владельце (заметки)</td>
+                                        <td>{{ object.notes }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Телефон</td>
+                                        <td>
+                                            {{ object.telephone }}                                   <!--</a>-->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Viber</td>
+                                        <td>{{ object.viber }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Telegram</td>
+                                        <td>{{ object.telegram }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email</td>
+                                        <td>
+                                            {{ object.email }}                                   <!--</a>-->
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+
+{% endblock %}

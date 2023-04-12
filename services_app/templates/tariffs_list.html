@@ -1,0 +1,115 @@
+{% extends 'admin/base.html'%}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Тарифы</h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li class="active">Тарифы</li>
+        </ul>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="pull-right margin-bottom">
+                    <a class="btn btn-success" href="{% url 'tariff_create' %}">Добавить тариф</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div id="w0" class="grid-view">
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-bordered table-hover table-striped linkedRow" id="example">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%" class="sort"><span style="color: #72afd2" id="sort-span">Название тарифа </span></th>
+            {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                                    <th>Описание тарифа</th>
+                                    <th>Дата редактирования</th>
+                                    <th style="width: 114px; min-width: 114px">&nbsp;</th>
+                                </tr>
+                            </thead>
+
+                                <tbody>
+                                {% for tariff in object_list %}
+                                    <tr data-href="{% url 'tariff_detail' tariff.pk %}" data-key="{{ tariff.pk }}">
+                                        <td>{{ tariff.title }}</td>
+                                        <td>{{ tariff.description }}</td>
+                                        <td>{{ tariff.date_edit }}</td>
+                                        <td>
+                                            <div class="btn-group pull-right">
+                                                <a class="btn btn-default btn-sm" href="{% url 'tariff_create' tariff.pk %}" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>
+                                                <a class="btn btn-default btn-sm" href="{% url 'tariff_update' tariff.pk %}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>
+                                                <a class="delete btn btn-default btn-sm" href="{% url 'tariff_delete' tariff.pk %}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                               {% endfor %}
+                                </tbody>
+                            <form method="get" id="form">
+
+                                <input type="hidden" name="filter" value="" id="filter">
+                            </form>
+
+                            </table>
+                        </div>
+                        <div class="box-footer clearfix">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+{% block script %}
+
+    <script>
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function(link){
+            link.addEventListener('click', function(){
+                window.location = this.dataset.href;
+            });
+        });
+
+         $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'tariffs' %}');
+            } else {
+                window.location.replace('{% url 'tariffs' %}');
+                return false
+            }
+        });
+
+        $('.sort').click(function () {
+            if (localStorage.tariff == 1) {
+                $('#sort-span').html('Название тарифа <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.tariff = 0
+                $('#filter').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-span').html('Название тарифа <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.tariff = 1
+                $('#filter').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+
+        if (localStorage.tariff == 1) {
+            $('#sort-span').html('Название тарифа <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        if (localStorage.tariff == 0) {
+            $('#sort-span').html('Название тарифа <i class="fa fa-sort-alpha-desc"></i>')
+        }
+
+    </script>
+{% endblock %}

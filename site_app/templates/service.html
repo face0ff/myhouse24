@@ -1,0 +1,58 @@
+{% extends "base_site.html" %}
+{% load static %}
+{% load static %}
+{% block content %}
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index'%}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Сервис</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="services">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h1>Наши услуги</h1>
+                </div>
+            </div>
+        </div>
+            <div class="row">
+                {% for item in blockk %}
+                    <div class="col-xs-12 col-md-7">
+                        <img src="{{ item.image.url}}" class="img-responsive img-thumbnail" alt="">
+                    </div>
+                    <div class="col-xs-12 col-md-5">
+                        <div class="page-header">
+                            <h3>{{ item.header }}</h3>
+                        </div>
+                        <p>
+                            {% autoescape off %}{{ item.description }}{% endautoescape %}
+                            
+                        </p>
+                  </div>
+                {% endfor%}
+            </div>
+        </div>
+</div>
+
+<div class="paginations">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <nav aria-label="Page navigation">
+                                    </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+{% endblock %}

@@ -1,0 +1,333 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Счетчики</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'meter_list' %}">Показания </a></li>
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success"
+                           href="{% url 'meter_create' %}?apartment_id={{ meter_readings.0.apartment.id }}&?service_id={{ meter_readings.0.meter.id }}">Добавить
+                            показания</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'meter_apartment_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                                         aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="w0" class="grid-view">
+
+                            <div class="box-body table-responsive no-padding">
+                                <form method="get" id="form">
+
+                                    <input type="hidden" name="apartment_id" id="apartment_id"
+                                           value="{{ apartment.id }}">
+                                    <table class="table table-hover table-striped table-responsive no-padding"
+                                           style="color: #333333; font-size: 14px; padding-bottom: 10px">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 10%">№</th>
+                                            <th style="width: 7%">Статус</th>
+                                            <th style="width: 7%" class="sort-date"><span style="color: #72afd2"
+                                                                                          id="sort-date-span">Дата </span>
+                                            </th>
+                                            <th style="width: 7%" class="sort-month"><span style="color: #72afd2"
+                                                                                           id="sort-month-span">Месяц </span>
+                                            </th>
+                                            <th style="width: 21%">Дом</th>
+                                            <th style="width: 16%">Секция</th>
+                                            <th style="width: 7%">№квартиры</th>
+                                            <th style="width: 11%">Счетчик</th>
+                                            <th style="width: 7%">Показания</th>
+                                            <th style="width: 7%">Ед. изм.</th>
+                                            <th style="width: 80px; min-width: 80px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="number" id="number"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="status" id="status">
+                                                    <option hidden disabled selected value></option>
+                                                    <option value="new">Новый</option>
+                                                    <option value="accounted">Учтено</option>
+                                                    <option value="paid">Учтено и оплачено</option>
+                                                    <option value="zero">Нулевое</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="input_date" id="input_date"></td>
+                                            <td>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" disabled>
+                                                    <option>
+                                                        {% for house in houses %}
+                                                            {% for section in house.sections.all %}
+                                                                {% if section.id == meter_reading.apartment.section.id %}
+                                                                    {{ house.name }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" disabled>
+                                                    <option>{{ apartment.section }}</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" disabled>
+                                                    <option>{{ apartment.number }}</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="meter" id="meter">
+                                                    {% if meters.count == 1 %}
+                                                        {% for meter in meters %}
+                                                            <option value="{{ meter.id }}">{{ meter.main }}</option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option hidden disabled selected value></option>
+                                                        {% for meter in meters %}
+                                                            <option value="{{ meter.id }}">{{ meter.main }}</option>
+                                                        {% endfor %}
+                                                    {% endif %}
+
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"></td>
+                                            <td style="padding: 5px"></td>
+                                            <td style="padding: 5px"></td>
+                                        </tr>
+                                        {% for meter_reading in meter_readings %}
+
+                                            <tr data-href="{% url 'meter_detail' meter_reading.id %}"
+                                                class="tr-link">
+                                                <td>{{ meter_reading }}</td>
+                                                <td>
+                                                    {% if meter_reading.status == 'new' %}
+                                                        <small class="btn btn-sm btn-warning status">Новое</small>
+                                                    {% elif meter_reading.status == 'accounted' %}
+                                                        <small class="btn btn-sm btn-success status">Учтено</small>
+                                                    {% elif meter_reading.status == 'paid' %}
+                                                        <small class="btn btn-sm btn-success status">Оплачено</small>
+                                                    {% elif meter_reading.status == 'zero' %}
+                                                        <small class="btn btn-sm btn-primary status">Нулевое</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ meter_reading.date|date:"d.m.Y" }}</td>
+                                                <td>{{ meter_reading.date|date:"F Y" }}</td>
+                                                <td>
+                                                    {% for house in houses %}
+                                                        {% for section in house.section_set.all %}
+                                                            {% if section.id == meter_reading.apartment.section.id %}
+                                                                {{ house.name }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                </td>
+                                                <td>{{ meter_reading.apartment.section }}</td>
+                                                <td>{{ meter_reading.apartment.number }}</td>
+                                                <td>{{ meter_reading.meter }}</td>
+                                                <td>{{ meter_reading.expense }}</td>
+                                                <td>{{ meter_reading.meter.unit }}</td>
+                                                <td style="padding: 6px 5px 7px 4px">
+                                                    <div class="btn-group pull-right">
+                                                        <a class="btn btn-default btn-sm"
+                                                           href="{% url 'meter_update' meter_reading.id %}"
+                                                           title="Редактировать" data-toggle="tooltip"><i
+                                                                class="fa fa-pencil"></i></a>
+                                                        <a class="delete btn btn-default btn-sm"
+                                                           href="{% url 'meter_delete' meter_reading.pk %}"
+                                                           title="Удалить" data-toggle="tooltip" data-pjax="0"
+                                                           data-method="post"
+                                                           data-confirm="Вы уверены, что хотите удалить этот элемент?">
+                                                            <i class="fa fa-trash"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <!-- Modal -->
+
+                                        {% endfor %}
+
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="filter-date" value="" id="filter-date">
+                                    {% include "pagination.html" with page=meter_readings %}
+                                </form>
+                            </div>
+
+
+                            <div class="box-footer clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+    <script>
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function (link) {
+            link.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
+
+        $('#meter option[value="' + localStorage.meter + '"]').prop('selected', true)
+        $('#number').attr('value', localStorage.number)
+        $('#input_date').attr('value', localStorage.input_date)
+        $('#status option[value="' + localStorage.status + '"]').prop('selected', true)
+
+
+        $('#meter').change(function () {
+            localStorage.meter = $(this).val()
+            $('#form').submit()
+        })
+        $('#number').blur(function () {
+            localStorage.number = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#status').change(function () {
+            localStorage.status = $(this).val()
+            $('#form').submit()
+        })
+        if (localStorage.date == 1) {
+            $('#sort-date-span').html('Дата <i class="fa fa-sort-alpha-desc"></i>')
+            $('#sort-month-span').html('Месяц <i class="fa fa-sort-alpha-desc"></i>')
+        }
+        if (localStorage.date == 0) {
+            $('#sort-date-span').html('Дата <i class="fa fa-sort-alpha-asc"></i>')
+            $('#sort-month-span').html('Месяц <i class="fa fa-sort-alpha-asc"></i>')
+        }
+        $('#clear').on('click', function () {
+
+            localStorage.removeItem('meter');
+            localStorage.removeItem('status');
+            localStorage.removeItem('number');
+            localStorage.removeItem('input_date');
+            localStorage.removeItem('date');
+
+        });
+        $(document).on('click', '.delete', function (e) {
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'meter_apartment_list' %}');
+            } else {
+                window.location.replace('{% url 'meter_apartment_list' %}');
+                return false
+            }
+        });
+        $(function () {
+            $('.applyBtn').click(function () {
+                setTimeout(function () {
+                    localStorage.input_date = $('#input_date').val()
+                    $('#form').submit()
+                }, 100)
+            })
+        })
+        $('input[name="input_date"]').daterangepicker({
+            opens: 'center',
+            autoUpdateInput: false,
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+
+        $('input[name="input_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+        $('input[name="input_date"]').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+
+
+        $('.sort-date').click(function () {
+            if (localStorage.date == 1) {
+                $('#sort-date-span').html('Дата <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 0
+                $('#filter-date').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-date-span').html('Дата <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 1
+                $('#filter-date').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+
+        $('.sort-month').click(function () {
+            if (localStorage.date == 1) {
+                $('#sort-mouth-span').html('Месяц <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 0
+                $('#filter-date').attr('value', 0)
+                $('#form').submit()
+            } else {
+                $('#sort-mouth-span').html('Месяц <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 1
+                $('#filter-date').attr('value', 1)
+                $('#form').submit()
+            }
+        })
+    </script>
+{% endblock %}

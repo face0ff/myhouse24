@@ -1,0 +1,302 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <style>
+
+    </style>
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Квитанции на оплату </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'invoices_list' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Квитанции на оплату</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <!--<div class="col-xs-12 col-sm-6">-->
+                <!--<h2 class="page-header">Квитанции</h2>-->
+                <!--</div>-->
+                <div class="col-xs-12 col-lg-9">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-green overflow-hidden">
+                                <div class="inner">
+                                    <h3>{% if cashbox %}{{ cashbox }}{% else %}0,00{% endif %} грн</h3>
+                                    <p>Состояние кассы</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-blue overflow-hidden">
+                                <div class="inner">
+                                    <h3>{% if balance %}{{ balance }}{% else %}0,00{% endif %} грн</h3>
+                                    <p>Баланс по счетам</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-red overflow-hidden">
+                                <div class="inner">
+                                    <h3>{% if debt %}{{ debt }}{% else %}0,00{% endif %} грн</h3>
+                                    <p>Задолженность по счетам</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            Выберите действие <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'invoice_create' %}">Создать общую квитанцию</a></li>
+                            <!--                <li><a href="#!">Создать квитанцию на оплату за ЭЭ</a></li>
+                                            <li><a href="#!">Создать квитанцию на оплату за ГАЗ</a></li>-->
+                            <li><a href="#" class="delete-many">Удалить</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="#" class="btn btn-default btn-sm">
+                                    <span id="clearFilters" class="hidden-xs">Очистить</span><i
+                                        class="fa fa-eraser visible-xs"
+                                        aria-hidden="true"></i>
+
+                                </a>
+                            </div>
+                        </div>
+
+                        <div id="w0" class="grid-view">
+                            <div class="box-body table-responsive no-padding">
+
+                                <table id="InvoicesTable"
+                                       class="table table-bordered table-hover table-striped linkedRow"
+                                       style="width:100%">
+
+                                    <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="delete_all" class="delete_all" value=""></th>
+                                        <th style="width: 5%">Number</th>
+                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
+                                                                                    id="sort-name-span">Дата </span>
+                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
+                                                                                    id="sort-name-span">Месяц </span>
+                                        <th>status</th>
+                                        <th>apartment</th>
+                                        <th>owner</th>
+                                        <th>done</th>
+                                        <th>Amount</th>
+                                        <th style="width: 10%"></th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th><input type="text" class="form-control" id="filterNumber"/></th>
+                                        <th><input type="text" class="form-control" id="filterDateDay"/></th>
+                                        <th><input type="text" class="form-control" id="filterDateMonth"/></th>
+                                        <th>
+                                            <select class="form-control" name="status" id="filterStatus">
+                                                <option hidden disabled selected value></option>
+                                                <option value="paid">Оплачена</option>
+                                                <option value="p_paid">Частично оплачена</option>
+                                                <option value="unpaid">Неоплачена</option>
+                                            </select>
+                                        </th>
+                                        <th><input type="text" class="form-control" id="filterApartment"/></th>
+                                        <th>
+
+                                            <select class="select_invoice form-control input-xl" id="filterOwner">
+                                                <option hidden disabled selected value></option>
+                                                {% for invoice in object_list %}
+                                                    <option value="{{ invoice.apartment.owner.id }}">{{ invoice.apartment.owner }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </th>
+                                        <th><select class="form-control" name="done" id="filterDone">
+                                            <option hidden disabled selected value></option>
+                                            <option value="True">Проведена</option>
+                                            <option value="False">Непроведена</option>
+                                        </select></th>
+                                        <th><input type="text" class="form-control" id="filterAmount"/></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for invoice in object_list %}
+                                        <tr>
+
+                                            <td></td>
+                                            <td>{{ invoice.number }}</td>
+                                            <td>{{ invoice.date.day }}</td>
+                                            <td>{{ invoice.date.month }}</td>
+                                            <td>{{ invoice.status }}</td>
+                                            <td>{{ invoice.apartment }}</td>
+                                            <td>{{ invoice.apartment.owner }}</td>
+                                            <td>{{ invoice.done }}</td>
+                                            <td>{{ invoice.amount }}</td>
+                                            <td></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="pagination">
+                            <!-- Pagination goes here -->
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // ...
+
+            // Handle click on row link
+            $('#InvoicesTable tbody').on('click', 'tr', function () {
+                var url = $(this).attr('href');;
+                console.log(url)
+                window.location.href = url;
+            });
+        });
+
+        $(document).ready(function () {
+
+            // Initialize DataTable
+            $("#InvoicesTable").DataTable({
+
+
+                processing: true,
+                serverSide: true,
+                searching: false,
+                paging: false,
+                ordering: false,
+                info: false,
+
+
+                ajax: {
+                    url: "{% url 'select_invoices' %}",
+                    type: "GET",
+
+                    data: function (d) {
+                        d.filterNumber = $("#filterNumber").val();
+                        d.filterDateDay = $("#filterDateDay").val();
+                        d.filterDateMonth = $("#filterDateMonth").val();
+                        d.filterStatus = $("#filterStatus").val();
+                        d.filterApartment = $("#filterApartment").val();
+                        d.filterOwner = $("#filterOwner").val();
+                        d.filterDone = $("#filterDone").val();
+                        d.filterAmount = $("#filterAmount").val();
+
+                    }
+                },
+                columns: [
+                    {data: null},
+                    {data: "number"},
+                    {data: "day"},
+                    {data: "month"},
+                    {data: "status"},
+                    {data: "apartment"},
+                    {data: "owner"},
+                    {data: "done"},
+                    {data: "amount"},
+                    {data: null}
+                ],
+                columnDefs: [
+                    {
+                        targets: 0, // выбираем первую колонку (нумерация начинается с 0)
+
+                        "render": function (data, type, row) {
+                            return '<input type="checkbox" class="delete" value="' + data.id + '">';
+                        },
+                        className: 'dt-body-center' // добавляем класс, чтобы выровнять чекбокс по центру ячейки
+                    },
+                    {
+                        targets: -1, // выбираем последнюю колонку
+
+                        render: function (data, type, row, meta) {
+                            var url_update = "{% url 'invoice_update' pk=0  %}".replace('0', data.id);
+                            var url_delete = "{% url 'invoice_delete' pk=0  %}".replace('0', data.id);
+                            return `<a class="btn btn-default btn-sm" href="{% url 'invoice_create' %}" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
+                                `<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
+                                `<a class="btn btn-default btn-sm" href="${url_delete}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>`;
+                        }
+                    },
+
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    var url_detail = "{% url 'invoice_detail' pk=0  %}".replace('0', data.id);
+                    $(row).attr('href', `${url_detail}`);
+                }
+            });
+
+            // Handle filter fields
+            $("#filterNumber, #filterDate, #filterDateDay, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount").on("keyup change", function () {
+                $("#InvoicesTable").DataTable().draw();
+            });
+
+            // Handle clear filters button
+            $("#clearFilters").on("click", function () {
+                $("#filterNumber, #filterDateDay, #filterDateMonth, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount").val("");
+                $("#InvoicesTable").DataTable().draw();
+            });
+        });
+
+        $('.select_invoice').select2({
+            placeholder: 'Или выберите из списка...',
+            allowClear: true,
+            width: '100%',
+
+            language: {
+                "noResults": function () {
+                    return 'Свободные лицевые счета отсутствуют.'
+                }
+            }
+        })
+
+
+    </script>
+{% endblock %}
+

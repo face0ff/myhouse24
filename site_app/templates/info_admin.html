@@ -1,0 +1,223 @@
+{% extends "admin/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Редактирование страницы </h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li class="active">О нас</li>
+        </ul>
+    </section>
+
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Редактирование страницы "О нас"</h3>
+                </div>
+                <div class="box-body">
+                <form id="w0" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                   <h3 class="page-header">Информация</h3>
+                    <div class="row">
+                        <div class="col-md-8">
+                        {{ info_form.header|as_crispy_field }}
+                        {{ info_form.text|as_crispy_field }}
+
+                   </div>
+
+                        <div class="col-md-4">
+                            <h4>Фото директора</h4>
+                                <img src="{{ info_form.instance.photo.url }}" alt="" class="margin-bottom-15 img-thumbnail">
+                            <label class="control-label" for="">Рекомендуемый размер: (250x310)</label>
+                            {{ info_form.photo }}
+                        </div>
+                    </div>
+                    <div class="row site-about-gallery">
+                        <div class="col-xs-12">
+                            <h3 class="page-header">Фотогалерея</h3>
+                        </div>
+                        {% for item in images %}
+                            <div class="col-xs-4 col-sm-2 text-center">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" alt="" class="margin-bottom-15 img-thumbnail">
+                                <div class="form-group margin-bottom-15">
+                                    <a href="{% url 'del_img' 'gal' item.id %}" class="delete" data-confirm="Удалить?" title="Удалить"><i class="fa fa-trash text-red" aria-hidden="true"></i></a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="col-xs-12">
+                        <label class="control-label" for="">Рекомендуемый размер: (1200x1200)</label>
+                            {{ gallery_form.image }}
+                        </div>
+                    </div>
+
+                    <h3 class="page-header">Дополнительная информация</h3>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            {{ info_form.adit_header|as_crispy_field }}
+                            {{ info_form.adit_text|as_crispy_field }}
+                        </div>
+
+                    </div>
+                    <div class="row site-about-gallery">
+                        <div class="col-xs-12">
+                            <h3 class="page-header">Дополнительная фотогалерея</h3>
+                        </div>
+                                                {% for item in adit_images %}
+                            <div class="col-xs-4 col-sm-2 text-center">
+                                {% if item.adit_image %}
+                                    <img src="{{ item.adit_image.url }}" alt="" class="margin-bottom-15 img-thumbnail">
+                                <div class="form-group margin-bottom-15">
+                                    <a href="{% url 'del_img' 'adit' item.id %}" class="delete"  data-confirm="Удалить?" title="Удалить"><i class="fa fa-trash text-red" aria-hidden="true"></i></a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="col-xs-12">
+                        <label class="control-label" for="">Рекомендуемый размер: (1200x1200)</label>
+                            {{ adit_gallery_form.adit_image }}
+                        </div>
+                    </div>
+
+
+
+                        <div class="row site-about-documents">
+                            <div class="col-xs-12">
+                                <h3 class="page-header">Документы</h3>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+
+                                {{ files_formset.management_form }}
+                                <div id="formset-form-list">
+                                    {% for form in files_formset %}
+                                        <div class="form-group formset_id">
+                                            {{ form.id }}
+                                        </div>
+                                        <div class="formset-form">
+                                            <a href="{% url 'del_img' 'file' form.id.value %}" class="delete"  data-confirm="Удалить?"><i class="fa fa-trash text-red pull-right"></i></a>
+                                            {% if form.instance.files %}
+
+                                                 <img src="{{ form.instance.files.url }}" style="width: 32px; margin-right: 10px;" aria-hidden="true">
+                                            {% else %}
+                                            <i class="fa fa-file-o fa-3x pull-left" style="width: 32px; margin-right: 10px;" aria-hidden="true"></i>
+                                            {% endif %}
+                                            <label for="">PDF, JPG (макс. размер 20 Mb)</label><br>
+                                            {{ form.files }}
+
+                                            {{ form.name|as_crispy_field }}
+
+                                        </div>
+                                    {% endfor%}
+                                </div>
+                                <div id="empty-form" class="hidden">
+                                    <a href="{% url 'del_img' 'file' files_formset.empty_form.id %}" class="delete"  data-confirm="Удалить?"><i class="fa fa-trash text-red pull-right"></i></a>
+                                     <i class="fa fa-file-o fa-3x pull-left" style="width: 32px; margin-right: 10px;" aria-hidden="true"></i>
+
+                                    <label>PDF, JPG (макс. размер 20 Mb)</label><br>
+                                    {{ files_formset.empty_form.files}}
+                                    {{ files_formset.empty_form.name|as_crispy_field}}
+                                </div>
+
+    <!--                            {{ files_formset.empty_form }}-->
+
+                                <div class="btn-group">
+                                    <button type="button" id="add-more" class="btn btn-success margin-bottom-15 form-row-add-websitedocument-btn">
+                                        Добавить документ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                            <div class="row">
+                                 <div class="col-md-12">
+                                    <h3 class="page-header">Настройки SEO</h3>
+                                    {{ seo_form.titles|as_crispy_field }}
+                                    {{ seo_form.descriptions|as_crispy_field }}
+                                    {{ seo_form.keywords|as_crispy_field }}
+
+
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 text-center">
+                                    <div class="form-group">
+                                        <a href="/admin/website/about" class="btn btn-default">Отменить</a>
+                                        <button type="submit" class="btn btn-success">Сохранить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </section>
+
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $('[name="text"]').summernote({
+             lang:'ru-RU',
+             styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+            ]
+            });
+            $('[name="adit_text"]').summernote({
+             lang:'ru-RU',
+             styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+            ]
+            });
+        });
+
+    const addMore = document.getElementById('add-more')
+    const totalForms = document.getElementById('id_files-TOTAL_FORMS')
+
+    addMore.addEventListener('click',add_new_form)
+
+    function add_new_form(event){
+        if (event){
+            console.log(event)
+            event.preventDefault()
+        }
+        const currentForms = document.getElementsByClassName('formset-form')
+        const currentFormCount = currentForms.length
+        const formCopyTarget = document.getElementById('formset-form-list')
+        const emptyFormElement = document.getElementById('empty-form').cloneNode(true)
+        emptyFormElement.setAttribute('class', 'formset-form')
+        emptyFormElement.setAttribute('id', `form-${currentFormCount}`)
+        const regex = new RegExp('__prefix__', 'g')
+        emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
+        totalForms.setAttribute('value', currentFormCount + 1)
+        formCopyTarget.append(emptyFormElement)
+
+    }
+    $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.href=''
+            } else {
+                return false
+            }
+        });
+    </script>
+{% endblock %}
+
+
+

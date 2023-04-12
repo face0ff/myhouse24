@@ -1,0 +1,161 @@
+{% extends "admin/base.html" %}
+{% load crispy_forms_tags %}
+{% load filters %}
+{% load static %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>Редактирование страницы </h1>
+        <ul class="breadcrumb"><li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+            <li class="active">Услуги</li>
+        </ul>
+    </section>
+
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Редактирование страницы "Услуги"</h3>
+                    </div>
+                    <div class="box-body">
+                        <form id="w0" action="" method="post" enctype="multipart/form-data">
+                             {% csrf_token %}
+
+                            {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                            <div class="row near-img">
+                                <div class="col-xs-12">
+                                    <h3 class="page-header">Услуги</h3>
+                                </div>
+
+
+                            {{ block_formset.management_form }}
+                            <div id="formset-form-list">
+                                {% for form in block_formset %}
+                                    {{ form.id }}
+                                    <div class="col-md-4">
+                                        <div class="formset-form">
+                                            <h4>
+                                                Услуга {{ form.prefix|to_int }}
+
+                                                <a href="{% url 'del_img' 'service' form.id.value %}" class="delete"  data-confirm="Удалить?"><i class="fa fa-trash text-red pull-right"></i></a>
+                                            </h4>
+                                            {% if form.instance.image %}
+
+                                            <img src="{{ form.instance.image.url }}" alt="" class="img-responsive margin-bottom-15">
+                                            {% else %}
+                                            <img src="{% static 'admin/dist/img/empty-photo.png' %}" alt="" class="img-responsive mb-0">
+                                                {% endif %}
+                                             <label for="">Рекомендуемый размер: (650x300)</label>
+                                                {{ form.image }}
+                                                {{ form.header|as_crispy_field }}
+                                                {{ form.description|as_crispy_field }}
+                                         </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                                <div id="empty-form" class="hidden">
+                                    <div class="col-md-4">
+                                        <h4>
+                                            Услуга
+                                                <a href="{% url 'del_img' 'service' 0 %}" class="delete"  data-confirm="Удалить?"><i class="fa fa-trash text-red pull-right"></i></a>
+
+                                        </h4>
+                                         <img src="{% static 'admin/dist/img/empty-photo.png' %}" alt="" class="img-responsive margin-bottom-15">
+
+                                        <label for="">Рекомендуемый размер: (650x300)</label>
+                                            {{ block_formset.empty_form.image }}
+                                            {{ block_formset.empty_form.header|as_crispy_field }}
+                                            {{ block_formset.empty_form.description|as_crispy_field }}
+
+                                    </div>
+                                </div>
+                            </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="page-header">Настройки SEO</h3>
+                                        {{ seo_form.titles|as_crispy_field }}
+                                        {{ seo_form.descriptions|as_crispy_field }}
+                                        {{ seo_form.keywords|as_crispy_field }}
+
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 text-center">
+                                        <div class="form-group">
+                                            <a href="/admin/website/services" class="btn btn-default">Отменить</a>
+                                            <button type="button" id="add-more" role="button" class="btn btn-success bg-green-active form-row-add-websiteservice-btn">Добавить услугу</button>
+                                            <button type="submit" onclick="save()" class="btn btn-success">Сохранить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock %}
+{% block script %}
+    <script>
+
+    $(document).ready(function() {
+        init_summernote('.description:visible')
+    });
+
+    function init_summernote(target){
+            $(`${target}`).summernote({
+             lang:'ru-RU',
+             styleTags: ['p', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+            ]
+
+  });
+    }
+
+
+    const addMore = document.getElementById('add-more')
+    const totalForms = document.getElementById('id_block-TOTAL_FORMS')
+
+    addMore.addEventListener('click',add_new_form)
+
+    function add_new_form(event){
+
+        if (event){
+            console.log(event)
+            event.preventDefault()
+        }
+        const currentForms = document.getElementsByClassName('formset-form')
+        const currentFormCount = currentForms.length
+        const formCopyTarget = document.getElementById('formset-form-list')
+        const emptyFormElement = document.getElementById('empty-form').cloneNode(true)
+        emptyFormElement.setAttribute('class', 'formset-form')
+        emptyFormElement.setAttribute('id', `form-${currentFormCount}`)
+        const regex = new RegExp('__prefix__', 'g')
+        emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
+        totalForms.setAttribute('value', currentFormCount + 1)
+        formCopyTarget.append(emptyFormElement)
+        init_summernote('#'+$(emptyFormElement).find('textarea').attr('id'))
+
+    }
+    $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+
+            } else {
+                return false
+            }
+        });
+    </script>
+{% endblock %}
+
+
+

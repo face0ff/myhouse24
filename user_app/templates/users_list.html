@@ -1,0 +1,204 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Пользователи</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'users_list' %}">Пользователи</a></li>
+            </ul>
+        </section>
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'user_create' %}">Добавить пользователи</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'users_list' %}" class="btn btn-default btn-sm">
+                                    <span class="hidden-xs" id="clear">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                              aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="w0" class="grid-view">
+
+                            <div class="box-body table-responsive no-padding">
+                                <form method="get" id="form">
+                                    <table class="table table-bordered table-hover table-striped linkedRow" id="example">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 3%">#</th>
+                                            <th style="width: 17%; min-width: 200px">Пользователь</th>
+                                            <th style="width: 8%; min-width: 120px">Роль</th>
+                                            <th style="width: 17%; min-width: 150px">Телефон</th>
+                                            <th style="width: 17%; min-width: 200px">E-mail(логин)</th>
+                                            <th style="width: 7%; min-width: 120px">Статус</th>
+                                            <th style="width: 7%"></th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control" name="user"
+                                                                            id="user"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="role" id="role">
+                                                    <option hidden disabled value selected="true"></option>
+                                                    <option value="director">Директор</option>
+                                                    <option value="manager">Менеджер</option>
+                                                    <option value="accountant">Бухгалтер</option>
+                                                    <option value="electric">Электрик</option>
+                                                    <option value="plumber">Сантехник</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 5px"><input type="text" class="form-control"
+                                                                            name="telephone" id="telephone"></td>
+                                            <td style="padding: 5px"><input type="text" class="form-control" name="email"
+                                                                            id="email"></td>
+                                            <td style="padding: 5px">
+                                                <select class="form-control" name="status" id="status">
+                                                    <option hidden disabled selected value></option>
+                                                    <option value="is_active">Активный</option>
+                                                    <option value="new">Новый</option>
+                                                    <option value="disable">Отключен</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        {% for user in object_list  %}
+                                            <tr data-href="{% url 'user_detail' user.pk %}">
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                                <td>{{ user.role.get_roles_display }}</td>
+                                                <td>
+                                                    {% if user.telephone %}{{ user.telephone }}{% else %}Не
+                                                        указан{% endif %}</td>
+                                                <td>{{ user.email }}</td>
+                                                <td>
+                                                    {% if user.status == 'is_active' %}
+                                                        <small class="btn btn-sm btn-success status">Активен</small>
+                                                    {% elif user.status == 'new' %}
+                                                        <small class="btn btn-sm btn-warning status">Новый</small>
+                                                    {% elif user.status == 'disable' %}
+                                                        <small class="btn btn-sm btn-danger status">Отключен</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td style="padding: 6px 5px 7px 4px; float: right">
+                                                    <div class="btn-group pull-right">
+                                                        <a class="btn btn-default btn-sm" href=""
+                                                           title="Отправить приглашения" data-toggle="tooltip"><i
+                                                                class="fa fa-repeat"></i></a>
+                                                        <a class="btn btn-default btn-sm"
+                                                           href="{% url 'user_update' pk=user.id %}" title="Редактировать"
+                                                           data-toggle="tooltip"><i class="fa fa-pencil"></i></a>
+                                                        <a class="delete btn btn-default btn-sm"
+                                                           {% if not user.is_superuser %}href="{% url 'user_delete' user.pk %}"
+                                                           {% else %}style="cursor: not-allowed; opacity: 0.4"{% endif %}
+                                                           title="Удалить" data-toggle="tooltip" data-pjax="0"
+                                                           data-method="post"
+                                                           data-confirm="Вы уверены, что хотите удалить этот элемент?"><i
+                                                                class="fa fa-trash"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                {% include "pagination.html" with page=object_list %}
+                                </form>
+                            </div>
+
+
+                            <div class="box-footer clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function(link){
+            link.addEventListener('click', function(){
+                window.location = this.dataset.href;
+            });
+        });
+         $(document).on('click', '.delete', function(e){
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'users_list' %}');
+            } else {
+                window.location.replace('{% url 'users_list' %}');
+                return false
+            }
+        });
+
+        $('#user').blur(function () {
+            localStorage.user = $(this).val()
+            $('#form').submit()
+        })
+
+
+        $('#role').change(function () {
+            localStorage.role = $(this).val()
+            $('#form').submit()
+        })
+
+
+        $('#telephone').blur(function () {
+            localStorage.telephone = $(this).val()
+            $('#form').submit()
+        })
+
+
+        $('#email').blur(function () {
+            localStorage.email = $(this).val()
+            $('#form').submit()
+        })
+
+
+        $('#status').change(function () {
+            localStorage.status = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#user').attr('value', localStorage.user)
+        $('#telephone').attr('value', localStorage.telephone)
+        $('#email').attr('value', localStorage.email)
+        if (localStorage.role) {
+          $('#role option[value="' + localStorage.role + '"]').prop('selected', true);
+        }
+        if (localStorage.status) {
+          $('#status option[value="' + localStorage.status + '"]').prop('selected', true);
+        }
+        $('#clear').on('click', function() {
+          localStorage.removeItem('role');
+          localStorage.removeItem('status');
+          localStorage.removeItem('user');
+          localStorage.removeItem('telephone');
+          localStorage.removeItem('email');
+
+        });
+    </script>
+{% endblock %}

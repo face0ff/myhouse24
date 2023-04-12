@@ -1,0 +1,275 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Лицевые счета </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Лицевые счета</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <!--<div class="col-xs-12 col-sm-6">-->
+                <!--<h2 class="page-header">Квартиры</h2>-->
+                <!--</div>-->
+                <div class="col-xs-12 col-lg-9">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-green overflow-hidden">
+                                <div class="inner">
+                                    <h3>-2 311 154.06 грн</h3>
+                                    <p>Состояние кассы</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-blue overflow-hidden">
+                                <div class="inner">
+                                    <h3>846 325.62 грн</h3>
+                                    <p>Баланс по счетам</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <div class="small-box bg-red overflow-hidden">
+                                <div class="inner">
+                                    <h3>503 899.00 грн</h3>
+                                    <p>Задолженность по счетам</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-dollar"></i>
+                                </div>
+                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            Выберите действие <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'account_create' %}">Добавить лицевой счет</a></li>
+                            <li><a href="">Выгрузить в Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'accounts_list' %}" class="btn btn-default btn-sm">
+                                    <span id="clear" class="hidden-xs">Очистить</span><i class="fa fa-eraser visible-xs"
+                                                                              aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+
+
+                        <form method="get" id="form">
+                            <table class="table table-bordered table-hover table-striped linkedRow">
+                                <thead>
+                                <tr>
+                                    <th style="width: 125px; min-width: 125px">№</th>
+                                    <th>Статус</th>
+                                    <th style="width: 100px; min-width: 100px">Квартира</th>
+                                    <th style="min-width: 200px">Дом</th>
+                                    <th style="width: 160px; min-width: 65px">Секция</th>
+                                    <th style="min-width: 200px">Владелец</th>
+                                    <th style="width: 120px; min-width: 120px">Остаток (грн)</th>
+                                    <th style="width: 80px; min-width: 80px">&nbsp;</th>
+                                </tr>
+                                <tr id="w0-filters" class="filters">
+                                    <td><input type="text" class="form-control" name="number" id="number"></td>
+                                    <td>
+
+                                        <select class="form-control" name="status" id="status">
+                                            <option hidden disabled selected value></option>
+                                            <option value="active">Активен</option>
+                                            <option value="inactive">Неактивен</option>
+                                        </select></td>
+                                    <td><input type="text" class="form-control"
+                                               name="apartment" id="apartment">
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="house" id="house">
+                                            <option hidden disabled selected value></option>
+                                            {% for house in houses %}
+                                                <option value="{{ house.id }}">{{ house.name }}</option>
+                                            {% endfor %}
+                                        </select></td>
+                                    <td>
+
+                                        <select class="form-control" name="section" id="section"
+                                                {% if not sections %}style="font-size: 15px; height: 38px; color: grey"{% endif %}>
+                                            <option hidden disabled selected value></option>
+                                            {% if sections %}
+                                                {% for section in sections %}
+                                                    <option value="{{ section.name }}">{{ section.name }}</option>
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="" disabled selected hidden>Выберите дом</option>
+                                            {% endif %}
+                                        </select></td>
+                                    <td>
+                                        <select class="form-control"
+                                                name="owner"
+                                                id="owner">
+                                            <option hidden disabled selected value></option>
+
+                                            {% for owner in owners %}
+                                                <option value="{{ owner.id }}">{{ owner }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+
+                                        <select class="form-control" name="debt" id="debt">
+                                            <option hidden disabled selected value></option>
+                                            <option value="yes">Есть долг</option>
+                                            <option value="no">Нет долга</option>
+                                        </select></td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for account in object_list %}
+                                    <tr data-href="{% url 'account_detail' account.id %}">
+                                        <td>{{ account.number }}</td>
+                                        <td><small
+                                                class="label label-success">{{ account.get_status_display }}</small>
+                                        </td>
+                                        <td>{% if account.apartment.number %}{{ account.apartment.number }}{% else %}(не заданно){% endif %}</td>
+                                        <td>{% if account.apartment.house %}{{ account.apartment.house }}{% else %}(не заданно){% endif %}</td>
+                                        <td>{% if account.apartment.section %}{{ account.apartment.section }}{% else %}(не заданно){% endif %}</td>
+                                        <td>{% if account.apartment.owner %}{{ account.apartment.owner }}{% else %}(не заданно){% endif %}</td>
+                                        <td><span class="text-default">{{ account.balance }}</span></td>
+                                        <td>
+                                            <div class="btn-group pull-right"><a class="btn btn-default btn-sm"
+                                                                                 href="{% url 'account_update' account.id %}"
+                                                                                 title="Редактировать"
+                                                                                 data-toggle="tooltip"><i
+                                                    class="fa fa-pencil"></i></a> <a
+                                                    class="btn btn-default btn-sm"
+                                                    href="{% url 'account_delete' account.id %}"
+                                                    title="Удалить"
+                                                    data-toggle="tooltip"
+                                                    data-pjax="0"
+                                                    data-method="post"
+                                                    data-confirm="Вы уверены, что хотите удалить этот элемент?"><i
+                                                    class="fa fa-trash"></i></a></div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                            <div class="box-footer clearfix">
+                                {% include "pagination.html" with page=object_list %}
+                            </div>
+                            <div class="box-footer">
+                                <div>Количество счетов: <span class="text-bold">{{ object_list|length }}</span></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+    <script>
+        $('#clear').on('click', function () {
+            localStorage.clear()
+        })
+        const link_to_update = document.querySelectorAll('tr[data-href]');
+
+        link_to_update.forEach(function (link) {
+            link.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
+
+
+
+        $(document).on('click', '.delete', function (e) {
+            if (confirm('Удалить?')) {
+                window.location.replace('{% url 'apartments_list' %}');
+            } else {
+                window.location.replace('{% url 'apartments_list' %}');
+                return false
+            }
+        });
+        $('#number').attr('value', localStorage.number)
+        $('#apartment').attr('value', localStorage.apartment)
+        $('#status option[value="' + localStorage.status + '"]').prop('selected', true)
+        $('#house option[value="' + localStorage.house + '"]').prop('selected', true)
+        $('#section option[value="' + localStorage.section + '"]').prop('selected', true)
+        $('#owner option[value="' + localStorage.owner + '"]').prop('selected', true)
+        $('#debt option[value="' + localStorage.debt + '"]').prop('selected', true)
+
+
+        //filter data by input
+        $('#number').blur(function () {
+            localStorage.number = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#status').change(function () {
+            localStorage.status = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#apartment').blur(function () {
+            localStorage.apartment = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#house').change(function () {
+            localStorage.house = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#section').change(function () {
+            localStorage.section = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#owner').change(function () {
+            localStorage.owner = $(this).val()
+            $('#form').submit()
+        })
+
+        $('#debt').change(function () {
+            localStorage.debt = $(this).val()
+            $('#form').submit()
+        })
+
+    </script>
+{% endblock %}

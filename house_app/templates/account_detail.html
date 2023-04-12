@@ -1,0 +1,113 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Лицевой счет </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'accounts_list' %}">Лицевые счета</a></li>
+                <li class="active">Лицевой счет №{{ account.number }}</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12 col-md-7 col-lg-6">
+                    <div class="page-header-spec">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    №
+                                </div>
+                                <div class="form-control pull-right">{{ account.number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Просмотр лицевого счета</h3>
+                    <div class="box-tools">
+                        <a href="#"
+                           class="btn btn-default btn-sm">
+                            <span class="hidden-xs"><i class="fa fa-dollar"></i> Принять платеж</span><i
+                                class="fa fa-pencil visible-xs" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="btn btn-default btn-sm">
+                            <span class="hidden-xs"><i class="fa fa-files-o"></i> Оформить квитанцию</span><i
+                                class="fa fa-pencil visible-xs" aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'account_update' account.id %}" class="btn btn-primary btn-sm">
+                            <span class="hidden-xs">Редактировать счет</span><i class="fa fa-pencil visible-xs"
+                                                                                aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table class="table table-bordered table-striped table-view">
+                                <tbody>
+                                <tr>
+                                    <td>Статус</td>
+                                    <td><small class="label label-success">{{ account.get_status_display }}</small></td>
+                                </tr>
+                                <tr>
+                                    <td>Дом</td>
+                                    <td>
+                                        {% if account.apartment.house %}{{ account.apartment.house }}{% else %}не указанно{% endif %}
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Секция</td>
+                                    <td>
+                                        {% if account.apartment.section %}{{ account.apartment.section }}{% else %}не указанно{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Квартира</td>
+                                    <td>
+                                        {% if account.apartment.id %}{{ account.apartment }}{% else %}не указанно{% endif %}
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Владелец</td>
+                                    <td>
+                                        {% if account.apartment.owner %}{{ account.apartment.owner }}{% else %}не указанно{% endif %}
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Остаток, грн.</td>
+                                    <td>
+                                        <span class="text-green">{{ account.balance }}</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div>
+                                <p><a href="{% url 'meter_apartment_list' %}?apartment_id={{account.apartment.id }}">Посмотреть
+                                    показания счетчиков</a></p>
+                                <p>
+                                    <a href="#">Посмотреть
+                                        приходы</a></p>
+                                <p><a href="#">Посмотреть квитанции</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+
+{% endblock %}
+

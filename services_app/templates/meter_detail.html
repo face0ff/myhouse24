@@ -1,0 +1,120 @@
+{% extends 'admin/base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Показание счетчикa</h1>
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'meter_list' %}">Счетчики</a></li>
+                <li><a href="{% url 'meter_apartment_list' %}?apartment_id={{ object.apartment.id }}">Показания счетчиков</a></li>
+                <li class="active"><a>Показание счетчика №{{ object }}</a></li>
+
+            </ul>
+        </section>
+        <div class="row" style="padding-bottom: 10px; margin: 0">
+
+        <div class="col-xs-12 col-md-7 col-lg-6">
+            <div class="page-header-spec">
+                <div class="form-group">
+                    <div class="input-group date">
+                        <div class="input-group-addon">
+                            №
+                        </div>
+                        <input type="number" readonly class="form-control" value="{{ object }}">
+                    </div>
+                </div>
+                <span class="label-mid">от</span>
+                <div class="form-group">
+                    <div class="input-group date">
+                        <div class="input-group-addon">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </div>
+                        <input type="text" readonly class="form-control" value="{{ object.date|date:"d.m.Y" }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="my-box" style="min-height: 0">
+                <div class="container-fluid">
+                    <div style="text-align: right; margin-bottom: 5px; padding-top: 5px">
+                        <a href="{% url 'meter_update' object.id %}" class="btn btn-primary"
+                           style="font-size: 14px; max-height: 34px">Редактировать показание</a>
+                    </div>
+                    <div class="dropdown-divider" style="border-color:lightgrey"></div>
+                    <div style="max-width: 500px; padding-bottom: 5px">
+                        <table class="table table-hover table-striped table-responsive no-padding"
+                               style="color: #333333; font-size: 14px">
+                            <tr>
+                                <td style="width: 40%"><span style="font-weight: bold">Счетчик</span></td>
+                                <td style="width: 70%">{{ object.meter }}</td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Дом</span></td>
+                                <td>
+                                    {{ object.apartment.house }}
+
+                                </td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Секция</span></td>
+                                <td>{{ object.apartment.section }}</td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Квартира</span></td>
+                                    <td><a href="{% url 'apartment_detail' object.apartment.id %}">{{ object.apartment.number }}</a></td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Владелец</span></td>
+                                <td>
+                                    {% if object.apartment.owner %}
+                                        <a href="{% url 'owner_detail' object.apartment.owner.id %}">{{ object.apartment.owner.last_name }} {{ object.apartment.owner.first_name }} {{ object.apartment.owner.patronymic }}</a>
+                                    {% endif %}
+                                </td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Текущие показания</span></td>
+                                <td>{{ object.expense }}</td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Ед. изм.</span></td>
+                                <td>{{ object.meter.unit }}</td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 30%"><span style="font-weight: bold">Статус</span></td>
+                                <td>
+                                    {% if object.status == 'new' %}
+                                        <small class="btn btn-sm btn-warning status">Новое</small>
+                                    {% elif object.status == 'accounted' %}
+                                        <small class="btn btn-sm btn-success status">Учтено</small>
+                                    {% elif object.status == 'paid' %}
+                                        <small class="btn btn-sm btn-success status">Оплачено</small>
+                                    {% elif object.status == 'zero' %}
+                                        <small class="btn btn-sm btn-primary status">Нулевое</small>
+                                    {% endif %}
+                                </td>
+                                <td style="width: 0%"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+
+
+
+{% endblock %}
