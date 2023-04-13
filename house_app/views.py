@@ -681,7 +681,7 @@ class InvoiceCreate(CreateView):
         meters = MeterReading.objects.all()
         context = super().get_context_data(**kwargs)
         context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
-                                                      queryset=InvoiceService.objects.none())
+                                                   queryset=InvoiceService.objects.none())
         context['meters'] = meters
         return context
 
@@ -700,7 +700,6 @@ class InvoiceCreate(CreateView):
             return self.render_to_response(self.get_context_data(form=form))
 
 
-
 class InvoiceUpdate(UpdateView):
     model = Invoice
     template_name = 'invoice_update.html'
@@ -711,7 +710,7 @@ class InvoiceUpdate(UpdateView):
         meters = MeterReading.objects.all()
         context = super().get_context_data(**kwargs)
         context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
-                                                      queryset=InvoiceService.objects.filter(invoice=self.get_object().pk))
+                                                   queryset=InvoiceService.objects.filter(invoice=self.get_object().pk))
         context['meters'] = meters
         return context
 
@@ -722,9 +721,14 @@ class InvoiceUpdate(UpdateView):
             invoice = form.save()
             instances = formset.save(commit=False)
             for instance in instances:
-                instance.invoice = invoice
-                instance.save()
-            formset.save()
+                try:
+                    instance.invoice = invoice
+                    instance.save()
+                except IntegrityError:
+                    messages.error(self.request, "Вы пробуете записать две одинаковые услуги, это запрещено.")
+                    return self.form_invalid(form)
+            for item in formset.deleted_objects:
+                item.delete()
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
@@ -742,9 +746,10 @@ class InvoiceDetail(DetailView):
         context['invoice'] = invoice
         return context
 
+
 def invoice_delete(request, pk):
     try:
-        invoice = get_object_or_404(Invoice,  id=pk)
+        invoice = get_object_or_404(Invoice, id=pk)
         invoice.delete()
         invoice_service = get_object_or_404(InvoiceService, id=pk)
         invoice_service.delete()
@@ -784,8 +789,8 @@ def select_invoices(request):
         # print(invoice.number)
         invoice_dict = {
             'number': invoice.number,
-            'day': invoice.date,
-            'month': invoice.date,
+            'day': invoice.date.strftime('%d.%m.%Y'),
+            'month': invoice.date.strftime('%m.%Y'),
             'status': invoice.get_status_display(),
             'apartment': invoice.apartment.__str__(),
             'owner': invoice.apartment.owner.__str__(),
@@ -808,6 +813,7 @@ def delete_selected_invoice(request):
             invoice = get_object_or_404(Invoice, id=i)
             invoice.delete()
 
+
 def invoice_unit(request):
     if request.GET.get('service_id'):
         unit = Unit.objects.get(services=request.GET.get('service_id'))
@@ -822,5 +828,76 @@ def invoice_unit(request):
         }
         return JsonResponse(response, status=200)
 
+class TransfersList(ListView):
+    model = Transfers
+    template_name = 'transfers_list.html'
+
+class TransferUpdate(UpdateView):
+    model = Transfers
+    template_name = 'transfer_update.html'
+    form_class = TransferForm
+    success_url = reverse_lazy('transfers_list')
 
 
+class TransferDetail(DetailView):
+    model = Transfers
+    template_name = 'transfer_detail.html'
+
+
+def transfer_delete(request, pk):
+    transfer = get_object_or_404(Transfers, id=pk)
+    transfer.delete()
+    return redirect('transfers_list')
+
+def select_transfers(request):
+    # print(request.GET['filterNumber'])
+    draw = request.GET['draw']
+
+    transfers = Transfers.objects.all()
+    transfers_list = []
+    filters = Q()
+
+    if request.GET['filterNumber']:
+        filters &= Q(number=request.GET['filterNumber'])
+    if request.GET['filterDate']:
+        filters &= Q(date=request.GET.get('filterDate'))
+        print(request.GET['filterDate'])
+    if request.GET['filterCompleted']:
+        filters &= Q(completed=request.GET['filterCompleted'])
+    if request.GET['filterItem']:
+        filters &= Q(item=request.GET['filterItem'])
+    if request.GET['filterOwner']:
+        filters &= Q(owner=request.GET['filterOwner'])
+    if request.GET['filterAccount']:
+        filters &= Q(account=request.GET['filterAccount'])
+    if request.GET['filterIncome']:
+        filters &= Q(income=request.GET['filterIncome'])
+
+    transfers = transfers.filter(filters)
+
+    for trans in transfers:
+        # print(invoice.number)
+        transfer_dict = {
+            'number': trans.number,
+            'date': trans.date.strftime('%d.%m.%Y'),
+            'completed': 'Проведена' if trans.completed else 'Не проведена',
+            'item': trans.item.name,
+            'owner': trans.owner.__str__(),
+            'account': trans.account.number,
+            'income': 'Приход' if trans.income else 'Расход',
+            'amount': trans.amount,
+            'id': trans.id
+        }
+        transfers_list.append(transfer_dict)
+
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(transfers, 10)
+    page_obj = paginator.get_page(page_number)
+
+    response = {
+        'draw': draw,
+        'recordsTotal': len(transfers),
+        'recordsFiltered': paginator.count,
+        'data': list(transfers_list),
+    }
+    return JsonResponse(response, status=200)

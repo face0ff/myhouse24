@@ -360,3 +360,9 @@ class InvoiceServiceForm(ModelForm):
 
 
 InvoiceServiceFormSet = modelformset_factory(InvoiceService, form=InvoiceServiceForm, extra=0, can_delete=True)
+
+
+class TransferForm(forms.ModelForm):
+    class Meta:
+        model = Transfers
+        fields = '__all__'

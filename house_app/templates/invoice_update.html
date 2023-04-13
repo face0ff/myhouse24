@@ -65,7 +65,7 @@
                     </div>
                     <div class="box">
                         <div class="box-body">
-                            <input type="hidden" id="invoice" name="invoice">
+
                             <div class="row">
                                 <div class="col-xs-12 col-sm-6">
                                     <div class="form-group">
@@ -160,6 +160,7 @@
                                 <table id="service_form"
 
                                        class="table table-bordered table-hover">
+
                                     <thead>
                                     <tr>
 
@@ -176,6 +177,7 @@
 
                                     <tbody>
                                     {% for form in formset %}
+
 
                                         <tr id="{{ form.prefix }}-form">
                                             {{ form.id }}
@@ -222,6 +224,7 @@
                             <div class="delete-list"></div>
 
                             <table id="test" style="display: none">
+
                                 <tbody id="empty_form-service">
 
                                 <tr id="{{ formset.empty_form.prefix }}-form">
@@ -255,6 +258,7 @@
 
                         </div>
                     </div>
+                <div class="delete-list-service"></div>
                 </form>
                 <div class="row">
                     <div class="col-xs-12">

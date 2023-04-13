@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
-from services_app.models import Tariff, Services
+from services_app.models import Tariff, Services, Item
 from site_app.models import Service
 from user_app.models import UserProfile, Role
 
@@ -161,6 +161,35 @@ class Invoice(models.Model):
     class Meta:
         verbose_name = 'Квитанция'
         verbose_name_plural = 'Квитанции'
+
+    def __str__(self):
+        return str(self.number).zfill(10)
+
+def transfer_number():
+    largest = Transfers.objects.all().order_by('number').last()
+    if not largest:
+        return '1'.zfill(10)
+    number = int(largest.number) + 1
+    return str(number).zfill(10)
+
+class Transfers(models.Model):
+    number = models.BigIntegerField(default=transfer_number, unique=True, verbose_name='Номер ведомости')
+    date = models.DateField(default=timezone.now, verbose_name='Дата')
+    owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=True, blank=True,
+                              related_name='owner', verbose_name='Владелец квартиры')
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, null=True, blank=True,
+                                         verbose_name='Лицевой счет')
+    item = models.ForeignKey(Item, on_delete=models.PROTECT, null=True, blank=True, verbose_name='Статья')
+    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Сумма')
+    completed = models.BooleanField(default=True, verbose_name='Проведен')
+    manager = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=True, blank=True, related_name='manager',
+                                verbose_name='Менеджер')
+    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    income = models.BooleanField(default=True, verbose_name='Приходная ведомость')
+
+    class Meta:
+        verbose_name = 'Приход/Расход'
+        verbose_name_plural = 'Приходные/Расходные ведомости'
 
     def __str__(self):
         return str(self.number).zfill(10)

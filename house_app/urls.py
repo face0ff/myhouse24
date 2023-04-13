@@ -47,7 +47,13 @@ urlpatterns = [
     path("admin/invoice/delete/<int:pk>", views.invoice_delete, name='invoice_delete'),
     path("select_invoices/", select_invoices, name='select_invoices'),
     path("delete_selected_invoice/", delete_selected_invoice, name='delete_selected_invoice'),
-    path("invoice_unit/", invoice_unit, name='invoice_unit')
+    path("invoice_unit/", invoice_unit, name='invoice_unit'),
+
+    path("admin/transfers_list/", TransfersList.as_view(), name='transfers_list'),
+    path("admin/transfer/detail/<int:pk>", TransferDetail.as_view(), name='transfer_detail'),
+    path("admin/transfer/update/<int:pk>", TransferUpdate.as_view(), name='transfer_update'),
+    path("admin/transfer/delete/<int:pk>", views.transfer_delete, name='transfer_delete'),
+    path("select_transfers/", select_transfers, name='select_transfers'),
 
 
 

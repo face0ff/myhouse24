@@ -13,11 +13,11 @@
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
-                Квитанции на оплату </h1>
+                Касса </h1>
 
             <ul class="breadcrumb">
-                <li><a href="{% url 'invoices_list' %}"><i class="fa fa-home"></i> Главная</a></li>
-                <li class="active">Квитанции на оплату</li>
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Касса</li>
             </ul>
         </section>
 
@@ -25,7 +25,7 @@
 
             <div class="row">
                 <!--<div class="col-xs-12 col-sm-6">-->
-                <!--<h2 class="page-header">Квитанции</h2>-->
+                <!--<h2 class="page-header">Квартиры</h2>-->
                 <!--</div>-->
                 <div class="col-xs-12 col-lg-9">
                     <div class="row">
@@ -68,16 +68,16 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-3">
-                    <div class="pull-right">
+                    <div class="btn-group pull-right margin-bottom">
                         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
                             Выберите действие <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'invoice_create' %}">Создать общую квитанцию</a></li>
-                            <!--                <li><a href="#!">Создать квитанцию на оплату за ЭЭ</a></li>
-                                            <li><a href="#!">Создать квитанцию на оплату за ГАЗ</a></li>-->
-                            <li><a href="#" class="delete-many">Удалить</a></li>
+                            <li><a href="/admin/account-transaction/create?type=in">Создать приход</a></li>
+                            <li><a href="/admin/account-transaction/create?type=out">Создать расход</a></li>
+                            <li><a href="/admin/account-transaction/export?sort=-searchUidDate">Выгрузить в Excel</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -88,99 +88,106 @@
                         <div class="box-header with-border">
                             <h3 class="box-title"></h3>
                             <div class="box-tools">
-                                <a href="#" class="btn btn-default btn-sm">
+                                <a href="{% url 'transfers_list' %}" class="btn btn-default btn-sm">
                                     <span id="clearFilters" class="hidden-xs">Очистить</span><i
                                         class="fa fa-eraser visible-xs"
                                         aria-hidden="true"></i>
-
                                 </a>
                             </div>
                         </div>
 
                         <div id="w0" class="grid-view">
                             <div class="box-body table-responsive no-padding">
-
                                 <table id="InvoicesTable"
-                                       class="table table-bordered table-hover table-striped linkedRow"
-                                       style="width:100%">
-
+                                       class="table table-bordered table-hover table-striped linkedRow">
                                     <thead>
                                     <tr>
-                                        <th><input type="checkbox" id="delete_all" class="delete_all" value=""></th>
-                                        <th style="width: 5%">№ квитанции</th>
-                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
-                                                                                    id="sort-name-span">Дата </span>
-                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
-                                                                                    id="sort-name-span">Месяц </span>
-                                        <th>Статус</th>
-                                        <th>Квартира</th>
-                                        <th>Владелец</th>
-                                        <th>Проведена</th>
-                                        <th>Сумма (грн)</th>
-                                        <th style="width: 10%"></th>
-                                    </tr>
-                                    <tr>
-                                        <th></th>
-                                        <th><input type="text" class="form-control" id="filterNumber"/></th>
-                                        <th><input type="text" class="form-control" id="filterDateDay"/></th>
-                                        <th><input type="text" class="form-control" id="filterDateMonth"/></th>
-                                        <th>
-                                            <select class="form-control" name="status" id="filterStatus">
-                                                <option hidden disabled selected value></option>
-                                                <option value="paid">Оплачена</option>
-                                                <option value="p_paid">Частично оплачена</option>
-                                                <option value="unpaid">Неоплачена</option>
-                                            </select>
+                                        <th style="width: 125px; min-width: 125px">№</th>
+                                        <th style="width: 125px; min-width: 125px"><a class="desc"
+                                                                                      href="/admin/account-transaction/index?sort=searchUidDate"
+                                                                                      data-sort="searchUidDate">Дата</a>
                                         </th>
-                                        <th><input type="text" class="form-control" id="filterApartment"/></th>
-                                        <th>
-
-                                            <select class="select_invoice form-control input-xl" id="filterOwner">
+                                        <th style="width: 120px; min-width: 120px">Статус</th>
+                                        <th>Тип платежа</th>
+                                        <th style="min-width: 200px">Владелец</th>
+                                        <th style="min-width: 160px">Лицевой счет</th>
+                                        <th>Приход/расход</th>
+                                        <th style="width: 110px; min-width: 110px">Сумма (грн)</th>
+                                        <th style="width: 80px; min-width: 80px">&nbsp;</th>
+                                    </tr>
+                                    <tr id="w0-filters" class="filters">
+                                        <td><input type="text" class="form-control" id="filterNumber"
+                                                   name="number">
+                                        </td>
+                                        <td><input type="text" id="filterData"
+                                                   class="form-control"
+                                                   name="date"
+                                                   data-krajee-daterangepicker="daterangepicker_c8dff207">
+                                        </td>
+                                        <td>
+                                            <select class="form-control" name="done" id="filterComplited">
                                                 <option hidden disabled selected value></option>
-                                                {% for invoice in object_list %}
-                                                    <option value="{{ invoice.apartment.owner.id }}">{{ invoice.apartment.owner }}</option>
+                                                <option value="true">Проведена</option>
+                                                <option value="false">Непроведена</option>
+                                            </select>
+                                        <td>
+                                            <select class="form-control" name="item" id="filterItem">
+                                                <option hidden disabled selected value></option>
+                                                {% for transfer in object_list %}
+                                                    <option value="{{ transfer.item.id }}">{{ transfer.item }}</option>
                                                 {% endfor %}
                                             </select>
-                                        </th>
-                                        <th><select class="form-control" name="done" id="filterDone">
-                                            <option hidden disabled selected value></option>
-                                            <option value="True">Проведена</option>
-                                            <option value="False">Непроведена</option>
-                                        </select></th>
-                                        <th><input type="text" class="form-control" id="filterAmount"/></th>
-                                        <th></th>
+                                        </td>
+                                        <td>
+                                            <select class="select_transfer form-control input-xl" id="filterOwner">
+                                                <option hidden disabled selected value></option>
+                                                {% for transfer in object_list %}
+                                                    <option value="{{ transfer.owner.id }}">{{ transfer.owner }}</option>
+                                                {% endfor %}
+                                            </select></td>
+                                        <td><input type="text" class="form-control" id="filterAccount"
+                                                   name="account">
+                                        </td>
+                                        <td>
+                                            <select class="form-control" name="income" id="filterIncome">
+                                                <option hidden disabled selected value></option>
+                                                <option value="true">Приход</option>
+                                                <option value="false">Расход</option>
+                                            </select>
+                                        </td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for invoice in object_list %}
+                                    {% for transfer in object_list %}
                                         <tr>
 
-                                            <td></td>
-                                            <td>{{ invoice.number }}</td>
-                                            <td>{{ invoice.date.day }}</td>
-                                            <td>{{ invoice.date.month }}</td>
-                                            <td>{{ invoice.status }}</td>
-                                            <td>{{ invoice.apartment }}</td>
-                                            <td>{{ invoice.apartment.owner }}</td>
-                                            <td>{{ invoice.done }}</td>
-                                            <td>{{ invoice.amount }}</td>
+                                            <td>{{ transfer.number }}</td>
+                                            <td>{{ transfer.date }}</td>
+                                            <td>{{ transfer.completed }}</td>
+                                            <td>{{ transfer.owner }}</td>
+                                            <td>{{ transfer.account }}</td>
+                                            <td>{{ transfer.income }}</td>
+                                            <td>{{ transfer.amount }}</td>
                                             <td></td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
 
-                        <div id="pagination">
-                            <!-- Pagination goes here -->
                         </div>
-
+                        <div class="box-footer">
+                            <div>Проведен приход: <span class="text-bold">{% if income %}{{ income }}{% else %}
+                                0,00{% endif %} грн</span></div>
+                            <div>Проведен расход: <span class="text-bold">{% if expense %}{{ expense }}{% else %}
+                                0,00{% endif %} грн</span></div>
+                        </div>
 
                     </div>
                 </div>
             </div>
-
         </section>
     </div>
 
@@ -195,8 +202,9 @@
             // ...
 
             // Handle click on row link
-            $('#InvoicesTable tbody').on('click', 'tr', function () {
-                var url = $(this).attr('href');;
+            $('#TransfersTable tbody').on('click', 'tr', function () {
+                var url = $(this).attr('href');
+                ;
                 console.log(url)
                 window.location.href = url;
             });
@@ -205,7 +213,7 @@
         $(document).ready(function () {
 
             // Initialize DataTable
-            $("#InvoicesTable").DataTable({
+            $("#TransfersTable").DataTable({
 
 
                 processing: true,
@@ -222,25 +230,24 @@
 
                     data: function (d) {
                         d.filterNumber = $("#filterNumber").val();
-                        d.filterDateDay = $("#filterDateDay").val();
-                        d.filterDateMonth = $("#filterDateMonth").val();
-                        d.filterStatus = $("#filterStatus").val();
-                        d.filterApartment = $("#filterApartment").val();
-                        d.filterOwner = $("#filterOwner").val();
-                        d.filterDone = $("#filterDone").val();
-                        d.filterAmount = $("#filterAmount").val();
+                        d.filterDateDay = $("#filterDate").val();
+                        d.filterDateMonth = $("#filterComplited").val();
+                        d.filterStatus = $("#filterItem").val();
+                        d.filterApartment = $("#filterOwner").val();
+                        d.filterOwner = $("#filterAccount").val();
+                        d.filterDone = $("#filterIncome").val();
+
 
                     }
                 },
                 columns: [
-                    {data: null},
                     {data: "number"},
                     {data: "day"},
-                    {data: "month"},
-                    {data: "status"},
-                    {data: "apartment"},
+                    {data: "complited"},
+                    {data: "item"},
                     {data: "owner"},
-                    {data: "done"},
+                    {data: "account"},
+                    {data: "income"},
                     {data: "amount"},
                     {data: null}
                 ],
@@ -257,34 +264,33 @@
                         targets: -1, // выбираем последнюю колонку
 
                         render: function (data, type, row, meta) {
-                            var url_update = "{% url 'invoice_update' pk=0  %}".replace('0', data.id);
-                            var url_delete = "{% url 'invoice_delete' pk=0  %}".replace('0', data.id);
-                            return `<a class="btn btn-default btn-sm" href="{% url 'invoice_create' %}" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
-                                `<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
+                            var url_update = "{% url 'transfer_update' pk=0  %}".replace('0', data.id);
+                            var url_delete = "{% url 'transfer_delete' pk=0  %}".replace('0', data.id);
+                            return`<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
                                 `<a class="btn btn-default btn-sm" href="${url_delete}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>`;
                         }
                     },
 
                 ],
                 createdRow: function (row, data, dataIndex) {
-                    var url_detail = "{% url 'invoice_detail' pk=0  %}".replace('0', data.id);
+                    var url_detail = "{% url 'transfer_detail' pk=0  %}".replace('0', data.id);
                     $(row).attr('href', `${url_detail}`);
                 }
             });
 
             // Handle filter fields
-            $("#filterNumber, #filterDate, #filterDateDay, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount").on("keyup change", function () {
+            $("#filterNumber, #filterDate, #filterComplited, #filterItem, #filterOwner, #filterAccount, #filterIncome").on("keyup change", function () {
                 $("#InvoicesTable").DataTable().draw();
             });
 
             // Handle clear filters button
             $("#clearFilters").on("click", function () {
-                $("#filterNumber, #filterDateDay, #filterDateMonth, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount").val("");
-                $("#InvoicesTable").DataTable().draw();
+                $("#filterNumber, #filterDate, #filterComplited, #filterItem, #filterOwner, #filterAccount, #filterIncome").val("");
+                $("#TransfersTable").DataTable().draw();
             });
         });
 
-        $('.select_invoice').select2({
+        $('.select_transfer').select2({
             placeholder: 'Или выберите из списка...',
             allowClear: true,
             width: '100%',
