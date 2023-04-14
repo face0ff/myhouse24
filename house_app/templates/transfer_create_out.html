@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Новая расходная ведомость </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'transfers_list' %}">Платежи</a></li>
+                <li class="active">Новая расходная ведомость</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+
+            <form id="form" method="post">
+                {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xs-12 col-md-7 col-lg-6">
+                        <div class="page-header-spec">
+                            <div class="form-group field-accounttransaction-uid required">
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        №
+                                    </div>
+                                    {{ form.number }}
+                                </div>
+                            </div>
+                            <span class="label-mid">от</span>
+                            <div class="form-group field-accounttransaction-uid_date required">
+                                <div id="accounttransaction-uid_date-kvdate" class="input-group  date"><span
+                                        class="input-group-addon kv-date-calendar" title="Выбрать дату"><i
+                                        class="glyphicon glyphicon-calendar"></i></span>
+                                    {{ form.date }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-body">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-sm-offset-6">
+                                {{ form.completed }}<label for="completed">Проведен</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+
+                                <div class="form-group field-accounttransaction-transaction_purpose_id">
+                                    <label class="control-label"
+                                           for="accounttransaction-transaction_purpose_id">Статья</label>
+                                    {{ form.item }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-accounttransaction-amount required">
+                                    <label class="control-label" for="accounttransaction-amount">Сумма</label>
+                                    {{ form.amount }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <input type="hidden" id="income" name="income"
+                                       value="False">
+
+
+                                <div class="form-group field-accounttransaction-user_admin_id">
+                                    <label class="control-label" for="accounttransaction-user_admin_id">Менеджер</label>
+                                    {{ form.manager }}
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="form-group">
+                                    <a href="{% url 'transfers_list' %}" class="btn btn-default margin-bottom-15">Отменить</a>
+                                    <input type="submit" class="btn btn-success margin-bottom-15" name="action_save"
+                                           value="Сохранить"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group field-accounttransaction-description">
+                                    <label class="control-label"
+                                           for="accounttransaction-description">Комментарий</label>
+                                    {{ form.comment }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+
+{% endblock %}
+

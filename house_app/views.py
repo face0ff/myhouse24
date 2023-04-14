@@ -832,16 +832,80 @@ class TransfersList(ListView):
     model = Transfers
     template_name = 'transfers_list.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object_list'] = Transfers.objects.all()
+        context['owners'] = UserProfile.objects.filter(role_id__isnull=True)
+        context['items'] = Item.objects.all()
+        return context
+
+class TransferCreate(CreateView):
+    model = Transfers
+    template_name = 'transfer_create_income.html'
+    form_class = TransferForm
+    success_url = reverse_lazy('transfers_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transfer_type = self.request.GET.get('type')
+        if transfer_type == 'income':
+            self.template_name = 'transfer_create_income.html'
+        else:
+            self.template_name = 'transfer_create_out.html'
+        return context
+
 class TransferUpdate(UpdateView):
     model = Transfers
     template_name = 'transfer_update.html'
     form_class = TransferForm
     success_url = reverse_lazy('transfers_list')
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transfer_type = Transfers.objects.get(id=self.get_object().pk)
+        if transfer_type.income:
+            self.template_name = 'transfer_update_income.html'
+        else:
+            self.template_name = 'transfer_update_out.html'
+        return context
+
+    def form_valid(self, form):
+        print(self.request.GET.get('copy'))
+        if self.request.GET.get('copy') =='':
+            # Получить последний идентификатор
+            last_id = Transfers.objects.all().order_by('-id').first().id
+            last_number = Transfers.objects.all().order_by('-id').first().number
+            # Увеличить на единицу
+            new_id = last_id + 1
+            # Установить имя
+            new_number = last_number + 1
+            # Сохранить новые значения
+            form.instance.id = new_id
+            form.instance.number = new_number
+            super(TransferUpdate, self).form_valid(form)
+            return redirect('transfer_detail', new_id)
+        else:
+            super(TransferUpdate, self).form_valid(form)
+            return redirect('transfer_detail', self.object.id)
 
 
 class TransferDetail(DetailView):
     model = Transfers
     template_name = 'transfer_detail.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['transfers'] = Transfers.objects.get(id=self.get_object().pk)
+        # context['invoice'] = Invoice.objects.filter(da=True)
+        # context['items'] = Item.objects.all()
+        return context
 
 
 def transfer_delete(request, pk):
@@ -882,8 +946,8 @@ def select_transfers(request):
             'date': trans.date.strftime('%d.%m.%Y'),
             'completed': 'Проведена' if trans.completed else 'Не проведена',
             'item': trans.item.name,
-            'owner': trans.owner.__str__(),
-            'account': trans.account.number,
+            'owner': trans.owner.__str__() if trans.owner else 'Не заданно',
+            'account': trans.account.number if trans.account else 'Не заданно',
             'income': 'Приход' if trans.income else 'Расход',
             'amount': trans.amount,
             'id': trans.id
@@ -896,7 +960,7 @@ def select_transfers(request):
 
     response = {
         'draw': draw,
-        'recordsTotal': len(transfers),
+        'recordsTotal': paginator.count,
         'recordsFiltered': paginator.count,
         'data': list(transfers_list),
     }

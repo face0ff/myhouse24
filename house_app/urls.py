@@ -50,6 +50,7 @@ urlpatterns = [
     path("invoice_unit/", invoice_unit, name='invoice_unit'),
 
     path("admin/transfers_list/", TransfersList.as_view(), name='transfers_list'),
+    path("admin/transfer/create/", TransferCreate.as_view(), name='transfer_create'),
     path("admin/transfer/detail/<int:pk>", TransferDetail.as_view(), name='transfer_detail'),
     path("admin/transfer/update/<int:pk>", TransferUpdate.as_view(), name='transfer_update'),
     path("admin/transfer/delete/<int:pk>", views.transfer_delete, name='transfer_delete'),

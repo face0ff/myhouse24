@@ -3,189 +3,125 @@
 {% load widget_tweaks %}
 
 {% block content %}
-    <style>
-
-    </style>
-    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-
-
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
-                Касса </h1>
+                {% if transfers.income %}
+                Приходная ведомость {% else %} Расходная ведомость {% endif %}</h1>
 
             <ul class="breadcrumb">
                 <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
-                <li class="active">Касса</li>
+                <li><a href="{% url 'transfers_list' %}">Платежи</a></li>
+                <li class="active">{% if transfers.income %}
+                Приходная ведомость {% else %} Расходная ведомость {% endif %} №{{ transfers.number }}</li>
             </ul>
         </section>
 
         <section class="content">
 
             <div class="row">
-                <!--<div class="col-xs-12 col-sm-6">-->
-                <!--<h2 class="page-header">Квартиры</h2>-->
-                <!--</div>-->
-                <div class="col-xs-12 col-lg-9">
-                    <div class="row">
-                        <div class="col-xs-12 col-md-4">
-                            <div class="small-box bg-green overflow-hidden">
-                                <div class="inner">
-                                    <h3>{% if cashbox %}{{ cashbox }}{% else %}0,00{% endif %} грн</h3>
-                                    <p>Состояние кассы</p>
+                <div class="col-xs-12 col-md-7 col-lg-6">
+                    <div class="page-header-spec">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    №
                                 </div>
-                                <div class="icon">
-                                    <i class="fa fa-dollar"></i>
-                                </div>
-                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                                <div class="form-control pull-right">{{ transfers.number }}</div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-md-4">
-                            <div class="small-box bg-blue overflow-hidden">
-                                <div class="inner">
-                                    <h3>{% if balance %}{{ balance }}{% else %}0,00{% endif %} грн</h3>
-                                    <p>Баланс по счетам</p>
+                        <span class="label-mid">от</span>
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
                                 </div>
-                                <div class="icon">
-                                    <i class="fa fa-dollar"></i>
-                                </div>
-                                <!--<span class="small-box-footer">&nbsp;</span>-->
+                                <div class="form-control pull-right">{{ transfers.date }}</div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-md-4">
-                            <div class="small-box bg-red overflow-hidden">
-                                <div class="inner">
-                                    <h3>{% if debt %}{{ debt }}{% else %}0,00{% endif %} грн</h3>
-                                    <p>Задолженность по счетам</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="fa fa-dollar"></i>
-                                </div>
-                                <!--<span class="small-box-footer">&nbsp;</span>-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-lg-3">
-                    <div class="btn-group pull-right margin-bottom">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            Выберите действие <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a href="/admin/account-transaction/create?type=in">Создать приход</a></li>
-                            <li><a href="/admin/account-transaction/create?type=out">Создать расход</a></li>
-                            <li><a href="/admin/account-transaction/export?sort=-searchUidDate">Выгрузить в Excel</a>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="box">
-                        <div class="box-header with-border">
-                            <h3 class="box-title"></h3>
-                            <div class="box-tools">
-                                <a href="{% url 'transfers_list' %}" class="btn btn-default btn-sm">
-                                    <span id="clearFilters" class="hidden-xs">Очистить</span><i
-                                        class="fa fa-eraser visible-xs"
-                                        aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div id="w0" class="grid-view">
-                            <div class="box-body table-responsive no-padding">
-                                <table id="InvoicesTable"
-                                       class="table table-bordered table-hover table-striped linkedRow">
-                                    <thead>
-                                    <tr>
-                                        <th style="width: 125px; min-width: 125px">№</th>
-                                        <th style="width: 125px; min-width: 125px"><a class="desc"
-                                                                                      href="/admin/account-transaction/index?sort=searchUidDate"
-                                                                                      data-sort="searchUidDate">Дата</a>
-                                        </th>
-                                        <th style="width: 120px; min-width: 120px">Статус</th>
-                                        <th>Тип платежа</th>
-                                        <th style="min-width: 200px">Владелец</th>
-                                        <th style="min-width: 160px">Лицевой счет</th>
-                                        <th>Приход/расход</th>
-                                        <th style="width: 110px; min-width: 110px">Сумма (грн)</th>
-                                        <th style="width: 80px; min-width: 80px">&nbsp;</th>
-                                    </tr>
-                                    <tr id="w0-filters" class="filters">
-                                        <td><input type="text" class="form-control" id="filterNumber"
-                                                   name="number">
-                                        </td>
-                                        <td><input type="text" id="filterData"
-                                                   class="form-control"
-                                                   name="date"
-                                                   data-krajee-daterangepicker="daterangepicker_c8dff207">
-                                        </td>
-                                        <td>
-                                            <select class="form-control" name="done" id="filterComplited">
-                                                <option hidden disabled selected value></option>
-                                                <option value="true">Проведена</option>
-                                                <option value="false">Непроведена</option>
-                                            </select>
-                                        <td>
-                                            <select class="form-control" name="item" id="filterItem">
-                                                <option hidden disabled selected value></option>
-                                                {% for transfer in object_list %}
-                                                    <option value="{{ transfer.item.id }}">{{ transfer.item }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select class="select_transfer form-control input-xl" id="filterOwner">
-                                                <option hidden disabled selected value></option>
-                                                {% for transfer in object_list %}
-                                                    <option value="{{ transfer.owner.id }}">{{ transfer.owner }}</option>
-                                                {% endfor %}
-                                            </select></td>
-                                        <td><input type="text" class="form-control" id="filterAccount"
-                                                   name="account">
-                                        </td>
-                                        <td>
-                                            <select class="form-control" name="income" id="filterIncome">
-                                                <option hidden disabled selected value></option>
-                                                <option value="true">Приход</option>
-                                                <option value="false">Расход</option>
-                                            </select>
-                                        </td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for transfer in object_list %}
-                                        <tr>
-
-                                            <td>{{ transfer.number }}</td>
-                                            <td>{{ transfer.date }}</td>
-                                            <td>{{ transfer.completed }}</td>
-                                            <td>{{ transfer.owner }}</td>
-                                            <td>{{ transfer.account }}</td>
-                                            <td>{{ transfer.income }}</td>
-                                            <td>{{ transfer.amount }}</td>
-                                            <td></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                        <div class="box-footer">
-                            <div>Проведен приход: <span class="text-bold">{% if income %}{{ income }}{% else %}
-                                0,00{% endif %} грн</span></div>
-                            <div>Проведен расход: <span class="text-bold">{% if expense %}{{ expense }}{% else %}
-                                0,00{% endif %} грн</span></div>
-                        </div>
-
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{% if transfers.income %}Приходная ведомость{% else %}Расходная ведомость{% endif %}</h3>
+                    <div class="box-tools">
+                        <a href="{% url 'transfer_update' transfers.id %}?copy"
+                           class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Копировать</span><i class="fa fa-print visible-xs"
+                                                                        aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'transfer_delete' transfers.id %}" class="btn btn-default btn-sm"
+                           data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?">
+                            <span class="hidden-xs">Удалить</span><i class="fa fa-envelope-o visible-xs"
+                                                                     aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'transfer_update' transfers.id %}" class="btn btn-primary btn-sm">
+                            <span class="hidden-xs">Редактировать ведомость</span><i class="fa fa-pencil visible-xs"
+                                                                                     aria-hidden="true"></i>
+                        </a>
+                        <a href="/admin/account-transaction/export-one/1064?export=xls" class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Выгрузить в Excel</span><i class="fa fa-pencil visible-xs"
+                                                                               aria-hidden="true"></i>
+                        </a>
                     </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped table-view">
+                        <tbody>
+                        <tr>
+                            <td>Владелец квартиры</td>
+                            <td>
+                                {% if transfers.owner %} <a href="{% url 'owner_detail' transfers.owner.id %}">
+                                    {{ transfers.owner }} </a>{% else %}не указано{% endif %}
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Лицевой счет</td>
+                            <td>
+                                 {% if transfers.account %} <a href="{% url 'account_detail' transfers.account.id %}">
+                                    {{ transfers.account.number }} </a>{% else %}не указано{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Статья</td>
+                            <td> {% if transfers.item %}
+                                    {{ transfers.item }}{% else %}не указано{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Квитанция</td>
+                            <td>
+                                не указано
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Услуга</td>
+                            <td>
+                                не указано
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Менеджер</td>
+                            <td>
+                               {% if transfers.manager %} <a href="{% url 'user_detail' transfers.manager.id %}">
+                                    {{ transfers.manager }} </a>{% else %}не указано{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Сумма</td>
+                            <td>
+                                <span class="text-green">{% if transfers.amount %}
+                                    {{ transfers.amount }}{% else %}не указано{% endif %}</td></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Комментарий</td>
+                            <td>{% if transfers.comment %}
+                                    {{ transfers.comment }}{% else %}не указано{% endif %}</td></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -194,115 +130,7 @@
 {% endblock %}
 
 {% block script %}
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // ...
-
-            // Handle click on row link
-            $('#TransfersTable tbody').on('click', 'tr', function () {
-                var url = $(this).attr('href');
-                ;
-                console.log(url)
-                window.location.href = url;
-            });
-        });
-
-        $(document).ready(function () {
-
-            // Initialize DataTable
-            $("#TransfersTable").DataTable({
 
 
-                processing: true,
-                serverSide: true,
-                searching: false,
-                paging: false,
-                ordering: false,
-                info: false,
-
-
-                ajax: {
-                    url: "{% url 'select_invoices' %}",
-                    type: "GET",
-
-                    data: function (d) {
-                        d.filterNumber = $("#filterNumber").val();
-                        d.filterDateDay = $("#filterDate").val();
-                        d.filterDateMonth = $("#filterComplited").val();
-                        d.filterStatus = $("#filterItem").val();
-                        d.filterApartment = $("#filterOwner").val();
-                        d.filterOwner = $("#filterAccount").val();
-                        d.filterDone = $("#filterIncome").val();
-
-
-                    }
-                },
-                columns: [
-                    {data: "number"},
-                    {data: "day"},
-                    {data: "complited"},
-                    {data: "item"},
-                    {data: "owner"},
-                    {data: "account"},
-                    {data: "income"},
-                    {data: "amount"},
-                    {data: null}
-                ],
-                columnDefs: [
-                    {
-                        targets: 0, // выбираем первую колонку (нумерация начинается с 0)
-
-                        "render": function (data, type, row) {
-                            return '<input type="checkbox" class="delete" value="' + data.id + '">';
-                        },
-                        className: 'dt-body-center' // добавляем класс, чтобы выровнять чекбокс по центру ячейки
-                    },
-                    {
-                        targets: -1, // выбираем последнюю колонку
-
-                        render: function (data, type, row, meta) {
-                            var url_update = "{% url 'transfer_update' pk=0  %}".replace('0', data.id);
-                            var url_delete = "{% url 'transfer_delete' pk=0  %}".replace('0', data.id);
-                            return`<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
-                                `<a class="btn btn-default btn-sm" href="${url_delete}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>`;
-                        }
-                    },
-
-                ],
-                createdRow: function (row, data, dataIndex) {
-                    var url_detail = "{% url 'transfer_detail' pk=0  %}".replace('0', data.id);
-                    $(row).attr('href', `${url_detail}`);
-                }
-            });
-
-            // Handle filter fields
-            $("#filterNumber, #filterDate, #filterComplited, #filterItem, #filterOwner, #filterAccount, #filterIncome").on("keyup change", function () {
-                $("#InvoicesTable").DataTable().draw();
-            });
-
-            // Handle clear filters button
-            $("#clearFilters").on("click", function () {
-                $("#filterNumber, #filterDate, #filterComplited, #filterItem, #filterOwner, #filterAccount, #filterIncome").val("");
-                $("#TransfersTable").DataTable().draw();
-            });
-        });
-
-        $('.select_transfer').select2({
-            placeholder: 'Или выберите из списка...',
-            allowClear: true,
-            width: '100%',
-
-            language: {
-                "noResults": function () {
-                    return 'Свободные лицевые счета отсутствуют.'
-                }
-            }
-        })
-
-
-    </script>
 {% endblock %}
 

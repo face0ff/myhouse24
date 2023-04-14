@@ -75,8 +75,8 @@
                             Выберите действие <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="/admin/account-transaction/create?type=in">Создать приход</a></li>
-                            <li><a href="/admin/account-transaction/create?type=out">Создать расход</a></li>
+                            <li><a href="{% url 'transfer_create' %}?type=income">Создать приход</a></li>
+                            <li><a href="{% url 'transfer_create' %}?type=out">Создать расход</a></li>
                             <li><a href="/admin/account-transaction/export?sort=-searchUidDate">Выгрузить в Excel</a>
                             </li>
                         </ul>
@@ -130,16 +130,16 @@
                                         <td>
                                             <select class="form-control" name="item" id="filterItem">
                                                 <option hidden disabled selected value></option>
-                                                {% for transfer in object_list %}
-                                                    <option value="{{ transfer.item.id }}">{{ transfer.item }}</option>
+                                                {% for item in items %}
+                                                    <option value="{{ item.id }}">{{ item.name }}</option>
                                                 {% endfor %}
                                             </select>
                                         </td>
                                         <td>
                                             <select class="select_transfer form-control input-xl" id="filterOwner">
                                                 <option hidden disabled selected value></option>
-                                                {% for transfer in object_list %}
-                                                    <option value="{{ transfer.owner.id }}">{{ transfer.owner }}</option>
+                                                {% for owner in owners %}
+                                                    <option value="{{ owner.id }}">{{ owner }}</option>
                                                 {% endfor %}
                                             </select></td>
                                         <td><input type="text" class="form-control" id="filterAccount"
@@ -213,6 +213,29 @@
 
             // Initialize DataTable
             $("#TransfersTable").DataTable({
+                "language": {
+                        "sEmptyTable": "В таблице отсутствуют данные",
+                        "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
+                        "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
+                        "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
+                        "sInfoPostFix": "",
+                        "sInfoThousands": ",",
+                        "sLengthMenu": "Показать _MENU_ записей",
+                        "sLoadingRecords": "Загрузка...",
+                        "sProcessing": "Обработка...",
+                        "sSearch": "Поиск:",
+                        "sZeroRecords": "Совпадений не найдено",
+                        "oPaginate": {
+                            "sFirst": "Первая",
+                            "sLast": "Последняя",
+                            "sNext": "Следующая",
+                            "sPrevious": "Предыдущая"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": активировать для сортировки столбца по возрастанию",
+                            "sSortDescending": ": активировать для сортировки столбца по убыванию"
+                        }
+                    },
 
 
                 processing: true,
@@ -253,6 +276,7 @@
                     {data: "amount"},
                     {data: null}
                 ],
+
                 columnDefs: [
 
                     {

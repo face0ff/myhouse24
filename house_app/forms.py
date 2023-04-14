@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.images import get_image_dimensions
@@ -366,3 +367,28 @@ class TransferForm(forms.ModelForm):
     class Meta:
         model = Transfers
         fields = '__all__'
+
+        widgets = {
+            'number': NumberInput(attrs={'class': 'form-control'}),
+            'date': DateInput(attrs={'class': 'form-control',
+                                     'type': 'text'}),
+            'owner': Select(attrs={'class': 'form-control'}),
+            'account': Select(attrs={'class': 'form-control'}),
+            'item': Select(attrs={'class': 'form-control'}),
+            'amount': NumberInput(attrs={'class': 'form-control'}),
+            'manager': Select(attrs={'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'rows': 7, 'class': 'form-control', 'placeholder': 'Текст сообщения:'}),
+
+        }
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+        self.fields['owner'].empty_label = 'Выберите...'
+        self.fields['owner'].queryset = UserProfile.objects.filter(role_id__isnull=True)
+        self.fields['account'].empty_label = 'Выберите...'
+        self.fields['item'].empty_label = 'Выберите...'
+        self.fields['manager'].initial = user
+        self.fields['manager'].queryset = UserProfile.objects.filter(is_staff=True)
+        self.fields['manager'].empty_label = 'Выберите...'
