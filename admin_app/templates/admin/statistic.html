@@ -19,13 +19,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-primary">
             <div class="inner">
-                <h3>46</h3>
+                <h3>{{ houses.count }}</h3>
                 <p>Домов</p>
             </div>
             <div class="icon">
                 <i class="fa fa-building"></i>
             </div>
-            <a href="/admin/house/index" class="small-box-footer">
+            <a href="{% url 'houses_list' %}" class="small-box-footer">
                 Перейти в дома <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -33,13 +33,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-green">
             <div class="inner">
-                <h3>20</h3>
+                <h3>{{ owners.count }}</h3>
                 <p>Активных владельцев</p>
             </div>
             <div class="icon">
                 <i class="fa fa-users"></i>
             </div>
-            <a href="/admin/user/index" class="small-box-footer">
+            <a href="{% url 'owners_list' %}" class="small-box-footer">
                 Перейти к владельцам <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -47,13 +47,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-yellow">
             <div class="inner">
-                <h3>14</h3>
+                <h3>{{ requests.count }}</h3>
                 <p>Заявок мастера в работе</p>
             </div>
             <div class="icon">
                 <i class="fa fa-wrench"></i>
             </div>
-            <a href="/admin/master-request/index" class="small-box-footer">
+            <a href="{% url 'requests_list' %}" class="small-box-footer">
                 Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -61,13 +61,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-primary">
             <div class="inner">
-                <h3>140</h3>
+                <h3>{{ apartments.count }}</h3>
                 <p>Квартир</p>
             </div>
             <div class="icon">
                 <i class="fa fa-key"></i>
             </div>
-            <a href="/admin/flat/index" class="small-box-footer">
+            <a href="{% url 'apartments_list' %}" class="small-box-footer">
                 Перейти в квартиры <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -75,13 +75,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-green">
             <div class="inner">
-                <h3>87</h3>
+                <h3>{{ accounts.count }}</h3>
                 <p>Лицевых счетов</p>
             </div>
             <div class="icon">
                 <i class="fa fa-child"></i>
             </div>
-            <a href="/admin/account/index" class="small-box-footer">
+            <a href="{% url 'accounts_list' %}" class="small-box-footer">
                 Перейти к счетам <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -89,13 +89,13 @@
     <div class="col-lg-4 col-sm-6 col-xs-12">
         <div class="small-box bg-yellow">
             <div class="inner">
-                <h3>36</h3>
+                <h3>{{ requests_new.count }}</h3>
                 <p>Новых заявок мастера</p>
             </div>
             <div class="icon">
                 <i class="fa fa-user-plus"></i>
             </div>
-            <a href="/admin/master-request/index" class="small-box-footer">
+            <a href="{% url 'requests_list' %}" class="small-box-footer">
                 Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -120,21 +120,21 @@
             <span class="info-box-icon bg-red"><i class="fa fa-money"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Задолженность по счетам, грн</span>
-                <span class="info-box-number">353 217.10</span>
+                <span class="info-box-number">{% if debt %}{{ debt }}{% else %}0,00{% endif %} грн</span>
             </div>
         </div>
         <div class="info-box">
             <span class="info-box-icon bg-blue"><i class="fa fa-money"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Баланс по счетам, грн</span>
-                <span class="info-box-number">460 018.62</span>
+                <span class="info-box-number">{% if balance %}{{ balance }}{% else %}0,00{% endif %} грн</span>
             </div>
         </div>
         <div class="info-box">
             <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Состояние кассы, грн</span>
-                <span class="info-box-number">303 691.94</span>
+                <span class="info-box-number">{% if cashbox %}{{ cashbox }}{% else %}0,00{% endif %} грн</span>
             </div>
         </div>
 <!--        <div class="info-box">

@@ -138,7 +138,34 @@
 {% endblock %}
 
 {% block script %}
+    <script>
+    $(document).ready(function () {
+            $('#id_owner').change(function () {
+                $.ajax({
+                    url: '{% url 'select_owners' %}',
+                    type: 'GET',
+                    data: {owner_field: $(this).val()},
+                    success: function (data) {
+                        // Очистить выбор в другом поле
+                        $('#id_account').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+                        $("#id_account").append("<option value selected>Выберите...</option>")
+                        $.each(data.accounts_data, function (key, value) {
 
+                            $('#id_account')
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                        });
+                    },
+                    error: (data) => {
+                        $('#id_account').empty()
+                        $("#id_account").append("<option value selected>Выберите...</option>")
+                    }
+
+                });
+            });
+        });
+
+    </script>
 
 {% endblock %}
 

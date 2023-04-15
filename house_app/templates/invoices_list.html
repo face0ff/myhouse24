@@ -192,11 +192,19 @@
 
     <script>
         $(document).ready(function () {
+
+            if (window.location.search != ' ') {
+                $("#filterApartment").val(window.location.search.split('=')[1]);
+            } else {
+                $("#filterApartment").val('0')
+            }
+
             // ...
 
             // Handle click on row link
             $('#InvoicesTable tbody').on('click', 'tr', function () {
-                var url = $(this).attr('href');;
+                var url = $(this).attr('href');
+                ;
                 console.log(url)
                 window.location.href = url;
             });
@@ -206,7 +214,29 @@
 
             // Initialize DataTable
             $("#InvoicesTable").DataTable({
-
+                "language": {
+                        "sEmptyTable": "В таблице отсутствуют данные",
+                        "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
+                        "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
+                        "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
+                        "sInfoPostFix": "",
+                        "sInfoThousands": ",",
+                        "sLengthMenu": "Показать _MENU_ записей",
+                        "sLoadingRecords": "Загрузка...",
+                        "sProcessing": "Обработка...",
+                        "sSearch": "Поиск:",
+                        "sZeroRecords": "Совпадений не найдено",
+                        "oPaginate": {
+                            "sFirst": "Первая",
+                            "sLast": "Последняя",
+                            "sNext": "Следующая",
+                            "sPrevious": "Предыдущая"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": активировать для сортировки столбца по возрастанию",
+                            "sSortDescending": ": активировать для сортировки столбца по убыванию"
+                        }
+                    },
 
                 processing: true,
                 serverSide: true,

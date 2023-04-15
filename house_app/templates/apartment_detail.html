@@ -102,9 +102,9 @@
                                 <p><a href="{% url 'meter_apartment_list' %}?apartment_id={{ apartment.id }}">Посмотреть
                                     показания счетчиков</a></p>
                                 <p>
-                                    <a href="/admin/account-transaction/index?AccountTransactionSearch%5Baccount_id%5D=0&AccountTransactionSearch%5Btype%5D=in">Посмотреть
+                                    <a href="{% url 'transfers_list' %}?apartment={{ apartment.account.number }}">Посмотреть
                                         приходы</a></p>
-                                <p><a href="/admin/invoice/index?InvoiceSearch%5Bflat_id%5D=306">Посмотреть
+                                <p><a href="{% url 'invoices_list' %}?apartment={{ apartment.number }}">Посмотреть
                                     квитанции</a></p>
                             </div>
                         </div>

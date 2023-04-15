@@ -55,6 +55,8 @@ urlpatterns = [
     path("admin/transfer/update/<int:pk>", TransferUpdate.as_view(), name='transfer_update'),
     path("admin/transfer/delete/<int:pk>", views.transfer_delete, name='transfer_delete'),
     path("select_transfers/", select_transfers, name='select_transfers'),
+    path("select_owners/", select_owners, name='select_owners'),
+
 
 
 

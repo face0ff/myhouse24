@@ -33,12 +33,12 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">Просмотр лицевого счета</h3>
                     <div class="box-tools">
-                        <a href="#"
+                        <a href="{% url 'transfer_create'  %}?account={{ account.id }}"
                            class="btn btn-default btn-sm">
                             <span class="hidden-xs"><i class="fa fa-dollar"></i> Принять платеж</span><i
                                 class="fa fa-pencil visible-xs" aria-hidden="true"></i>
                         </a>
-                        <a href="#" class="btn btn-default btn-sm">
+                        <a href="{% url 'invoice_create'  %}?apartment={{ account.apartment.id }}" class="btn btn-default btn-sm">
                             <span class="hidden-xs"><i class="fa fa-files-o"></i> Оформить квитанцию</span><i
                                 class="fa fa-pencil visible-xs" aria-hidden="true"></i>
                         </a>

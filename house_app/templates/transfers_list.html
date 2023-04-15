@@ -199,6 +199,11 @@
     <script>
         $(document).ready(function () {
             // ...
+            if (window.location.search != ' ') {
+                $("#filterAccount").val(window.location.search.split('=')[1]);
+            } else {
+                $("#filterAccount").val('0')
+            }
 
             // Handle click on row link
             $('#TransfersTable tbody').on('click', 'tr', function () {

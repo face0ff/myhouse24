@@ -339,6 +339,8 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
+
+
             $('#id_houses').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',
@@ -399,6 +401,10 @@
         });
 
         $(document).ready(function () {
+             if (window.location.search.split('=')[1]) {
+                $("#apartment").val(window.location.search.split('=')[1]);
+                $("#apartment").text(window.location.search.split('=')[1]);
+            }
             $('#apartment').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',

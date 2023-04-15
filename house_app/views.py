@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.forms import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
@@ -537,7 +537,7 @@ class AccountsList(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_list = Account.objects.select_related('apartment', 'apartment__owner', 'apartment__section').all()
+        object_list = Account.objects.all()
         if self.request.GET.get('number'):
             object_list = object_list.filter(number__contains=self.request.GET.get('number'))
         if self.request.GET.get('status'):
@@ -671,6 +671,7 @@ class InvoicesList(ListView):
     template_name = 'invoices_list.html'
 
 
+
 class InvoiceCreate(CreateView):
     model = Invoice
     template_name = 'invoice_create.html'
@@ -689,6 +690,12 @@ class InvoiceCreate(CreateView):
         context = self.get_context_data()
         formset = context['formset']
         if formset.is_valid():
+            try:
+                account = get_object_or_404(Account, number=self.request.POST.get('account'))
+                account.balance = account.balance - int(self.request.POST.get('amount'))
+                account.save()
+            except:
+                pass
             invoice = form.save()
             instances = formset.save(commit=False)
             for instance in instances:
@@ -717,8 +724,16 @@ class InvoiceUpdate(UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context['formset']
+
         if formset.is_valid():
+            invoice = self.get_object()
+            previous_amount = invoice.amount
             invoice = form.save()
+            account = get_object_or_404(Account, number=self.request.POST.get('account'))
+            old_balance = account.balance
+            new_balance = old_balance + previous_amount - int(self.request.POST.get('amount'))
+            account.balance = new_balance
+            account.save()
             instances = formset.save(commit=False)
             for instance in instances:
                 try:
@@ -749,7 +764,10 @@ class InvoiceDetail(DetailView):
 
 def invoice_delete(request, pk):
     try:
+        account = Account.objects.get(apartment__invoice=pk)
         invoice = get_object_or_404(Invoice, id=pk)
+        account.balance = account.balance + invoice.amount
+        account.save()
         invoice.delete()
         invoice_service = get_object_or_404(InvoiceService, id=pk)
         invoice_service.delete()
@@ -765,6 +783,7 @@ def select_invoices(request):
     invoices = Invoice.objects.all()
     invoices_list = []
     filters = Q()
+
 
     if request.GET['filterNumber']:
         filters &= Q(number=request.GET['filterNumber'])
@@ -828,6 +847,7 @@ def invoice_unit(request):
         }
         return JsonResponse(response, status=200)
 
+
 class TransfersList(ListView):
     model = Transfers
     template_name = 'transfers_list.html'
@@ -837,7 +857,23 @@ class TransfersList(ListView):
         context['object_list'] = Transfers.objects.all()
         context['owners'] = UserProfile.objects.filter(role_id__isnull=True)
         context['items'] = Item.objects.all()
+        context['income'] = Transfers.objects.filter(completed=True, income=True).aggregate(total_amount=Sum('amount'))[
+            'total_amount']
+        expense = Transfers.objects.filter(completed=True, income=False).aggregate(total_amount=Sum('amount'))[
+            'total_amount']
+        context['expense'] = abs(expense) if expense else '0'
+
+        context['balance'] = \
+            Account.objects.filter(status='active', balance__gt=0).aggregate(total_balance=Sum('balance'))[
+                'total_balance']
+        context['debt'] = \
+            Account.objects.filter(status='active', balance__lt=0).aggregate(total_debt=Sum('balance'))[
+                'total_debt']
+        context['cashbox'] = \
+            Transfers.objects.filter(completed=True).aggregate(total_cash=Sum('amount'))[
+                'total_cash']
         return context
+
 
 class TransferCreate(CreateView):
     model = Transfers
@@ -849,6 +885,7 @@ class TransferCreate(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         transfer_type = self.request.GET.get('type')
@@ -858,15 +895,37 @@ class TransferCreate(CreateView):
             self.template_name = 'transfer_create_out.html'
         return context
 
+    def form_valid(self, form):
+
+        if form.is_valid():
+            if self.request.POST.get('income') == 'True':
+                account = get_object_or_404(Account, id=self.request.POST.get('account'))
+                print(account)
+                account.balance = account.balance + int(self.request.POST.get('amount'))
+                account.save()
+            else:
+                transfer = form.save(commit=False)
+                transfer.amount= -int(self.request.POST.get('amount'))
+                transfer.save()
+            form.save()
+            return HttpResponseRedirect(self.success_url)
+        else:
+            # Выводим только те ошибки, которые присутствуют в форме
+            print(form.errors)
+            return render(self.request, self.template_name, {'form': form})
+
+
 class TransferUpdate(UpdateView):
     model = Transfers
     template_name = 'transfer_update.html'
     form_class = TransferForm
     success_url = reverse_lazy('transfers_list')
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         transfer_type = Transfers.objects.get(id=self.get_object().pk)
@@ -878,7 +937,13 @@ class TransferUpdate(UpdateView):
 
     def form_valid(self, form):
         print(self.request.GET.get('copy'))
-        if self.request.GET.get('copy') =='':
+        if self.request.POST.get('income') == 'True':
+            account = get_object_or_404(Account, id=self.request.POST.get('account'))
+            transfer = get_object_or_404(Transfers, id=self.get_object().pk)
+            old_balance = account.balance - transfer.amount
+            account.balance = old_balance + int(self.request.POST.get('amount'))
+            account.save()
+        if self.request.GET.get('copy') == '':
             # Получить последний идентификатор
             last_id = Transfers.objects.all().order_by('-id').first().id
             last_number = Transfers.objects.all().order_by('-id').first().number
@@ -910,8 +975,13 @@ class TransferDetail(DetailView):
 
 def transfer_delete(request, pk):
     transfer = get_object_or_404(Transfers, id=pk)
+    if transfer.income:
+        account = Account.objects.get(transfers=pk)
+        account.balance = account.balance - transfer.amount
+        account.save()
     transfer.delete()
     return redirect('transfers_list')
+
 
 def select_transfers(request):
     # print(request.GET['filterNumber'])
@@ -933,7 +1003,7 @@ def select_transfers(request):
     if request.GET['filterOwner']:
         filters &= Q(owner=request.GET['filterOwner'])
     if request.GET['filterAccount']:
-        filters &= Q(account=request.GET['filterAccount'])
+        filters &= Q(account__number=request.GET['filterAccount'])
     if request.GET['filterIncome']:
         filters &= Q(income=request.GET['filterIncome'])
 
@@ -955,7 +1025,7 @@ def select_transfers(request):
         transfers_list.append(transfer_dict)
 
     page_number = request.GET.get('page', 1)
-    paginator = Paginator(transfers, 10)
+    paginator = Paginator(transfers_list, 10)
     page_obj = paginator.get_page(page_number)
 
     response = {
@@ -965,3 +1035,12 @@ def select_transfers(request):
         'data': list(transfers_list),
     }
     return JsonResponse(response, status=200)
+
+
+def select_owners(request):
+    if request.GET.get('owner_field'):
+        accounts = Account.objects.filter(apartment__owner_id=request.GET.get('owner_field')).values('id', 'number')
+        response = {
+            'accounts_data': list(accounts),
+        }
+        return JsonResponse(response, status=200)
