@@ -1,175 +1,243 @@
 {% extends "admin/base.html" %}
 {% load static %}
-{% block content%}
+{% block content %}
     <div class="content-wrapper">
-    <section class="content-header">
-        <h1>
-            Статистика        </h1>
+        <section class="content-header">
+            <h1>
+                Статистика </h1>
 
-            </section>
+        </section>
 
-    <section class="content">
-                <div class="row">
-    <div class="col-xs-12 col-sm-6">
-        <h2 class="page-header">В вашем обслуживании</h2>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-primary">
-            <div class="inner">
-                <h3>{{ houses.count }}</h3>
-                <p>Домов</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-building"></i>
-            </div>
-            <a href="{% url 'houses_list' %}" class="small-box-footer">
-                Перейти в дома <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-green">
-            <div class="inner">
-                <h3>{{ owners.count }}</h3>
-                <p>Активных владельцев</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-users"></i>
-            </div>
-            <a href="{% url 'owners_list' %}" class="small-box-footer">
-                Перейти к владельцам <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-yellow">
-            <div class="inner">
-                <h3>{{ requests.count }}</h3>
-                <p>Заявок мастера в работе</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-wrench"></i>
-            </div>
-            <a href="{% url 'requests_list' %}" class="small-box-footer">
-                Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-primary">
-            <div class="inner">
-                <h3>{{ apartments.count }}</h3>
-                <p>Квартир</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-key"></i>
-            </div>
-            <a href="{% url 'apartments_list' %}" class="small-box-footer">
-                Перейти в квартиры <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-green">
-            <div class="inner">
-                <h3>{{ accounts.count }}</h3>
-                <p>Лицевых счетов</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-child"></i>
-            </div>
-            <a href="{% url 'accounts_list' %}" class="small-box-footer">
-                Перейти к счетам <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-4 col-sm-6 col-xs-12">
-        <div class="small-box bg-yellow">
-            <div class="inner">
-                <h3>{{ requests_new.count }}</h3>
-                <p>Новых заявок мастера</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-user-plus"></i>
-            </div>
-            <a href="{% url 'requests_list' %}" class="small-box-footer">
-                Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-8 col-md-7 col-xs-12">
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">График погашения квитанций, грн</h3>
-            </div>
-            <div class="box-body">
-                <div class="chart">
-                    <canvas id="barChart" style="height: 201px;"></canvas>
-                    <div id="barChart-legend" class="text-center"></div>
+        <section class="content">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <h2 class="page-header">В вашем обслуживании</h2>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-5 col-xs-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-red"><i class="fa fa-money"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Задолженность по счетам, грн</span>
-                <span class="info-box-number">{% if debt %}{{ debt }}{% else %}0,00{% endif %} грн</span>
-            </div>
-        </div>
-        <div class="info-box">
-            <span class="info-box-icon bg-blue"><i class="fa fa-money"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Баланс по счетам, грн</span>
-                <span class="info-box-number">{% if balance %}{{ balance }}{% else %}0,00{% endif %} грн</span>
-            </div>
-        </div>
-        <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Состояние кассы, грн</span>
-                <span class="info-box-number">{% if cashbox %}{{ cashbox }}{% else %}0,00{% endif %} грн</span>
-            </div>
-        </div>
-<!--        <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="fa fa-cog"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Задолженность за месяц, грн</span>
-                <span class="info-box-number">0.00</span>
-            </div>
-        </div>
-        <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="fa fa-cog"></i></span>
-            <div class="info-box-content">
-                <span class="info-box-text">Задолженность за квартал, грн</span>
-                <span class="info-box-number">70 880.50</span>
-            </div>
-        </div>-->
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-12">
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">График приходов и расходов по кассе, грн</h3>
-            </div>
-            <div class="box-body">
-                <div class="chart">
-                    <canvas id="barChart2" style="height: 230px;"></canvas>
-                    <div id="barChart2-legend" class="text-center"></div>
+
+            <div class="row">
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ houses.count }}</h3>
+                            <p>Домов</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-building"></i>
+                        </div>
+                        <a href="{% url 'houses_list' %}" class="small-box-footer">
+                            Перейти в дома <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-green">
+                        <div class="inner">
+                            <h3>{{ owners.count }}</h3>
+                            <p>Активных владельцев</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <a href="{% url 'owners_list' %}" class="small-box-footer">
+                            Перейти к владельцам <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-yellow">
+                        <div class="inner">
+                            <h3>{{ requests.count }}</h3>
+                            <p>Заявок мастера в работе</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-wrench"></i>
+                        </div>
+                        <a href="{% url 'requests_list' %}" class="small-box-footer">
+                            Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ apartments.count }}</h3>
+                            <p>Квартир</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-key"></i>
+                        </div>
+                        <a href="{% url 'apartments_list' %}" class="small-box-footer">
+                            Перейти в квартиры <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-green">
+                        <div class="inner">
+                            <h3>{{ accounts.count }}</h3>
+                            <p>Лицевых счетов</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-child"></i>
+                        </div>
+                        <a href="{% url 'accounts_list' %}" class="small-box-footer">
+                            Перейти к счетам <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6 col-xs-12">
+                    <div class="small-box bg-yellow">
+                        <div class="inner">
+                            <h3>{{ requests_new.count }}</h3>
+                            <p>Новых заявок мастера</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-user-plus"></i>
+                        </div>
+                        <a href="{% url 'requests_list' %}" class="small-box-footer">
+                            Перейти в заявки <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col-lg-8 col-md-7 col-xs-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">График погашения квитанций, грн</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart">
+                                <canvas id="barChart" style="height: 201px;"></canvas>
+                                <div id="barChart-legend" class="text-center">
+                                <span style="padding-right: 3px"><i style="color: #dd4b39" class="fa fa-square-full"></i> Задолженность </span>
+                                <span style="padding-left: 3px"><i style="color: #00a65a" class="fa fa-square-full"></i> Погашение задолженности</span>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-5 col-xs-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-red"><i class="fa fa-money"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Задолженность по счетам, грн</span>
+                            <span class="info-box-number">{% if debt %}{{ debt }}{% else %}0,00{% endif %} грн</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <span class="info-box-icon bg-blue"><i class="fa fa-money"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Баланс по счетам, грн</span>
+                            <span class="info-box-number">{% if balance %}{{ balance }}{% else %}
+                                0,00{% endif %} грн</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Состояние кассы, грн</span>
+                            <span class="info-box-number">{% if cashbox %}{{ cashbox }}{% else %}
+                                0,00{% endif %} грн</span>
+                        </div>
+                    </div>
+                    <!--        <div class="info-box">
+                                <span class="info-box-icon bg-green"><i class="fa fa-cog"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Задолженность за месяц, грн</span>
+                                    <span class="info-box-number">0.00</span>
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <span class="info-box-icon bg-aqua"><i class="fa fa-cog"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Задолженность за квартал, грн</span>
+                                    <span class="info-box-number">70 880.50</span>
+                                </div>
+                            </div>-->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">График приходов и расходов по кассе, грн</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart">
+                                <canvas id="barChart2" style="height: 230px;"></canvas>
+                                <div id="barChart2-legend" class="text-center"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-</div>
 
-    </section>
 
-{% endblock%}
+{% endblock %}
 
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(function () {
+
+            // first CHART
+            var areaChartData = {
+                labels: ["\u044f\u043d\u0432., 2022", "\u0444\u0435\u0432\u0440., 2022", "\u043c\u0430\u0440\u0442, 2022", "\u0430\u043f\u0440., 2022", "\u043c\u0430\u0439, 2022", "\u0438\u044e\u043d\u044c, 2022", "\u0438\u044e\u043b\u044c, 2022", "\u0430\u0432\u0433., 2022", "\u0441\u0435\u043d\u0442., 2022", "\u043e\u043a\u0442., 2022", "\u043d\u043e\u044f\u0431., 2022", "\u0434\u0435\u043a., 2022"],
+                datasets: [
+                    {
+                        label: 'Задолженность',
+                        fillColor: 'rgba(221, 75, 57, 1)',
+                        strokeColor: 'rgba(221, 75, 57, 1)',
+                        data: [{% for sum in list_debts_by_month %}{{ sum }}, {% endfor %}]
+                    },
+                    {
+                        label: 'Погашение задолженности',
+                        fillColor: 'rgba(0, 166, 90, 1)',
+                        strokeColor: 'rgba(0, 166, 90, 1)',
+                        data: [{% for sum in list_incomes_by_month %}{{ sum }}, {% endfor %}]
+                    }
+                ]
+            };
+
+            var barChartCanvas = $('#barChart').get(0).getContext('2d');
+            var barChart = new Chart(barChartCanvas);
+            var barChartData = areaChartData;
+
+            var barChartOptions = {
+                //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+                scaleBeginAtZero: true,
+                //Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines: true,
+                //String - Colour of the grid lines
+                scaleGridLineColor: 'rgba(0,0,0,.05)',
+                //Number - Width of the grid lines
+                scaleGridLineWidth: 1,
+                //Boolean - Whether to show horizontal lines (except X axis)
+                scaleShowHorizontalLines: true,
+                //Boolean - Whether to show vertical lines (except Y axis)
+                scaleShowVerticalLines: true,
+                //Boolean - If there is a stroke on each bar
+                barShowStroke: true,
+                //Number - Pixel width of the bar stroke
+                barStrokeWidth: 2,
+                //Number - Spacing between each of the X value sets
+                barValueSpacing: 5,
+                //Number - Spacing between data sets within X values
+                barDatasetSpacing: 1,
+                //String - A legend template
+                legendTemplate: '',
+                //Boolean - whether to make the chart responsive
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            barChartOptions.datasetFill = false;
+            var myBarChart = barChart.Bar(barChartData, barChartOptions);
+            $('#barChart-legend').innerHTML = myBarChart.generateLegend();
+        });
+    </script>
+{% endblock %}
