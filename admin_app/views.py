@@ -31,17 +31,25 @@ class Stat(TemplateView):
                 'total_cash']
         list_debts_by_month = []
         list_incomes_by_month = []
+        list_expenses_by_month = []
         for i in range(1, 13):
             debt_by_month = Invoice.objects.all().aggregate(sum=Sum('amount', filter=(Q(date__month=i) & Q(done=True) &
                                                                          (Q(status='unpaid') | Q(status='piece')))))
             income_by_month = Transfers.objects.all().aggregate(sum=Sum('amount', filter=Q(date__month=i, income=True,
                                                                                 completed=True)))
+            expense_by_month = Transfers.objects.all().aggregate(sum=Sum('amount', filter=Q(date__month=i, income=False,
+                                                                                           completed=True)))
+
+            list_expenses_by_month.append(int(expense_by_month['sum']) if expense_by_month['sum'] else 0)
             list_debts_by_month.append(int(debt_by_month['sum']) if debt_by_month['sum'] else 0)
             list_incomes_by_month.append(int(income_by_month['sum']) if income_by_month['sum'] else 0)
         print(list_incomes_by_month)
         print(list_debts_by_month)
+        context['list_expenses_by_month'] = list_expenses_by_month
         context['list_debts_by_month'] = list_debts_by_month
         context['list_incomes_by_month'] = list_incomes_by_month
+
+
 
         return context
 
