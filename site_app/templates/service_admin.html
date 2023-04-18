@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% load filters %}
 {% load static %}
 {% block content %}
@@ -49,8 +49,8 @@
                                                 {% endif %}
                                              <label for="">Рекомендуемый размер: (650x300)</label>
                                                 {{ form.image }}
-                                                {{ form.header|as_crispy_field }}
-                                                {{ form.description|as_crispy_field }}
+                                                {{ form.header|add_class:'form-control' }}
+                                                {{ form.description|add_class:'form-control' }}
                                          </div>
                                     </div>
                                 {% endfor %}
@@ -66,8 +66,8 @@
 
                                         <label for="">Рекомендуемый размер: (650x300)</label>
                                             {{ block_formset.empty_form.image }}
-                                            {{ block_formset.empty_form.header|as_crispy_field }}
-                                            {{ block_formset.empty_form.description|as_crispy_field }}
+                                            {{ block_formset.empty_form.header|add_class:'form-control' }}
+                                            {{ block_formset.empty_form.description|add_class:'form-control' }}
 
                                     </div>
                                 </div>
@@ -76,9 +76,9 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h3 class="page-header">Настройки SEO</h3>
-                                        {{ seo_form.titles|as_crispy_field }}
-                                        {{ seo_form.descriptions|as_crispy_field }}
-                                        {{ seo_form.keywords|as_crispy_field }}
+                                        {{ seo_form.titles|add_class:'form-control' }}
+                                        {{ seo_form.descriptions|add_class:'form-control' }}
+                                        {{ seo_form.keywords|add_class:'form-control' }}
 
 
                                     </div>

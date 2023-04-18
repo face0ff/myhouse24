@@ -38,6 +38,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 # Application definition
 
 INSTALLED_APPS = [
+    'cabinet_app',
     'user_app',
     'house_app',
     'myhouse',
@@ -79,7 +80,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'site_app.context_processors.contex_site.welcome',
-                'admin_app.context_processors.contex_admin.user'
+                'admin_app.context_processors.contex_admin.user',
+
             ],
         },
     },

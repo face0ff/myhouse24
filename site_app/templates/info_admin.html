@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% load static %}
 {% block content %}
 <div class="content-wrapper">
@@ -25,8 +25,8 @@
                    <h3 class="page-header">Информация</h3>
                     <div class="row">
                         <div class="col-md-8">
-                        {{ info_form.header|as_crispy_field }}
-                        {{ info_form.text|as_crispy_field }}
+                        {{ info_form.header|add_class:'form-control' }}
+                        {{ info_form.text|add_class:'form-control' }}
 
                    </div>
 
@@ -60,8 +60,8 @@
                     <h3 class="page-header">Дополнительная информация</h3>
                     <div class="row">
                         <div class="col-xs-12">
-                            {{ info_form.adit_header|as_crispy_field }}
-                            {{ info_form.adit_text|as_crispy_field }}
+                            {{ info_form.adit_header|add_class:'form-control' }}
+                            {{ info_form.adit_text|add_class:'form-control' }}
                         </div>
 
                     </div>
@@ -110,7 +110,7 @@
                                             <label for="">PDF, JPG (макс. размер 20 Mb)</label><br>
                                             {{ form.files }}
 
-                                            {{ form.name|as_crispy_field }}
+                                            {{ form.name|add_class:'form-control' }}
 
                                         </div>
                                     {% endfor%}
@@ -121,7 +121,7 @@
 
                                     <label>PDF, JPG (макс. размер 20 Mb)</label><br>
                                     {{ files_formset.empty_form.files}}
-                                    {{ files_formset.empty_form.name|as_crispy_field}}
+                                    {{ files_formset.empty_form.name|add_class:'form.control'}}
                                 </div>
 
     <!--                            {{ files_formset.empty_form }}-->
@@ -137,9 +137,9 @@
                             <div class="row">
                                  <div class="col-md-12">
                                     <h3 class="page-header">Настройки SEO</h3>
-                                    {{ seo_form.titles|as_crispy_field }}
-                                    {{ seo_form.descriptions|as_crispy_field }}
-                                    {{ seo_form.keywords|as_crispy_field }}
+                                    {{ seo_form.titles|add_class:'form-control' }}
+                                    {{ seo_form.descriptions|add_class:'form-control' }}
+                                    {{ seo_form.keywords|add_class:'form-control' }}
 
 
                                 </div>

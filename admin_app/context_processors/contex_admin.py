@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 
+from house_app.models import Apartment
 from user_app.models import UserProfile
 
 
@@ -11,4 +12,5 @@ def user(request):
     return {
         'new_users': UserProfile.objects.filter(status='new'),
         'user': user,
+        'apartments_list': Apartment.objects.filter(owner=user),
         }

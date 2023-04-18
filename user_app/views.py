@@ -258,7 +258,7 @@ def login_owner(request):
             if not user.role and user.check_password(password):
                 login(request, user)
                 context = {user: user}
-                return render(request, 'admin/statistic.html', context)
+                return render(request, 'cabinet_statistic.html', context)
             else:
                 messages.info(request, 'Неверный пароль')
         except:

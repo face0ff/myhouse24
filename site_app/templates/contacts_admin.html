@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% load static %}
 {% block content %}
 <div class="content-wrapper">
@@ -26,36 +26,36 @@
 
                                         <div class="col-xs-12 col-md-8">
                                             <h3 class="page-header">Контактная информация</h3>
-                                                {{ contacts_form.header|as_crispy_field }}
-                                                {{ contacts_form.text|as_crispy_field }}
-                                                {{ contacts_form.url|as_crispy_field }}
+                                                {{ contacts_form.header|add_class:'form-control' }}
+                                                {{ contacts_form.text|add_class:'form-control'}}
+                                                {{ contacts_form.url|add_class:'form-control'}}
                                         </div>
 
 
 
                                     <div class="col-xs-12 col-md-4">
                                         <h3 class="page-header">Контакты</h3>
-                                        {{ contacts_form.fio|as_crispy_field }}
-                                        {{ contacts_form.location|as_crispy_field }}
-                                        {{ contacts_form.address|as_crispy_field }}
-                                        {{ contacts_form.phone|as_crispy_field }}
-                                        {{ contacts_form.email|as_crispy_field }}
+                                        {{ contacts_form.fio|add_class:'form-control' }}
+                                        {{ contacts_form.location|add_class:'form-control' }}
+                                        {{ contacts_form.address|add_class:'form-control'}}
+                                        {{ contacts_form.phone|add_class:'form-control' }}
+                                        {{ contacts_form.email|add_class:'form-control' }}
                                     </div>
 
 
 
                                         <div class="col-xs-12">
                                             <h3 class="page-header">Карта</h3>
-                                            {{ contacts_form.map|as_crispy_field }}
+                                            {{ contacts_form.map|add_class:'form-control' }}
                                         </div>
 
 
 
                                         <div class="col-md-12">
                                             <h3 class="page-header">Настройки SEO</h3>
-                                            {{ seo_form.titles|as_crispy_field }}
-                                            {{ seo_form.descriptions|as_crispy_field }}
-                                            {{ seo_form.keywords|as_crispy_field }}
+                                            {{ seo_form.titles|add_class:'form-control'}}
+                                            {{ seo_form.descriptions|add_class:'form-control'}}
+                                            {{ seo_form.keywords|add_class:'form-control' }}
 
 
                                         </div>
