@@ -627,6 +627,30 @@ def select_account(request):
             'apartment_data': list(apartment_house),
         }
         return JsonResponse(response, status=200)
+    if request.GET.get('account_field'):
+        owner = UserProfile.objects.get(apartment__account=request.GET.get('account_field'))
+        account = Account.objects.get(id=request.GET.get('account_field'))
+
+        owner_house = {
+            'house': account.apartment.house.name,
+            'house_id': account.apartment.house.id,
+            'section': account.apartment.section.name,
+            'section_id': account.apartment.section.id,
+            'apartment': account.apartment.number,
+            'apartment_id': account.apartment.id,
+            'id': owner.id,
+            'first': owner.first_name,
+            'last': owner.last_name,
+            'telephone': owner.telephone,
+            'account': account.number,
+            'account_id': account.id
+
+
+        }
+        response = {
+            'owners_data': owner_house,
+        }
+        return JsonResponse(response, status=200)
     if request.GET.get('section_field'):
         section = Section.objects.get(pk=request.GET.get('section_field'))
         if request.META.get('HTTP_REFERER').split('/')[4] == 'invoice':
@@ -686,6 +710,7 @@ class InvoiceCreate(CreateView):
         context['meters'] = meters
         return context
 
+
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context['formset']
@@ -729,11 +754,28 @@ class InvoiceUpdate(UpdateView):
             invoice = self.get_object()
             previous_amount = invoice.amount
             invoice = form.save()
-            account = get_object_or_404(Account, number=self.request.POST.get('account'))
-            old_balance = account.balance
-            new_balance = old_balance + previous_amount - int(self.request.POST.get('amount'))
-            account.balance = new_balance
-            account.save()
+            try:
+                account = get_object_or_404(Account, number=self.request.POST.get('account'))
+                old_balance = account.balance
+                new_balance = old_balance + previous_amount - int(self.request.POST.get('amount'))
+                account.balance = new_balance
+                account.save()
+            except:
+                pass
+            if self.request.GET.get('copy') == '':
+                # Получить последний идентификатор
+                last_id = Invoice.objects.all().order_by('-id').first().id
+                last_number = Invoice.objects.all().order_by('-id').first().number
+                # Увеличить на единицу
+                new_id = last_id + 1
+                # Установить имя
+                new_number = last_number + 1
+                # Сохранить новые значения
+                form.instance.id = new_id
+                form.instance.number = new_number
+                super(InvoiceUpdate, self).form_valid(form)
+                return redirect('invoice_detail', new_id)
+
             instances = formset.save(commit=False)
             for instance in instances:
                 try:
@@ -773,6 +815,8 @@ def invoice_delete(request, pk):
         invoice_service.delete()
     except:
         pass
+    invoice = get_object_or_404(Invoice, id=pk)
+    invoice.delete()
     return redirect('invoices_list')
 
 
@@ -818,20 +862,32 @@ def select_invoices(request):
             'id': invoice.id
         }
         invoices_list.append(invoice_dict)
+
+    page_number = request.GET.get('page')
+    paginator = Paginator(invoices_list, 10)
+    page_obj = paginator.get_page(page_number)
     response = {
         'draw': draw,
-        'data': list(invoices_list),
+        'recordsTotal': paginator.count,
+        'recordsFiltered': paginator.count,
+        'data': list(page_obj.object_list),
     }
     return JsonResponse(response, status=200)
 
 
 def delete_selected_invoice(request):
+    list_k = list(request.GET.keys())
+    if request.GET.keys():
+        for idk in list_k[0].split(','):
+            invoice = get_object_or_404(Invoice, id=idk)
+            invoice.delete()
+
     if request.GET.get('id'):
         id_invoice = request.GET.get('id')
         for i in id_invoice.split(' '):
             invoice = get_object_or_404(Invoice, id=i)
             invoice.delete()
-
+    return JsonResponse({}, status=200)
 
 def invoice_unit(request):
     if request.GET.get('service_id'):
@@ -863,15 +919,7 @@ class TransfersList(ListView):
             'total_amount']
         context['expense'] = abs(expense) if expense else '0'
 
-        context['balance'] = \
-            Account.objects.filter(status='active', balance__gt=0).aggregate(total_balance=Sum('balance'))[
-                'total_balance']
-        context['debt'] = \
-            Account.objects.filter(status='active', balance__lt=0).aggregate(total_debt=Sum('balance'))[
-                'total_debt']
-        context['cashbox'] = \
-            Transfers.objects.filter(completed=True).aggregate(total_cash=Sum('amount'))[
-                'total_cash']
+
         return context
 
 
@@ -889,7 +937,9 @@ class TransferCreate(CreateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         transfer_type = self.request.GET.get('type')
-        if transfer_type == 'income':
+        apart_account = self.request.GET.get('account')
+        print(transfer_type)
+        if transfer_type == 'income' or apart_account != None:
             self.template_name = 'transfer_create_income.html'
         else:
             self.template_name = 'transfer_create_out.html'
@@ -900,7 +950,6 @@ class TransferCreate(CreateView):
         if form.is_valid():
             if self.request.POST.get('income') == 'True':
                 account = get_object_or_404(Account, id=self.request.POST.get('account'))
-                print(account)
                 account.balance = account.balance + int(self.request.POST.get('amount'))
                 account.save()
             else:
@@ -911,7 +960,6 @@ class TransferCreate(CreateView):
             return HttpResponseRedirect(self.success_url)
         else:
             # Выводим только те ошибки, которые присутствуют в форме
-            print(form.errors)
             return render(self.request, self.template_name, {'form': form})
 
 
@@ -938,11 +986,14 @@ class TransferUpdate(UpdateView):
     def form_valid(self, form):
         print(self.request.GET.get('copy'))
         if self.request.POST.get('income') == 'True':
-            account = get_object_or_404(Account, id=self.request.POST.get('account'))
-            transfer = get_object_or_404(Transfers, id=self.get_object().pk)
-            old_balance = account.balance - transfer.amount
-            account.balance = old_balance + int(self.request.POST.get('amount'))
-            account.save()
+            try:
+                account = get_object_or_404(Account, id=self.request.POST.get('account'))
+                transfer = get_object_or_404(Transfers, id=self.get_object().pk)
+                old_balance = account.balance - transfer.amount
+                account.balance = old_balance + int(self.request.POST.get('amount').split('.')[0])
+                account.save()
+            except:
+                pass
         if self.request.GET.get('copy') == '':
             # Получить последний идентификатор
             last_id = Transfers.objects.all().order_by('-id').first().id
@@ -995,7 +1046,6 @@ def select_transfers(request):
         filters &= Q(number=request.GET['filterNumber'])
     if request.GET['filterDate']:
         filters &= Q(date=request.GET.get('filterDate'))
-        print(request.GET['filterDate'])
     if request.GET['filterCompleted']:
         filters &= Q(completed=request.GET['filterCompleted'])
     if request.GET['filterItem']:
@@ -1024,7 +1074,7 @@ def select_transfers(request):
         }
         transfers_list.append(transfer_dict)
 
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get('page')
     paginator = Paginator(transfers_list, 10)
     page_obj = paginator.get_page(page_number)
 
@@ -1032,7 +1082,7 @@ def select_transfers(request):
         'draw': draw,
         'recordsTotal': paginator.count,
         'recordsFiltered': paginator.count,
-        'data': list(transfers_list),
+        'data': list(page_obj.object_list),
     }
     return JsonResponse(response, status=200)
 

@@ -1,10 +1,11 @@
 {% extends 'admin/base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
 {% load widget_tweaks %}
 
 
 {% block content %}
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{#    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />#}
+    <link href="{% static 'admin/bower_components/select2/dist/css/select2.min.css' %}" rel="stylesheet"/>
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
@@ -112,8 +113,8 @@
 
 {% endblock %}
 {% block script %}
-
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'admin/bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+{#<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>#}
     <script>
         $(document).ready(function () {
             $('#id_house').change(function () {

@@ -1,0 +1,229 @@
+{% extends "cabinet_base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Квитанции на оплату </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
+                <li class="active">Квитанции на оплату</li>
+            </ul>
+        </section>
+
+        <section class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"></h3>
+                            <div class="box-tools">
+                                <a href="{% url 'owner_invoice_list' %}" class="btn btn-default btn-sm">
+                                    <span id="clearFilters" class="hidden-xs">Очистить</span><i
+                                        class="fa fa-eraser visible-xs"
+                                        aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div id="w0" class="grid-view">
+                            <div class="box-body table-responsive no-padding">
+                                <table id="InvoicesTable"
+                                       class="table table-bordered table-hover table-striped linkedRow">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 125px; min-width: 125px">№</th>
+                                        <th style="width: 125px; min-width: 125px"><a class="desc" data-sort="sortDate"
+                                                                                      id="sortDate">Дата</a>
+                                        </th>
+                                        <th style="width: 120px; min-width: 120px">Статус</th>
+                                        <th style="width: 110px; min-width: 110px">Сумма (грн)</th>
+                                    </tr>
+                                    <tr id="w0-filters" class="filters">
+                                        <td>
+                                        </td>
+                                        <td><input type="date" class="form-control" name="date"
+                                                   id="filterDate">
+                                        </td>
+                                        <th>
+                                            <select class="form-control" name="status" id="filterStatus">
+                                                <option hidden disabled selected value></option>
+                                                <option value="paid">Оплачена</option>
+                                                <option value="piece">Частично оплачена</option>
+                                                <option value="unpaid">Неоплачена</option>
+                                            </select>
+                                        </th>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for invoice in object_list %}
+                                        <tr>
+
+                                            <td>{{ invoice.number }}</td>
+                                            <td>{{ invoice.date|date:"d.m.Y" }}</td>
+                                            <td>{{ invoice.get_status_display }}</td>
+                                            <td>{{ invoice.amount }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log(window.location.href.split('=')[1])
+            $('#InvoicesTable tbody').on('click', 'tr', function () {
+                var url = $(this).attr('href');
+
+                console.log(url)
+                window.location.href = url;
+            });
+        });
+
+        $(document).ready(function () {
+
+            // Initialize DataTable
+            $("#InvoicesTable").DataTable({
+                "language": {
+                    "sEmptyTable": "В таблице отсутствуют данные",
+                    "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
+                    "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
+                    "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ",",
+                    "sLengthMenu": "Показать _MENU_ записей",
+                    "sLoadingRecords": "Загрузка...",
+                    "sProcessing": "Обработка...",
+                    "sSearch": "Поиск:",
+                    "sZeroRecords": "Совпадений не найдено",
+                    "oPaginate": {
+                        "sFirst": "Первая",
+                        "sLast": "Последняя",
+                        "sNext": "Следующая",
+                        "sPrevious": "Предыдущая"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": активировать для сортировки столбца по возрастанию",
+                        "sSortDescending": ": активировать для сортировки столбца по убыванию"
+                    }
+                },
+
+
+                processing: true,
+                serverSide: true,
+                searching: false,
+                paging: true, // Включаем пагинацию
+                pageLength: 10, // Количество строк на странице
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]], // Выбор количества строк на странице
+                ordering: false,
+                info: false,
+
+
+                ajax: {
+                    url: "{% url 'select_owner_invoice' %}",
+                    type: "GET",
+
+                    data: function (d) {
+                        d.filterApart = window.location.href.split('=')[1]
+                        d.filterDate = $("#filterDate").val();
+                        d.filterStatus = $("#filterStatus").val();
+                        d.page = d.start / d.length + 1;
+
+
+                    }
+                },
+                columns: [
+                    {data: "number"},
+                    {data: "date"},
+                    {data: "status"},
+                    {data: "amount"},
+
+                ],
+
+
+                createdRow: function (row, data, dataIndex) {
+                    var url_detail = "{% url 'owner_invoice_detail' pk=0  %}".replace('0', data.id);
+                    $(row).attr('href', `${url_detail}`);
+                }
+            });
+
+            // Handle filter fields
+            $("#filterDate, #filterStatus").on("keyup change", function () {
+                $("#InvoicesTable").DataTable().draw();
+            });
+
+            // Handle clear filters button
+            $("#clearFilters").on("click", function () {
+                $("#filterDate, #filterStatus").val("");
+                $("#InvoicesTable").DataTable().draw();
+            });
+        });
+
+
+        $('input[name="date"]').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+    </script>
+{% endblock %}
+

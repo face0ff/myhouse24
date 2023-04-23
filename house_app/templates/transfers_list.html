@@ -157,7 +157,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for transfer in object_list %}
+                                    {% for transfer in page_obj %}
                                         <tr>
 
                                             <td>{{ transfer.number }}</td>
@@ -266,6 +266,7 @@
                         d.filterOwner = $("#filterOwner").val();
                         d.filterAccount = $("#filterAccount").val();
                         d.filterIncome = $("#filterIncome").val();
+                        d.page = d.start / d.length + 1;
 
 
                     }

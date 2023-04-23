@@ -402,8 +402,54 @@
 
         $(document).ready(function () {
              if (window.location.search.split('=')[1]) {
-                $("#apartment").val(window.location.search.split('=')[1]);
-                $("#apartment").text(window.location.search.split('=')[1]);
+
+                $.ajax({
+                    url: '{% url 'select_account' %}',
+                    type: 'GET',
+                    data: {account_field: window.location.search.split('=')[1]},
+                    success: function (data) {
+                        console.log(data.owners_data)
+                        console.log(data.meters)
+                        // Очистить выбор в другом поле
+                        $('#name').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#name').append($('<a href="/admin/owner/' + data.owners_data.id + '">' + data.owners_data.first + ' ' + data.owners_data.last + '</a>'));
+                        $('#telephone').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#telephone').append($(' <a href="tel:' + data.owners_data.telephone + '">' + data.owners_data.telephone + '</a>'));
+
+                        $('#id_account').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#id_account').val(data.owners_data.account).text(data.owners_data.account_id);
+                        $('#id_houses').empty()
+                        $('#id_houses')
+                                .append($("<option value=" + data.owners_data.house_id + ">" + data.owners_data.house + "</option>"));
+                        $('#section').empty()
+                        $('#section')
+                                .append($("<option value=" + data.owners_data.section_id + ">" + data.owners_data.section + "</option>"));
+                        $('#apartment').empty()
+                        $('#apartment')
+                                .append($("<option value=" + data.owners_data.apartment_id + ">" + data.owners_data.apartment + "</option>"));
+
+                        // Заполнить другое поле данными, полученными с сервера
+
+
+
+
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#id_tariff').val(data.owners_data.tariff_id);
+
+
+                    },
+
+                });
+
+
+
             }
             $('#apartment').change(function () {
                 $.ajax({

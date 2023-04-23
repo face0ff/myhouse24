@@ -108,9 +108,12 @@ class UserUpdate(UpdateView):
     success_url = reverse_lazy('users_list')
 
     def form_valid(self, form):
-        body_text = f"Ваш новый пароль - {form.cleaned_data['password1']}"
-        send_mail('Админ молодец', body_text, None, [form.cleaned_data['email']], fail_silently=False)
-        return super().form_valid(form)
+        try:
+            body_text = f"Ваш новый пароль - {form.cleaned_data['password1']}"
+            send_mail('Админ молодец', body_text, None, [form.cleaned_data['email']], fail_silently=False)
+            return super().form_valid(form)
+        except:
+            return super().form_valid(form)
 
 def user_delete(request, pk):
     user = get_object_or_404(UserProfile, id=pk)
@@ -201,9 +204,12 @@ class OwnerUpdate(UpdateView):
     success_url = reverse_lazy('owners_list')
 
     def form_valid(self, form):
-        body_text = f"Ваш новый пароль - {form.cleaned_data['password1']}"
-        send_mail('Админ молодец', body_text, None, [form.cleaned_data['email']], fail_silently=False)
-        return super().form_valid(form)
+        try:
+            body_text = f"Ваш новый пароль - {form.cleaned_data['password1']}"
+            send_mail('Админ молодец', body_text, None, [form.cleaned_data['email']], fail_silently=False)
+            return super().form_valid(form)
+        except:
+            return super().form_valid(form)
 
 def owner_delete(request, pk):
     user = get_object_or_404(UserProfile, id=pk)
@@ -236,8 +242,7 @@ def login_admin(request):
             user = UserProfile.objects.get(email=username)
             if user.role and user.check_password(password):
                 login(request, user)
-                context = {user: user}
-                return render(request, 'admin/statistic.html', context)
+                return redirect('/admin')
             else:
                 messages.info(request, 'Неверный пароль')
         except:
@@ -257,8 +262,10 @@ def login_owner(request):
             print(user)
             if not user.role and user.check_password(password):
                 login(request, user)
-                context = {user: user}
-                return render(request, 'cabinet_statistic.html', context)
+                apartment = Apartment.objects.filter(owner=user.id).values('id').first()
+                apart_id=apartment['id']
+                url = f'/cabinet/apartment_detail/{apart_id}'
+                return redirect(url)
             else:
                 messages.info(request, 'Неверный пароль')
         except:

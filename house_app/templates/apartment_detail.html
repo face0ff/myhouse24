@@ -22,12 +22,17 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">Просмотр квартиры</h3>
                     <div class="box-tools">
-                        <button class="btn btn-default btn-sm disabled" data-confirm="Лицевой счет неактивен"><span
-                                class="hidden-xs"><i class="fa fa-dollar"></i> Принять платеж</span><i
-                                class="fa fa-pencil visible-xs" aria-hidden="true"></i></button>
-                        <button class="btn btn-default btn-sm disabled" data-confirm="Лицевой счет неактивен"><span
-                                class="hidden-xs"><i class="fa fa-files-o"></i> Оформить квитанцию</span><i
-                                class="fa fa-pencil visible-xs" aria-hidden="true"></i></button>
+                        {% if apartment.account %}<a href="{% url 'transfer_create'  %}?account={{ apartment.account.id }}?owner={{ apartment.owner.id }}"
+                           class="btn btn-default btn-sm">
+                            <span class="hidden-xs"><i class="fa fa-dollar"></i> Принять платеж</span><i
+                                class="fa fa-pencil visible-xs" aria-hidden="true"></i>
+                        </a>
+
+                        <a href="{% url 'invoice_create'  %}?account={{ apartment.account.id }}" class="btn btn-default btn-sm">
+                            <span class="hidden-xs"><i class="fa fa-files-o"></i> Оформить квитанцию</span><i
+                                class="fa fa-pencil visible-xs" aria-hidden="true"></i>
+                        </a>
+                        {% endif %}
                         <a href="{% url 'apartment_update' apartment.id %}" class="btn btn-primary btn-sm">
                             <span class="hidden-xs">Редактировать квартиру</span><i class="fa fa-pencil visible-xs"
                                                                                     aria-hidden="true"></i>
@@ -102,7 +107,7 @@
                                 <p><a href="{% url 'meter_apartment_list' %}?apartment_id={{ apartment.id }}">Посмотреть
                                     показания счетчиков</a></p>
                                 <p>
-                                    <a href="{% url 'transfers_list' %}?apartment={{ apartment.account.number }}">Посмотреть
+                                    <a href="{% url 'transfers_list' %}?account={{ apartment.account.number }}">Посмотреть
                                         приходы</a></p>
                                 <p><a href="{% url 'invoices_list' %}?apartment={{ apartment.number }}">Посмотреть
                                     квитанции</a></p>

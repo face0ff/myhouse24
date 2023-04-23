@@ -101,21 +101,30 @@ class ApartmentForm(forms.ModelForm):
         prev_acc = Account.objects.filter(apartment=apartment)
         # if prev_acc:
         #     prev_acc.update(apartment_id='')
+        print('111111111111111111111111111')
+        print(self.cleaned_data['account_number'])
         if self.cleaned_data['account_number']:
             try:
                 prev_acc.update(apartment_id='')
                 account = Account.objects.get(number=self.cleaned_data['account_number'])
-                account.apartment = apartment
+                print(account)
+                account.apartment_id = apartment
+                account.save()
+                if commit:
+
+                    apartment.save()
+
             except:
                 account = Account.objects.create(number=self.cleaned_data['account_number'])
+                if commit:
+                    apartment.save()
+                    account.apartment_id = apartment
+                    account.save()
+
         else:
             if commit:
                 apartment.save()
                 return apartment
-        if commit:
-            account.save()
-            apartment.save()
-
         return apartment
 
 
@@ -317,7 +326,6 @@ class InvoiceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print(self.instance.id)
         try:
             if self.instance.id:
                 houses = House.objects.get(apartment__invoice=self.instance.id)

@@ -86,6 +86,8 @@
 
 
 
+
+
                                         {% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'img/logo-mini.svg' %}{% endif %}"
                                                                                     class="img-circle" height="25"
                                                                                     style="padding-right: 9px; margin-bottom: 4px">{{ user }}</span>
@@ -95,6 +97,8 @@
                             <!-- User image -->
                             <li class="user-header" style="background-color: #f39c12">
                                 <img src="
+
+
 
 
 
@@ -130,14 +134,15 @@
     <!-- Left side column. contains the logo and sidebar -->
     <aside class="main-sidebar" style="padding-top: 60px;">
         <!-- sidebar -->
-        <section class="sidebar"  style="overflow: hidden; width: auto; height: 930px;">
+        <section class="sidebar" style="overflow: hidden; width: auto; height: 930px;">
 
             <ul class="sidebar-menu tree" data-widget="tree">
                 <li class="treeview"><a href="#!"><i class="fa fa-line-chart"></i> <span>Сводка</span> <span
                         class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
                     <ul class="treeview-menu">
                         {% for apart in apartments_list %}
-                            <li><a href="{% url 'owner_apartment_detail' apart.id %}"><i class="fa fa-building-o"></i> <span>ЖК "{{ apart.house.name }}" Кв.{{ apart.number }}</span></a>
+                            <li><a href="{% url 'owner_apartment_detail' apart.id %}"><i class="fa fa-building-o"></i>
+                                <span>ЖК "{{ apart.house.name }}" Кв.{{ apart.number }}</span></a>
                             </li>
                         {% endfor %}
 
@@ -147,21 +152,30 @@
                 <li class="treeview"><a href="#!"><i class="fa fa-files-o"></i> <span>Квитанции</span> <span
                         class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
                     <ul class="treeview-menu">
-                        <li><a href="#"><i class="fa fa-files-o"></i>
+                        <li><a href="{% url 'owner_invoice_list' %}"><i class="fa fa-files-o"></i>
                             <span>Все квитанции</span></a></li>
+                        {% for invoice in invoices_list %}
+                            <li><a href="{% url 'owner_invoice_list' %}?apartment={{ invoice.apartment.id }}"><i
+                                    class="fa fa-building-o"></i>
+                                <span>ЖК "{{ invoice.apartment.house.name }}" Кв.{{ invoice.apartment.number }}</span></a>
+                            </li>
+                        {% endfor %}
+
 
                     </ul>
                 </li>
                 <li class="treeview"><a href="#"><i class="fa fa-money"></i> <span>Тарифы</span>
                     <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
                     <ul class="treeview-menu">
-                        <li><a href="#"><i class="fa fa-file-text-o"></i>
-                            <span>ЖК "Башня Чкалов", кв.3425</span></a>
+                        {% for invoice in invoices_list %}
+                        <li><a href="{% url 'owner_tariff_list' %}?apartment={{ invoice.apartment.id }}"><i
+                                    class="fa fa-building-o"></i>
+                                <span>ЖК "{{ invoice.apartment.house.name }}" Кв.{{ invoice.apartment.number }}</span></a>
                         </li>
-
+                        {% endfor %}
                     </ul>
                 </li>
-                <li><a href="#"><i class="fa fa-envelope-o"></i> <span>Сообщения</span></a>
+                <li><a href="{% url 'owner_message_list' %}"><i class="fa fa-envelope-o"></i> <span>Сообщения</span></a>
                 </li>
                 <li><a href="#"><i class="fa fa-wrench"></i> <span>Вызов мастера</span></a>
                 </li>

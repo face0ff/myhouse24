@@ -33,12 +33,12 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">Просмотр лицевого счета</h3>
                     <div class="box-tools">
-                        <a href="{% url 'transfer_create'  %}?account={{ account.id }}"
+                        <a href="{% url 'transfer_create'  %}?account={{ account.id }}?owner={{ account.apartment.owner.id}}"
                            class="btn btn-default btn-sm">
                             <span class="hidden-xs"><i class="fa fa-dollar"></i> Принять платеж</span><i
                                 class="fa fa-pencil visible-xs" aria-hidden="true"></i>
                         </a>
-                        <a href="{% url 'invoice_create'  %}?apartment={{ account.apartment.id }}" class="btn btn-default btn-sm">
+                        <a href="{% url 'invoice_create'  %}?account={{ account.id }}" class="btn btn-default btn-sm">
                             <span class="hidden-xs"><i class="fa fa-files-o"></i> Оформить квитанцию</span><i
                                 class="fa fa-pencil visible-xs" aria-hidden="true"></i>
                         </a>
@@ -92,13 +92,13 @@
                                 </tbody>
                             </table>
                             <div>
-                                <p><a href="{% url 'meter_apartment_list' %}?apartment_id={{account.apartment.id }}">Посмотреть
+                               <p><a href="{% url 'meter_apartment_list' %}?apartment_id={{ account.apartment.id }}">Посмотреть
                                     показания счетчиков</a></p>
                                 <p>
-                                    <a href="#">Посмотреть
+                                    <a href="{% url 'transfers_list' %}?account={{ account.number }}">Посмотреть
                                         приходы</a></p>
-                                <p><a href="#">Посмотреть квитанции</a>
-                                </p>
+                                <p><a href="{% url 'invoices_list' %}?apartment={{ account.apartment.number }}">Посмотреть
+                                    квитанции</a></p>
                             </div>
                         </div>
                     </div>

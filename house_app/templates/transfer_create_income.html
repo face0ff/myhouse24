@@ -20,7 +20,7 @@
 
             <form id="form" method="post">
                 {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
-            {{ form.errors }}
+                {{ form.errors }}
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-xs-12 col-md-7 col-lg-6">
@@ -60,7 +60,7 @@
                                 <div class="form-group">
                                     <label for="user_id">Владелец квартиры</label>
                                     {{ form.owner }}
-                                    </div>
+                                </div>
                                 <div class="form-group field-accounttransaction-account_id">
                                     <label class="control-label" for="accounttransaction-account_id">Лицевой
                                         счет</label>
@@ -124,7 +124,14 @@
 
 {% block script %}
     <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
+            console.log(window.location.search.split('='))
+            if (window.location.search != ' ') {
+                $("#id_account").val(window.location.search.split('=')[1].split('?')[0]);
+                $("#id_owner").val(window.location.search.split('=')[2]);
+            }
+
+
             $('#id_owner').change(function () {
                 $.ajax({
                     url: '{% url 'select_owners' %}',

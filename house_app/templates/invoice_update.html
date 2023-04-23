@@ -78,9 +78,9 @@
                                     </div>
                                     <div class="form-group field-invoice-flat_id required">
                                         <label class="control-label" for="apartment">Квартира</label>
-{#                                        <select id="apartment" class="form-control" name="apartment">#}
-{#                                            <option value="">Выберите...</option>#}
-{#                                        </select>#}
+                                        {#                                        <select id="apartment" class="form-control" name="apartment">#}
+                                        {#                                            <option value="">Выберите...</option>#}
+                                        {#                                        </select>#}
                                         {{ form.apartment }}
 
                                         <div class="help-block"></div>
@@ -149,8 +149,11 @@
 
                                     </div>
 
-                                    <p><b>Владелец:</b> <span id="name">{{ invoice.apartment.owner.first_name }} {{ invoice.apartment.owner.last_name }}</span></p>
-                                    <p><b>Телефон:</b> <span id="telephone">{{ invoice.apartment.owner.telephone }}</span></p>
+                                    <p><b>Владелец:</b> <span
+                                            id="name">{{ invoice.apartment.owner.first_name }} {{ invoice.apartment.owner.last_name }}</span>
+                                    </p>
+                                    <p><b>Телефон:</b> <span
+                                            id="telephone">{{ invoice.apartment.owner.telephone }}</span></p>
                                 </div>
                                 <div class="col-xs-12 col-sm-6">
                                 </div>
@@ -258,7 +261,7 @@
 
                         </div>
                     </div>
-                <div class="delete-list-service"></div>
+                    <div class="delete-list-service"></div>
                 </form>
                 <div class="row">
                     <div class="col-xs-12">
@@ -482,6 +485,13 @@
         //delete SERVICE form
         function delete_service(index) {
             if (confirm('Удалить?')) {
+                var spl = index.split('-')[1]
+                let selectedCost = $('#current_amount').text();
+                var full = 'id_formset-' + spl + '-full_cost'
+                let selectFull = $('#' + full).val()
+                let result = selectedCost - selectFull;
+                $('#current_amount').text(result);
+                 $('#amount').attr('value', result)
                 $('.delete-list-service').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
                 $('#' + index + '-form').css('display', 'none');
             } else {

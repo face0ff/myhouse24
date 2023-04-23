@@ -77,7 +77,7 @@
                             <li><a href="{% url 'invoice_create' %}">Создать общую квитанцию</a></li>
                             <!--                <li><a href="#!">Создать квитанцию на оплату за ЭЭ</a></li>
                                             <li><a href="#!">Создать квитанцию на оплату за ГАЗ</a></li>-->
-                            <li><a href="#" class="delete-many">Удалить</a></li>
+                            <li><a href="#" id="delete-many">Удалить</a></li>
                         </ul>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
                                             <select class="form-control" name="status" id="filterStatus">
                                                 <option hidden disabled selected value></option>
                                                 <option value="paid">Оплачена</option>
-                                                <option value="p_paid">Частично оплачена</option>
+                                                <option value="piece">Частично оплачена</option>
                                                 <option value="unpaid">Неоплачена</option>
                                             </select>
                                         </th>
@@ -202,12 +202,7 @@
             // ...
 
             // Handle click on row link
-            $('#InvoicesTable tbody').on('click', 'tr', function () {
-                var url = $(this).attr('href');
-                ;
-                console.log(url)
-                window.location.href = url;
-            });
+
         });
 
         $(document).ready(function () {
@@ -215,33 +210,35 @@
             // Initialize DataTable
             $("#InvoicesTable").DataTable({
                 "language": {
-                        "sEmptyTable": "В таблице отсутствуют данные",
-                        "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
-                        "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
-                        "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
-                        "sInfoPostFix": "",
-                        "sInfoThousands": ",",
-                        "sLengthMenu": "Показать _MENU_ записей",
-                        "sLoadingRecords": "Загрузка...",
-                        "sProcessing": "Обработка...",
-                        "sSearch": "Поиск:",
-                        "sZeroRecords": "Совпадений не найдено",
-                        "oPaginate": {
-                            "sFirst": "Первая",
-                            "sLast": "Последняя",
-                            "sNext": "Следующая",
-                            "sPrevious": "Предыдущая"
-                        },
-                        "oAria": {
-                            "sSortAscending": ": активировать для сортировки столбца по возрастанию",
-                            "sSortDescending": ": активировать для сортировки столбца по убыванию"
-                        }
+                    "sEmptyTable": "В таблице отсутствуют данные",
+                    "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
+                    "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
+                    "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ",",
+                    "sLengthMenu": "Показать _MENU_ записей",
+                    "sLoadingRecords": "Загрузка...",
+                    "sProcessing": "Обработка...",
+                    "sSearch": "Поиск:",
+                    "sZeroRecords": "Совпадений не найдено",
+                    "oPaginate": {
+                        "sFirst": "Первая",
+                        "sLast": "Последняя",
+                        "sNext": "Следующая",
+                        "sPrevious": "Предыдущая"
                     },
+                    "oAria": {
+                        "sSortAscending": ": активировать для сортировки столбца по возрастанию",
+                        "sSortDescending": ": активировать для сортировки столбца по убыванию"
+                    }
+                },
 
                 processing: true,
                 serverSide: true,
                 searching: false,
-                paging: false,
+                paging: true,
+                pageLength: 10, // Количество строк на странице
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]], // Выбор количества строк на странице
                 ordering: false,
                 info: false,
 
@@ -259,7 +256,7 @@
                         d.filterOwner = $("#filterOwner").val();
                         d.filterDone = $("#filterDone").val();
                         d.filterAmount = $("#filterAmount").val();
-
+                        d.page = d.start / d.length + 1;
                     }
                 },
                 columns: [
@@ -279,7 +276,7 @@
                         targets: 0, // выбираем первую колонку (нумерация начинается с 0)
 
                         "render": function (data, type, row) {
-                            return '<input type="checkbox" class="delete" value="' + data.id + '">';
+                            return '<input type="checkbox"  class="delete" value="' + data.id + '">';
                         },
                         className: 'dt-body-center' // добавляем класс, чтобы выровнять чекбокс по центру ячейки
                     },
@@ -289,7 +286,7 @@
                         render: function (data, type, row, meta) {
                             var url_update = "{% url 'invoice_update' pk=0  %}".replace('0', data.id);
                             var url_delete = "{% url 'invoice_delete' pk=0  %}".replace('0', data.id);
-                            return `<a class="btn btn-default btn-sm" href="{% url 'invoice_create' %}" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
+                            return `<a class="btn btn-default btn-sm" href="${url_update}?copy" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
                                 `<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
                                 `<a class="btn btn-default btn-sm" href="${url_delete}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>`;
                         }
@@ -325,7 +322,39 @@
                 }
             }
         })
+        $(document).ready(function () {
+            // найти чекбокс, который будет управлять всеми остальными
+            var delete_all = $('#delete_all');
 
+            // при клике на этот чекбокс
+            delete_all.click(function () {
+                // найти все остальные чекбоксы на странице
+                var checkboxes = $('input[type=checkbox]:not(#delete_all)');
+
+                // установить для них состояние, соответствующее состоянию мастер-чекбокса
+                checkboxes.prop('checked', delete_all.prop('checked'));
+            });
+            $("#delete-many").click(function () {
+
+                var checkboxes = $('input[type=checkbox]:checked');
+                var values = checkboxes.map(function () {
+                    return $(this).val();
+                }).get();
+
+                // вывести значения в консоль
+                console.log(values);
+                $.ajax({
+                    type: 'get',
+                    url: '{% url "delete_selected_invoice" %}',
+                    data: `${values}`,
+                    success: function (response) {
+                        if (response) {
+                            location.reload();
+                        }
+                    },
+                });
+            });
+        });
 
     </script>
 {% endblock %}
