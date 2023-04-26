@@ -180,13 +180,14 @@ class RequestForm(forms.ModelForm):
         self.fields['date'].initial = datetime.datetime.today().strftime('%d.%m.%Y')
         self.fields['time'].initial = datetime.datetime.today().strftime('%H:%M')
         self.fields['master'].empty_label = 'Выберите...'
+        self.fields['master'].queryset = UserProfile.objects.filter(is_staff=False, role__isnull=False)
         self.fields['apartment'].empty_label = 'Выберите...'
 
     owner = forms.ModelChoiceField(
         required=False,
         widget=forms.Select(
             attrs={'class': 'form-control', 'onchange': "selectUser(this)"}),
-        queryset=UserProfile.objects.filter(is_staff=False),
+        queryset=UserProfile.objects.filter(role_id__isnull=True),
         empty_label="Выберите..."
     )
 
@@ -221,9 +222,11 @@ class MessageForm(forms.ModelForm):
 
     def save(self, commit=True):
         message = super().save(commit=False)
+        print(self.cleaned_data)
         if self.cleaned_data['apartment']:
             owner = UserProfile.objects.get(apartment=self.cleaned_data['apartment'])
             message.owner = owner
+            message.sender = self.cleaned_data['sender']
             if commit:
                 message.save()
             return message
@@ -312,11 +315,11 @@ class InvoiceForm(forms.ModelForm):
 
         widgets = {
             'number': NumberInput(attrs={'class': 'form-control'}),
-            'date': DateInput(attrs={'class': 'form-control',
+            'date': DateInput(attrs={'class': 'form-control id_date',
                                      'type': 'text'}),
-            'date_before': DateInput(attrs={'class': 'form-control',
+            'date_before': DateInput(attrs={'class': 'form-control id_date',
                                             'type': 'text'}),
-            'date_from': DateInput(attrs={'class': 'form-control',
+            'date_from': DateInput(attrs={'class': 'form-control id_date',
                                           'type': 'text'}),
             'tariff': Select(attrs={'class': 'form-control'}),
             'apartment': Select(attrs={'class': 'form-control'}),

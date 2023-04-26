@@ -100,26 +100,26 @@
 {% endblock %}
 {% block script %}
     <script>
-    // AJAX запрос
-        $(document).ready(function(){
-            $('#house_field').change(function(){
+        // AJAX запрос
+        $(document).ready(function () {
+            $('#house_field').change(function () {
                 $.ajax({
                     url: '{% url 'select_field' %}',
                     type: 'GET',
                     data: {house_field: $(this).val()},
-                    success: function(data) {
+                    success: function (data) {
                         // Очистить выбор в другом поле
                         $('#section_field').empty()
                         $('#apartment_field').empty()
                         // Заполнить другое поле данными, полученными с сервера
                         $("#section_field").append("<option value selected>Выберите...</option>")
-                        $.each(data.section_data, function(key, value) {
+                        $.each(data.section_data, function (key, value) {
 
                             $('#section_field')
                                 .append($("<option value=" + value.id + ">" + value.name + "</option>"));
                         });
                         $("#apartment_field").append("<option value selected>Выберите...</option>")
-                        $.each(data.apart_data, function(key, value) {
+                        $.each(data.apart_data, function (key, value) {
                             $('#apartment_field')
                                 .append($("<option value=" + value.id + ">" + value.number + "</option>"));
                         });
@@ -129,19 +129,19 @@
             });
         });
 
-    // AJAX запрос
-        $(document).ready(function(){
-            $('#section_field').change(function(){
+        // AJAX запрос
+        $(document).ready(function () {
+            $('#section_field').change(function () {
                 $.ajax({
                     url: '{% url 'select_field' %}',
                     type: 'GET',
                     data: {section_field: $(this).val()},
-                    success: function(data) {
+                    success: function (data) {
                         // Очистить выбор в другом поле
                         $('#apartment_field').empty()
                         // Заполнить другое поле данными, полученными с сервера
                         $("#apartment_field").append("<option value selected>Выберите...</option>")
-                        $.each(data.apartament_data, function(key, value) {
+                        $.each(data.apartament_data, function (key, value) {
                             $('#apartment_field').append($("<option value=" + value.id + ">" + value.number + "</option>"));
 
                         });
@@ -150,54 +150,100 @@
                 });
             });
         });
-        $(document).ready(function(){
-            if (window.location.search.split("=")[1]!== undefined){
+        $(document).ready(function () {
+            if (window.location.search.split("=")[1] !== undefined) {
                 var index_apart = window.location.search.split("=")[1][0];
                 var index_meter = window.location.search.split("=")[2][0]; // получаем индекс из ссылки
                 console.log(index_meter)
                 $.ajax({
                     url: '{% url 'select_field' %}', // адрес запроса
                     type: 'GET', // тип запроса
-                    data: { index_apart: index_apart, index_meter: index_meter }, // данные для запроса
-                success: function(data) { // при удачном выполнении запроса
-                    // Очистить выбор в другом поле
+                    data: {index_apart: index_apart, index_meter: index_meter}, // данные для запроса
+                    success: function (data) { // при удачном выполнении запроса
+                        // Очистить выбор в другом поле
 
-                    // Заполнить другое поле данными, полученными с сервера
-                    $.each(data.house_data, function(key, value) {
+                        // Заполнить другое поле данными, полученными с сервера
+                        $.each(data.house_data, function (key, value) {
 
-                        $('#house_field').val(value.id)
-                        {#$("#house_field").trigger("change");#}
-
-
-                    });
-                    $.each(data.all_apart, function(key, value) {
-                        $('#apartment_field').val(value.id)
-                            .append($("<option value=" + value.id + ">" + value.number + "</option>"));
-                        $('#section_field').val(value.id)
-                            .append($("<option value=" + value.id + ">" + value.section + "</option>"));
+                            $('#house_field').val(value.id)
+                            {#$("#house_field").trigger("change");#}
 
 
-                    });
-                    $.each(data.apartment_data, function(key, value) {
-                        $('#apartment_field').val(value.id)
+                        });
+                        $.each(data.all_apart, function (key, value) {
+                            $('#apartment_field').val(value.id)
+                                .append($("<option value=" + value.id + ">" + value.number + "</option>"));
+                            $('#section_field').val(value.id)
+                                .append($("<option value=" + value.id + ">" + value.section + "</option>"));
 
-                        $('#section_field').val(value.id)
+
+                        });
+                        $.each(data.apartment_data, function (key, value) {
+                            $('#apartment_field').val(value.id)
+
+                            $('#section_field').val(value.id)
 
 
+                        });
+                        $.each(data.meter_data, function (key, value) {
 
-                    });
-                    $.each(data.meter_data, function(key, value) {
+                            $('#id_meter').val(value.id)
 
-                        $('#id_meter').val(value.id)
-
-                    });
-                    $.each(data.number, function(key, value) {
-                         $('#id_number').val(value.id)
-                    });
-                }
+                        });
+                        $.each(data.number, function (key, value) {
+                            $('#id_number').val(value.id)
+                        });
+                    }
                 });
             }
         })
+        $('#id_date').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+        $('#id_date').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY'));
+        });
+        $('#id_date').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
     </script>
 
 

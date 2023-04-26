@@ -1,0 +1,45 @@
+{% extends "cabinet_base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Сообщение </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owner_message_list' %}">Сообщения</a></li>
+                <li class="active">Сообщение</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-body no-padding">
+                    <div class="mailbox-read-info">
+                        <h3>{{ message.topic }}</h3>
+                        <h5>От: {{ message.sender }} <span class="mailbox-read-time pull-right">{{ message.date.day }} - {{ message.date.ctime }}</span>
+                        </h5>
+                    </div>
+                    <div class="mailbox-read-message">
+                        <p>{{ message.text }}<br></p>
+                        <p><br></p>
+                        <p>{% if message.owner %}персонально{% else %}всем{% endif %}</p></div>
+                </div>
+                <div class="box-footer">
+                    <a href="{% url 'message_delete' message.pk %}?cabinet" data-confirm="Удалить?" data-method="post">
+                        <button type="button" class="btn btn-default"><i class="fa fa-trash-o"></i> Удалить</button>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
+

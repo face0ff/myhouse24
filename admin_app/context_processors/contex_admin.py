@@ -17,6 +17,7 @@ def user(request):
     return {
         'new_users': UserProfile.objects.filter(status='new'),
         'user': user,
+        'message_list': user.owner_messages.all() if user else None,
         'apartments_list': apart if apart else None,
         'apartment_first': apart.first() if apart else None,
         'invoices_list': Invoice.objects.filter(apartment__owner=user).distinct('apartment_id'),

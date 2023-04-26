@@ -1,18 +1,19 @@
-{% extends 'admin/base.html' %}
+{% extends "cabinet_base.html" %}
 {% load static %}
 {% load widget_tweaks %}
 
 
-
 {% block content %}
+
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
                 Новый владелец </h1>
 
             <ul class="breadcrumb">
-                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
-                <li><a href="{% url 'owners_list' %}">Владельцы квартир</a></li>
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
+                <li><a href="{% url 'owner_profile_detail' user.id %}">Профиль</a></li>
                 <li class="active">Новый владелец</li>
             </ul>
         </section>
@@ -159,7 +160,7 @@
                         {% endif %}
                         <div class="row">
                             <div class="col-xs-12 text-right">
-                                <a href="{% url 'owners_list' %}" class="btn btn-default">Отменить</a>
+                                <a href="{% url 'owner_profile_detail' user.id %}" class="btn btn-default">Отменить</a>
                                 <button type="submit" class="btn btn-success">Сохранить</button>
                             </div>
                         </div>
@@ -172,6 +173,8 @@
     </div>
 {% endblock %}
 {% block script %}
+
+
     <script>
         let generatePassword = function () {
             let randomstring = Math.random().toString(36).slice(-8);
@@ -188,56 +191,55 @@
                 $(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
             }
         });
-        $(function () {
-            $("#id_telephone").mask("+380(099) 999-99-99");
+
+        $('#id_birth_date').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
         });
-          $('#id_birth_date').daterangepicker({
-        singleDatePicker: true,
-        default: 'date',
-        opens: 'center',
-        autoUpdateInput: false,
-        onClose: function () {
-            $(this).valid();
-        },
-        locale: {
-            format: 'DD.MM.YYYY',
-            "applyLabel": "Ок",
-            "cancelLabel": "Отмена",
-            "fromLabel": "От",
-            "toLabel": "До",
-            "customRangeLabel": "Произвольный",
-            "daysOfWeek": [
-                "Вс",
-                "Пн",
-                "Вт",
-                "Ср",
-                "Чт",
-                "Пт",
-                "Сб"
-            ],
-            "monthNames": [
-                "Январь",
-                "Февраль",
-                "Март",
-                "Апрель",
-                "Май",
-                "Июнь",
-                "Июль",
-                "Август",
-                "Сентябрь",
-                "Октябрь",
-                "Ноябрь",
-                "Декабрь"
-            ],
-            firstDay: 1
-        }
-    });
-    $('#id_birth_date').on('apply.daterangepicker', function (ev, picker) {
-        $(this).val(picker.startDate.format('DD.MM.YYYY'));
-    });
-    $('#id_birth_date').on('cancel.daterangepicker', function (ev, picker) {
-        $(this).val('');
-    });
+        $('#id_birth_date').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY'));
+        });
+        $('#id_birth_date').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+
     </script>
 
 

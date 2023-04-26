@@ -1,0 +1,150 @@
+{% extends "cabinet_base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Профиль </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li class="active">Профиль</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-12">
+                            <div class="box">
+                                <div class="box-body box-profile">
+                                    <img class="profile-user-img img-responsive img-circle"
+                                         {% if userprofile.avatar %}src="{{ userprofile.avatar.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         alt="Аватар">
+
+                                    <h3 class="profile-username text-center">{{ userprofile }}</h3>
+
+                                    <p class="text-muted text-center">Владелец квартиры</p>
+
+                                    <ul class="list-group list-group-unbordered">
+                                        <li class="list-group-item">
+                                            <span>Телефон</span>
+                                            <span class="pull-right">{{ userprofile.telephone }}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <span>Viber</span>
+                                            <span class="pull-right">{{ userprofile.viber }}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <span>Telegram</span>
+                                            <span class="pull-right">{{ userprofile.telegram }}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <span>Email</span>
+                                            <span class="pull-right">{{ userprofile.email }}</span>
+                                        </li>
+                                    </ul>
+
+                                    <a href="{% url 'owner_profile_update' user.id %}" class="btn btn-primary btn-block">Изменить</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-12">
+                            <h3 class="page-header">Обо мне (заметки)</h3>
+                            <div class="box">
+                                <div class="box-body box-profile">
+                                   {{ userprofile.notes }}                                </div>
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <h2 class="page-header">Мои квартиры</h2>
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Описание квартиры</h3>
+                        </div>
+                        {% for apart in userprofile.apartment.all %}
+                            <div class="box-body">
+                            <p>ЖК "{{ apart }}". {{ apart.house.address }}, кв. {{ apart.number }}</p>
+                            <div class="row">
+                                <div class="col-xs-12 col-md-6">
+                                    <img {% if apart.house.image_1 %}src="{{ apart.house.image_1.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         class="img-responsive largeImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                 <img {% if apart.house.image_2 %}src="{{ apart.house.image_2.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                   <img {% if apart.house.image_3 %}src="{{ apart.house.image_3.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    <img {% if apart.house.image_4 %}src="{{ apart.house.image_4.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                   <img {% if apart.house.image_5 %}src="{{ apart.house.image_5.url }}"{% else %}src="{% static 'img/logo-mini.svg' %}"{% endif %}
+                                         class="img-responsive smallImg margin-bottom-30" alt="">
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2">Описание</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <th style="min-width: 200px; font-weight:normal;">Название дома</th>
+                                        <th style="font-weight:normal;">ЖК "{{ apart.house.name }}"</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Адрес</td>
+                                        <td>{{ apart.house.address }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>№ квартиры</td>
+                                        <td>{{ apart.number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Площадь</td>
+                                        <td>
+                                            {{ apart.area }}м<sup>2</sup>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Этаж</td>
+                                        <td>{{ apart.floor }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Секция</td>
+                                        <td>{{ apart.section }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Лицевой счет</td>
+                                        <td>{{ apart.account }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+
+
+{% endblock %}
+

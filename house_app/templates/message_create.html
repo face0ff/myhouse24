@@ -27,9 +27,8 @@
                         <h3 class="box-title"></h3>
                     </div>
                     <div class="box-body">
-                        <input type="hidden" id="message-user_admin_from_id" name="Message[user_admin_from_id]"
-                               value="1"> <input type="hidden" id="message-status" name="Message[status]" value="5">
-                        <input type="hidden" id="message-type" name="Message[type]" value="default">
+                        <input type="hidden" id="sender_id" name="sender"
+                               value="{{ user.id }}">
                         <div class="form-group field-message-name required">
 
                             {{ form.topic }}

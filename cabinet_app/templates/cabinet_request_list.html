@@ -1,0 +1,138 @@
+{% extends "cabinet_base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Вызов мастера </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
+                <li class="active">Вызов мастера</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <div class="pull-right margin-bottom">
+                        <a class="btn btn-success" href="{% url 'owner_request_create' %}">Создать заявку</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+
+                        <div id="w0" class="grid-view">
+                            <div class="box-body table-responsive no-padding">
+                                <table id="TransfersTable"
+                                       class="table table-bordered table-hover table-striped linkedRow">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 5%">№ заявки</th>
+                                        <th style="width: 10%">Тип мастера</th>
+                                        <th style="width: 50%;">Описание</th>
+                                        <th>Удобное время</th>
+                                        <th style="width: 10%">Статус</th>
+                                        <th style="width: 5%">&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for request in object_list %}
+                                        <tr>
+
+                                            <td>{{ request.id }}</td>
+                                            <td>{{ request.get_type_master_display }}</td>
+                                            <td>{{ request.description }}</td>
+                                            <td>{{ request.date }} - {{ request.time }}</td>
+                                            <td>
+                                                {% if request.status == 'new' %}
+                                                    <small class="btn btn-sm btn-warning status">Новое</small>
+                                                {% elif request.status == 'done' %}
+                                                    <small class="btn btn-sm btn-success status">Выполнено</small>
+                                                {% elif request.status == 'in_work' %}
+                                                    <small class="btn btn-sm btn-primary status">В работе</small>
+                                                {% endif %}</td>
+                                            <td>
+                                                {% if request.status == 'new' %}<a class="btn btn-default btn-sm"
+                                                                                   href="{% url 'request_delete' request.pk %}?cabinet"
+                                                                                   title="Удалить" data-toggle="tooltip"
+                                                                                   data-pjax="0" data-method="post"
+                                                                                   data-confirm="Вы уверены, что хотите удалить этот элемент?"><i
+                                                        class="fa fa-trash"></i></a>
+                                                {% else %}
+                                                    <a class="btn btn-default btn-sm" disabled="true"><i
+                                                            class="fa fa-trash"></i></a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Initialize DataTable
+            $("#TransfersTable").DataTable({
+                "language": {
+                    "sEmptyTable": "В таблице отсутствуют данные",
+                    "sInfo": "Показаны записи с _START_ по _END_ из _TOTAL_ записей",
+                    "sInfoEmpty": "Показаны записи с 0 по 0 из 0 записей",
+                    "sInfoFiltered": "(отфильтровано из _MAX_ записей)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ",",
+                    "sLengthMenu": "Показать _MENU_ записей",
+                    "sLoadingRecords": "Загрузка...",
+                    "sProcessing": "Обработка...",
+                    "sSearch": "Поиск:",
+                    "sZeroRecords": "Совпадений не найдено",
+                    "oPaginate": {
+                        "sFirst": "Первая",
+                        "sLast": "Последняя",
+                        "sNext": "Следующая",
+                        "sPrevious": "Предыдущая"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": активировать для сортировки столбца по возрастанию",
+                        "sSortDescending": ": активировать для сортировки столбца по убыванию"
+                    }
+                },
+                searching: false,
+                paging: true, // Включаем пагинацию
+                ordering: false,
+                info: false,
+
+
+            });
+
+            // Handle filter fields
+
+        });
+
+
+    </script>
+
+{% endblock %}
+

@@ -461,6 +461,8 @@ class RequestCreate(CreateView):
     success_url = reverse_lazy('requests_list')
 
 
+
+
 class RequestUpdate(UpdateView):
     model = Request
     template_name = 'request_update.html'
@@ -469,9 +471,13 @@ class RequestUpdate(UpdateView):
 
 
 def request_delete(request, pk):
-    request = get_object_or_404(Request, id=pk)
-    request.delete()
-    return redirect('requests_list')
+    req = get_object_or_404(Request, id=pk)
+    req.delete()
+
+    if request.GET.keys():
+        return redirect('owner_request_list')
+    else:
+        return redirect('requests_list')
 
 
 def select_apart(request):
@@ -497,6 +503,8 @@ class MessageCreate(CreateView):
     success_url = reverse_lazy('messages_list')
 
 
+
+
 class MessageDetail(DetailView):
     model = Message
     template_name = 'message_detail.html'
@@ -505,7 +513,10 @@ class MessageDetail(DetailView):
 def message_delete(request, pk):
     message = get_object_or_404(Message, id=pk)
     message.delete()
-    return redirect('messages_list')
+    if request.GET.keys():
+        return redirect('owner_message_list')
+    else:
+        return redirect('messages_list')
 
 
 def message_select_house(request):
@@ -524,12 +535,19 @@ def message_select_house(request):
 
 
 def delete_selected_messages(request):
+    print(request.GET)
+    list_k = list(request.GET.keys())
+    print(list_k)
+    if request.GET.keys():
+        for idk in list_k[0].split(','):
+            message = get_object_or_404(Message, id=idk)
+            message.delete()
     if request.GET.get('id'):
         id_message = request.GET.get('id')
         for i in id_message.split(' '):
             message = get_object_or_404(Message, id=i)
             message.delete()
-
+    return JsonResponse({}, status=200)
 
 class AccountsList(ListView):
     model = Account

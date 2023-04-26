@@ -98,6 +98,11 @@ class MeterForm(forms.ModelForm):
         self.fields['apartment'].choices = [('', 'Выберите значение...')]
         self.fields['meter'].empty_label = 'Выберите значение...'
         self.fields['meter'].queryset = Services.objects.filter(show=True)
+        last_reading = MeterReading.objects.last()
+        if last_reading:
+            self.fields['number'].initial = last_reading.number + 1
+        else:
+            self.fields['number'].initial = 1
         self.fields['number'].error_messages = {'unique': 'Такой номер уже существует'}
 
     def clean_apartment(self):

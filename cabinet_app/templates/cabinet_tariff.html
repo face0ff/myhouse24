@@ -9,7 +9,7 @@
                 Тарифы - ЖК {{ apartment.house.name }}, кв.-{{ apartment.number }}       </h1>
 
             <ul class="breadcrumb">
-                <li><a href="/cabinet/"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i> Главная</a></li>
                 <li class="active">Тарифы - ЖК {{ apartment.house.name }}, кв.-{{ apartment.number }}</li>
             </ul>
         </section>

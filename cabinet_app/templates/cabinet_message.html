@@ -4,7 +4,6 @@
 
 {% block content %}
     <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 
 
@@ -14,7 +13,8 @@
                 Сообщения </h1>
 
             <ul class="breadcrumb">
-                <li><a href="/cabinet/"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
                 <li class="active">Сообщения</li>
             </ul>
         </section>
@@ -29,44 +29,43 @@
 
                     <div id="w0" class="grid-view">
                         <div class="mailbox-controls">
-                            <button id="delete_all" type="button" class="btn btn-default btn-sm checkbox-toggle"><i
-                                    class="fa fa-square-o"></i></button>
-                            <button id="delete-many" type="button" class="btn btn-default btn-sm delete-many"><i
+                            <input id="delete_all_1" type="checkbox" class="delete_all_1">
+                            <button id="delete-many-1" type="button" class="delete-many"><i
                                     class="fa fa-trash-o"></i></button>
                             <div class="pull-right"></div>
                         </div>
                         <div class="table-responsive mailbox-messages">
-                                <table id="InvoicesTable"
-                                       class="table table-bordered table-hover table-striped linkedRow"
-                                       style="width:100%">
+                            <table id="InvoicesTable"
+                                   class="table table-bordered table-hover table-striped linkedRow"
+                                   style="width:100%">
 
-                                    <thead>
+                                <thead>
+                                <tr>
+                                    <th style="width: 1%"></th>
+                                    <th style="width: 25%">От кого</th>
+                                    <th>Текст</th>
+                                    <th style="width: 10%">Дата</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for message in message_list %}
                                     <tr>
-                                        <th></th>
-                                        <th style="width: 5%">№ квитанции</th>
-                                        <th>Статус</th>
-                                        <th>Квартира</th>
+
+                                        <td><input type="checkbox" class="delete" value="{{ message.id }}"></td>
+                                        <td href="{% url 'owner_message_detail' message.id %}">{{ message.sender }}</td>
+                                        <td href="{% url 'owner_message_detail' message.id %}">{% autoescape off %}{{ message.text }}
+                                            {{ message.topic }}{% endautoescape %}</td>
+                                        <td href="{% url 'owner_message_detail' message.id %}">{{ message.date }}</td>
+
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for message in message_list %}
-                                        <tr>
-
-                                            <td></td>
-                                            <td>{{ message.sender }}</td>
-                                            <td>{{ message.text }}-{{ message.topic }}</td>
-                                            <td>{{ message.date }}</td>
-
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
 
                         <div class="mailbox-controls">
-                            <button id="delete_all" type="button" class="btn btn-default btn-sm checkbox-toggle"><i
-                                    class="fa fa-square-o"></i></button>
-                            <button id="delete-many" type="button" class="btn btn-default btn-sm delete-many"><i
+                            <input id="delete_all_2" type="checkbox" class="delete_all_2">
+                            <button id="delete-many-2" type="button" class="delete-many"><i
                                     class="fa fa-trash-o"></i></button>
                             <div class="pull-right"></div>
                         </div>
@@ -79,16 +78,18 @@
 
 {% block script %}
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         $(document).ready(function () {
-            console.log(window.location.href.split('=')[1])
-            $('#InvoicesTable tbody').on('click', 'tr', function () {
+            // Handle click on row link
+            $('#InvoicesTable tbody').on('click', 'td', function () {
                 var url = $(this).attr('href');
+                ;
+                if (url) {
+                    console.log(url)
+                    window.location.href = url;
+                }
 
-                console.log(url)
-                window.location.href = url;
             });
         });
 
@@ -123,33 +124,37 @@
                 searching: true,
                 ordering: true,
                 info: false,
-                columnDefs: [
-                    {
-                        targets: 0, // выбираем первую колонку (нумерация начинается с 0)
 
-                        "render": function (data, type, row) {
-                            return '<input type="checkbox"  class="delete" value="' + data.id + '">';
-                        },
-                        className: 'dt-body-center' // добавляем класс, чтобы выровнять чекбокс по центру ячейки
-                    },
-                ],
             });
         });
 
 
-       $(document).ready(function () {
+        $(document).ready(function () {
             // найти чекбокс, который будет управлять всеми остальными
-            var delete_all = $('#delete_all');
 
-            // при клике на этот чекбокс
-            delete_all.click(function () {
-                // найти все остальные чекбоксы на странице
-                var checkboxes = $('input[type=checkbox]:not(#delete_all)');
+            // find the checkboxes that will control the others
+            var delete_all_1 = $('#delete_all_1');
+            var delete_all_2 = $('#delete_all_2');
 
-                // установить для них состояние, соответствующее состоянию мастер-чекбокса
-                checkboxes.prop('checked', delete_all.prop('checked'));
+            // when the first checkbox is clicked
+            delete_all_1.click(function () {
+                // find all other checkboxes on the page
+                var checkboxes = $('input[type=checkbox]:not(#delete_all_1, #delete_all_2)');
+
+                // set their state to match the state of the first checkbox
+                checkboxes.prop('checked', delete_all_1.prop('checked'));
             });
-            $("#delete-many").click(function () {
+
+            // when the second checkbox is clicked
+            delete_all_2.click(function () {
+                // find all other checkboxes on the page
+                var checkboxes = $('input[type=checkbox]:not(#delete_all_1, #delete_all_2)');
+
+                // set their state to match the state of the second checkbox
+                checkboxes.prop('checked', delete_all_2.prop('checked'));
+            });
+
+            $("#delete-many-1").click(function () {
 
                 var checkboxes = $('input[type=checkbox]:checked');
                 var values = checkboxes.map(function () {
@@ -160,7 +165,7 @@
                 console.log(values);
                 $.ajax({
                     type: 'get',
-                    url: '{% url "delete_selected_invoice" %}',
+                    url: '{% url "delete_selected_messages" %}',
                     data: `${values}`,
                     success: function (response) {
                         if (response) {
@@ -169,7 +174,28 @@
                     },
                 });
             });
-        });
+            $("#delete-many-2").click(function () {
+
+                var checkboxes = $('input[type=checkbox]:checked');
+                var values = checkboxes.map(function () {
+                    return $(this).val();
+                }).get();
+
+                // вывести значения в консоль
+                console.log(values);
+                $.ajax({
+                    type: 'get',
+                    url: '{% url "delete_selected_messages" %}',
+                    data: `${values}`,
+                    success: function (response) {
+                        if (response) {
+                            location.reload();
+                        }
+                    },
+                });
+            });
+        })
+        ;
 
     </script>
 {% endblock %}

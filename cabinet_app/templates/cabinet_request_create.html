@@ -1,0 +1,135 @@
+{% extends "cabinet_base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Новая заявка </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
+                <li><a href="{% url 'owner_request_list' %}">Вызов мастера</a></li>
+                <li class="active">Новая заявка</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-body">
+
+                    <form id="form" method="post">
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <input hidden="hidden" name="status" value="new">
+                            <div class="form-group field-masterrequestform-type">
+                                <label class="control-label" for="masterrequestform-type">Тип мастера</label>
+                                {{ form.type_master }}
+
+                                <div class="help-block"></div>
+                            </div>
+                            <div class="form-group field-masterrequestform-flat_id required">
+                                <label class="control-label" for="masterrequestform-flat_id">Квартира</label>
+                                {{ form.apartment }}
+
+                                <div class="help-block"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group field-masterrequestform-date_request required">
+                                        <label class="control-label" for="masterrequestform-date_request">Дата
+                                            работ</label>
+                                       {{ form.date }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group field-masterrequestform-time_request">
+                                        <label class="control-label" for="masterrequestform-time_request">Время
+                                            работ</label>
+
+                                        {{ form.time }}
+
+                                        <div class="help-block"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group field-masterrequestform-description required">
+                                <label class="control-label" for="masterrequestform-description">Описание</label>
+                                {{ form.description }}
+
+                                <div class="help-block"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Отправить заявку</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+            $('#id_date').daterangepicker({
+            singleDatePicker: true,
+            default: 'date',
+            opens: 'center',
+            autoUpdateInput: false,
+            onClose: function () {
+                $(this).valid();
+            },
+            locale: {
+                format: 'DD.MM.YYYY',
+                "applyLabel": "Ок",
+                "cancelLabel": "Отмена",
+                "fromLabel": "От",
+                "toLabel": "До",
+                "customRangeLabel": "Произвольный",
+                "daysOfWeek": [
+                    "Вс",
+                    "Пн",
+                    "Вт",
+                    "Ср",
+                    "Чт",
+                    "Пт",
+                    "Сб"
+                ],
+                "monthNames": [
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь"
+                ],
+                firstDay: 1
+            }
+        });
+        $('#id_date').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY'));
+        });
+        $('#id_date').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+        $('#id_time').timepicker({
+            showInputs: false,
+            showMeridian: false,
+        });
+    </script>
+
+{% endblock %}
+
