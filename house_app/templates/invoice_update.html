@@ -50,15 +50,15 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-5 col-lg-6">
-                            <div class="btn-group pull-right margin-bottom">
+                            <div class="pull-right">
                                 <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false">
                                     Выберите действие <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#!" class="set-tariff-services">Выставить все услуги согласно
+                                    <li><a href="#" class="set-tariff-services">Выставить все услуги согласно
                                         тарифу</a></li>
-                                    <li><a href="#!" class="add-counters">Добавить показания счетчиков</a></li>
+                                    <li><a href="#" id="add-counters">Добавить показания счетчиков</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -216,7 +216,7 @@
                                         <td style="min-width: 180px;">
                                             <div class="h4">
                                                 Итого: <b><span id="current_amount">{{ invoice.amount }}</span></b> грн
-                                                <input hidden type="number" id="amount" name="amount">
+                                                <input hidden type="number" id="amount" name="amount" value="0">
                                             </div>
                                         </td>
                                     </tr>
@@ -344,6 +344,40 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
+            $('#id_tariff').change(function () {
+                $('.set-tariff-services').val($(this).val())
+            })
+            $('.set-tariff-services').click(function () {
+                $.ajax({
+                    url: '{% url 'tariff_set' %}',
+                    type: 'GET',
+                    data: {tariff_id: $(this).val()},
+                    success: function (data) {
+                        console.log(data)
+                        $('#id_formset-TOTAL_FORMS').val('0')
+                        $('#service_form').children('tr').remove()
+
+
+                        $.each(data.data, function (index, item) {
+                            let form_idx = $('#id_formset-TOTAL_FORMS').val();
+                            $('#service_form').append($('#empty_form-service').html().replace(/__prefix__/g, form_idx));
+                            $('#id_formset-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+                        });
+                        // заполнение полей форм данными из списка
+                        $.each(data.data, function (index, item) {
+                            let form_idx = index;
+                            $('#id_formset-' + form_idx + '-service').val(item['id']);
+                            $('#id_formset-' + form_idx + '-unit').val(item['unit']);
+                            $('#id_formset-' + form_idx + '-cost_for_unit').val(item['price']);
+                        });
+                    },
+                    error: (data) => {
+                        console.log('xxxmmxmmmmm')
+                    }
+
+                });
+            })
+
             $('#id_houses').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',
@@ -491,7 +525,7 @@
                 let selectFull = $('#' + full).val()
                 let result = selectedCost - selectFull;
                 $('#current_amount').text(result);
-                 $('#amount').attr('value', result)
+                $('#amount').attr('value', result)
                 $('.delete-list-service').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
                 $('#' + index + '-form').css('display', 'none');
             } else {
@@ -546,7 +580,8 @@
             $('#current_amount').html(sum)
             $('#amount').attr('value', sum)
         }
-           $('.id_date').daterangepicker({
+
+        $('.id_date').daterangepicker({
             singleDatePicker: true,
             default: 'date',
             opens: 'center',

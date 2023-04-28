@@ -25,7 +25,8 @@
                         </h5>
                     </div>
                     <div class="mailbox-read-message">
-                        <p>{{ message.text }}<br></p>
+                        <p>{% autoescape off %}{{ message.text }}
+                                            {% endautoescape %}<br></p>
                         <p><br></p>
                         <p>{% if message.owner %}персонально{% else %}всем{% endif %}</p></div>
                 </div>

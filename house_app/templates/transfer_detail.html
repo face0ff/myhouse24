@@ -46,7 +46,7 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">{% if transfers.income %}Приходная ведомость{% else %}Расходная ведомость{% endif %}</h3>
                     <div class="box-tools">
-                        <a href="{% url 'transfer_update' transfers.id %}?copy"
+                        <a href="{% url 'transfer_create' transfers.id %}"
                            class="btn btn-default btn-sm">
                             <span class="hidden-xs">Копировать</span><i class="fa fa-print visible-xs"
                                                                         aria-hidden="true"></i>

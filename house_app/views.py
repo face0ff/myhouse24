@@ -9,7 +9,7 @@ from django.views.generic import DetailView, ListView, CreateView, UpdateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from house_app.forms import *
 from house_app.models import House, Apartment, Section, Floor, Request
-from services_app.models import MeterReading
+from services_app.models import MeterReading, PriceTariffServices
 from user_app.models import UserProfile, Role
 
 
@@ -723,30 +723,56 @@ class InvoiceCreate(CreateView):
     def get_context_data(self, *args, **kwargs):
         meters = MeterReading.objects.all()
         context = super().get_context_data(**kwargs)
-        context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
+        if self.kwargs.get('pk') != None:
+            idx = int(Invoice.objects.all().last().number)+1
+            inst = get_object_or_404(Invoice, id=self.kwargs.get('pk'))
+
+            context['form'] = InvoiceForm(instance=inst, initial={'number': idx ,'apartment': inst.apartment.id})
+            context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
+                                                       queryset=InvoiceService.objects.filter(invoice_id=self.get_object().pk))
+        else:
+            context['form'] = InvoiceForm()
+            context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
                                                    queryset=InvoiceService.objects.none())
         context['meters'] = meters
         return context
 
 
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
+    def post(self, *args, **kwargs):
+        # print(self.request.POST)
+        self.object = None
+        qs_invoice = InvoiceService.objects.filter(invoice_id=self.kwargs.get('pk'))
+        form = InvoiceForm(self.request.POST)
+        formset = InvoiceServiceFormSet(self.request.POST or None, queryset=InvoiceService.objects.none(),
+                                                   prefix='formset', initial=[{'id': tar.id, 'cost_for_unit': tar.cost_for_unit, 'expense': tar.expense,
+                                                    'full_cost': tar.full_cost} for tar in qs_invoice])
+        return self.form_valid(form, formset)
+    def form_valid(self, form , formset):
+        # context = self.get_context_data()
+        # formset = context['formset']
+
         if formset.is_valid():
+            formset.save(commit=False)
+            for obj in formset.deleted_objects:
+                obj.delete()
             try:
                 account = get_object_or_404(Account, number=self.request.POST.get('account'))
                 account.balance = account.balance - int(self.request.POST.get('amount'))
                 account.save()
             except:
                 pass
-            invoice = form.save()
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.invoice = invoice
-                instance.save()
-            formset.save()
+            form.save()
+            formset.save(commit=False)
+            for fo in formset:
+                item = fo.save(commit=False)
+                item.invoice = form.instance
+                item.save()
+
             return super().form_valid(form)
         else:
+            print(self.request.POST)
+            print(formset.errors)
+            messages.error(self.request, "Invalid form")
             return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -769,6 +795,11 @@ class InvoiceUpdate(UpdateView):
         formset = context['formset']
 
         if formset.is_valid():
+            print(self.request.POST)
+            formset.save(commit=False)
+            for obj in formset.deleted_objects:
+                obj.delete()
+
             invoice = self.get_object()
             previous_amount = invoice.amount
             invoice = form.save()
@@ -802,8 +833,6 @@ class InvoiceUpdate(UpdateView):
                 except IntegrityError:
                     messages.error(self.request, "Вы пробуете записать две одинаковые услуги, это запрещено.")
                     return self.form_invalid(form)
-            for item in formset.deleted_objects:
-                item.delete()
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
@@ -824,17 +853,17 @@ class InvoiceDetail(DetailView):
 
 def invoice_delete(request, pk):
     try:
+        invoice_service = get_object_or_404(InvoiceService, id=pk)
+        invoice_service.delete()
         account = Account.objects.get(apartment__invoice=pk)
         invoice = get_object_or_404(Invoice, id=pk)
         account.balance = account.balance + invoice.amount
         account.save()
         invoice.delete()
-        invoice_service = get_object_or_404(InvoiceService, id=pk)
-        invoice_service.delete()
     except:
-        pass
-    invoice = get_object_or_404(Invoice, id=pk)
-    invoice.delete()
+
+        invoice = get_object_or_404(Invoice, id=pk)
+        invoice.delete()
     return redirect('invoices_list')
 
 
@@ -956,28 +985,34 @@ class TransferCreate(CreateView):
         context = super().get_context_data(**kwargs)
         transfer_type = self.request.GET.get('type')
         apart_account = self.request.GET.get('account')
-        print(transfer_type)
+        if self.kwargs.get('pk') != None:
+            idx = int(Transfers.objects.all().last().number)+1
+            inst = get_object_or_404(Transfers, id=self.kwargs.get('pk'))
+            context['form'] = TransferForm(self.request.user, instance=inst, initial={'number': idx})
         if transfer_type == 'income' or apart_account != None:
             self.template_name = 'transfer_create_income.html'
-        else:
+        elif transfer_type == 'out' or apart_account != None:
             self.template_name = 'transfer_create_out.html'
         return context
 
     def form_valid(self, form):
 
         if form.is_valid():
+
             if self.request.POST.get('income') == 'True':
                 account = get_object_or_404(Account, id=self.request.POST.get('account'))
-                account.balance = account.balance + int(self.request.POST.get('amount'))
+                account.balance = account.balance + int(self.request.POST.get('amount').split('.')[0])
                 account.save()
             else:
                 transfer = form.save(commit=False)
-                transfer.amount= -int(self.request.POST.get('amount'))
+                transfer.amount= -int(self.request.POST.get('amount').split('.')[0])
                 transfer.save()
             form.save()
             return HttpResponseRedirect(self.success_url)
+
         else:
             # Выводим только те ошибки, которые присутствуют в форме
+
             return render(self.request, self.template_name, {'form': form})
 
 
@@ -1012,20 +1047,7 @@ class TransferUpdate(UpdateView):
                 account.save()
             except:
                 pass
-        if self.request.GET.get('copy') == '':
-            # Получить последний идентификатор
-            last_id = Transfers.objects.all().order_by('-id').first().id
-            last_number = Transfers.objects.all().order_by('-id').first().number
-            # Увеличить на единицу
-            new_id = last_id + 1
-            # Установить имя
-            new_number = last_number + 1
-            # Сохранить новые значения
-            form.instance.id = new_id
-            form.instance.number = new_number
-            super(TransferUpdate, self).form_valid(form)
-            return redirect('transfer_detail', new_id)
-        else:
+
             super(TransferUpdate, self).form_valid(form)
             return redirect('transfer_detail', self.object.id)
 
@@ -1112,3 +1134,22 @@ def select_owners(request):
             'accounts_data': list(accounts),
         }
         return JsonResponse(response, status=200)
+
+
+def tariff_set(request):
+    tariffs = PriceTariffServices.objects.filter(tariff_id=request.GET.get('tariff_id'))
+    # print(request.META['HTTP_REFERER'].split('/')[-1])
+    # invSerList = InvoiceService.objects.filter(invoice_id=request.META['HTTP_REFERER'].split('/')[-1])
+    # print(invSerList)
+    # for invoiceservise
+    # invSerDelete.delete()
+    tariff_list = []
+    for tariff in tariffs:
+        print(tariff.tariff.id)
+        tariff_dict = {
+            'price': tariff.price,
+            'id': tariff.services.id,
+            'unit': tariff.services.unit.name,
+        }
+        tariff_list.append(tariff_dict)
+    return JsonResponse({'data': tariff_list}, status=200)

@@ -42,6 +42,7 @@ urlpatterns = [
 
     path("admin/invoices_list/", InvoicesList.as_view(), name='invoices_list'),
     path("admin/invoice/create/", InvoiceCreate.as_view(), name='invoice_create'),
+    path("admin/invoice/create/<int:pk>", InvoiceCreate.as_view(), name='invoice_create'),
     path("admin/invoice/detail/<int:pk>", InvoiceDetail.as_view(), name='invoice_detail'),
     path("admin/invoice/update/<int:pk>", InvoiceUpdate.as_view(), name='invoice_update'),
     path("admin/invoice/delete/<int:pk>", views.invoice_delete, name='invoice_delete'),
@@ -51,11 +52,14 @@ urlpatterns = [
 
     path("admin/transfers_list/", TransfersList.as_view(), name='transfers_list'),
     path("admin/transfer/create/", TransferCreate.as_view(), name='transfer_create'),
+    path("admin/transfer/create/<int:pk>", TransferCreate.as_view(), name='transfer_create'),
     path("admin/transfer/detail/<int:pk>", TransferDetail.as_view(), name='transfer_detail'),
     path("admin/transfer/update/<int:pk>", TransferUpdate.as_view(), name='transfer_update'),
     path("admin/transfer/delete/<int:pk>", views.transfer_delete, name='transfer_delete'),
     path("select_transfers/", select_transfers, name='select_transfers'),
     path("select_owners/", select_owners, name='select_owners'),
+
+    path("admin/tariff/set/", views.tariff_set, name='tariff_set'),
 
 
 

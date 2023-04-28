@@ -211,6 +211,7 @@ class OwnerUpdate(UpdateView):
         except:
             return super().form_valid(form)
 
+
 def owner_delete(request, pk):
     user = get_object_or_404(UserProfile, id=pk)
     user.status = 'disable'

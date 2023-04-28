@@ -14,6 +14,7 @@ urlpatterns = [
     path("admin/tariff/update/<int:pk>", TariffUpdate.as_view(), name='tariff_update'),
     path("admin/tariff/delete/<int:pk>", views.tariff_delete, name='tariff_delete'),
 
+
     path("admin/requisite/", Requisite.as_view(), name='requisite'),
 
     path("admin/item/", ItemList.as_view(), name='items'),

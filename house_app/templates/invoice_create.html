@@ -32,6 +32,7 @@
                             <div class="page-header-spec">
                                 <div class="form-group field-invoice-uid required">
                                     <div class="input-group">
+
                                         <div class="input-group-addon">
                                             №
                                         </div>
@@ -50,15 +51,15 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-5 col-lg-6">
-                            <div class="btn-group pull-right margin-bottom">
+                            <div class="pull-right">
                                 <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false">
                                     Выберите действие <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#!" class="set-tariff-services">Выставить все услуги согласно
+                                    <li><a href="#" class="set-tariff-services">Выставить все услуги согласно
                                         тарифу</a></li>
-                                    <li><a href="#!" class="add-counters">Добавить показания счетчиков</a></li>
+                                    <li><a href="#" id="add-counters">Добавить показания счетчиков</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -74,14 +75,11 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="section">Секция</label>
-                                        <select id="section" class="form-control" name="section">
-                                            <option value="">Выберите...</option>
-                                        </select></div>
+                                        {{ form.section }}
+                                    </div>
                                     <div class="form-group field-invoice-flat_id required">
                                         <label class="control-label" for="apartment">Квартира</label>
-                                        <select id="apartment" class="form-control" name="apartment">
-                                            <option value="">Выберите...</option>
-                                        </select>
+                                        {{ form.apartment }}
 
                                         <div class="help-block"></div>
                                     </div>
@@ -149,17 +147,23 @@
 
                                     </div>
 
-                                    <p><b>Владелец:</b> <span id="name">не выбран</span></p>
-                                    <p><b>Телефон:</b> <span id="telephone">не выбран</span></p>
+                                    <p><b>Владелец:</b> {% if form.instance.apartment.owner %}
+                                        <span id="name">{{ form.instance.apartment.owner }}</span></p>{% else %}
+                                        <span id="name">не выбран</span></p>{% endif %}
+                                    <p><b>Телефон:</b> {% if form.instance.apartment.owner.telephone %}
+                                        <span id="telephone">{{ form.instance.apartment.owner.telephone }}</span>
+                                        </p>{% else %}<span id="telephone">не выбран</span></p>{% endif %}
                                 </div>
                                 <div class="col-xs-12 col-sm-6">
                                 </div>
                             </div>
                             <div class="table-responsive no-padding">
+
                                 {{ formset.management_form }}
                                 <table id="service_form"
 
                                        class="table table-bordered table-hover">
+
                                     <thead>
                                     <tr>
 
@@ -175,25 +179,26 @@
                                     </thead>
 
                                     <tbody>
-                                    {#                                    {% for form in formset %}#}
-                                    {##}
-                                    {#                                        <tr id="{{ form.prefix }}-form">#}
-                                    {#                                            {{ form.id }}#}
-                                    {#                                            <td>{{ form.service }}</td>#}
-                                    {#                                            <td>{{ form.expense }}</td>#}
-                                    {#                                            <td>{{ form.unit }}</td>#}
-                                    {#                                            <td>{{ form.cost_for_unit }}</td>#}
-                                    {#                                            <td>{{ form.full_cost }}</td>#}
-                                    {#                                            <td>#}
-                                    {#                                                <div class="btn-group pull-right">#}
-                                    {#                                                    <button onclick="delete_service(this.id)" id="{{ form.prefix }}"#}
-                                    {#                                                            type="button"#}
-                                    {#                                                            class="btn btn-default btn-sm form-row-remove-btn"><i#}
-                                    {#                                                            class="fa fa-trash"></i></button>#}
-                                    {#                                                </div>#}
-                                    {#                                            </td>#}
-                                    {#                                        </tr>#}
-                                    {#                                    {% endfor %}#}
+                                    {% for form in formset %}
+
+
+                                        <tr id="{{ form.prefix }}-form">
+                                            {{ form.id }}
+                                            <td>{{ form.service }}</td>
+                                            <td>{{ form.expense }}</td>
+                                            <td>{{ form.unit }}</td>
+                                            <td>{{ form.cost_for_unit }}</td>
+                                            <td>{{ form.full_cost }}</td>
+                                            <td>
+                                                <div class="btn-group pull-right">
+                                                    <button onclick="delete_service(this.id)" id="{{ form.prefix }}"
+                                                            type="button"
+                                                            class="btn btn-default btn-sm form-row-remove-btn"><i
+                                                            class="fa fa-trash"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                     </tbody>
                                     <tfoot>
                                     <tr>
@@ -210,10 +215,9 @@
                                         </td>
                                         <td style="min-width: 180px;">
                                             <div class="h4">
-                                                Итого: <b><span id="current_amount">0.00</span></b> грн
-                                                <input hidden type="number" id="amount" name="amount">
-                                                <input hidden type="number" id="invoice" name="invoice" value="1">
-
+                                                Итого: <b><span
+                                                    id="current_amount">{{ form.instance.amount }}</span></b> грн
+                                                <input hidden type="number" id="amount" name="amount" value="0">
                                             </div>
                                         </td>
                                     </tr>
@@ -339,7 +343,40 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
+            $('#id_tariff').change(function () {
+                $('.set-tariff-services').val($(this).val())
+            })
+            $('.set-tariff-services').click(function () {
+                $.ajax({
+                    url: '{% url 'tariff_set' %}',
+                    type: 'GET',
+                    data: {tariff_id: $(this).val()},
+                    success: function (data) {
+                        console.log(data)
+                        $('#service_form').children('tbody').remove()
+                        $('#id_formset-TOTAL_FORMS').val('0')
 
+
+                        $.each(data.data, function (index, item) {
+                            let form_idx = $('#id_formset-TOTAL_FORMS').val();
+                            $('#service_form').append($('#empty_form-service').html().replace(/__prefix__/g, form_idx));
+                            $('#id_formset-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+                        });
+                        // заполнение полей форм данными из списка
+                        $.each(data.data, function (index, item) {
+                            let form_idx = index;
+
+                            $('#id_formset-' + form_idx + '-service').val(item['id']);
+                            $('#id_formset-' + form_idx + '-unit').val(item['unit']);
+                            $('#id_formset-' + form_idx + '-cost_for_unit').val(item['price']);
+                        });
+                    },
+                    error: (data) => {
+                        console.log('xxxmmxmmmmm')
+                    }
+
+                });
+            })
 
             $('#id_houses').change(function () {
                 $.ajax({
@@ -348,50 +385,50 @@
                     data: {house_field: $(this).val()},
                     success: function (data) {
                         // Очистить выбор в другом поле
-                        $('#section').empty()
-                        $('#apartment').empty()
+                        $('#id_section').empty()
+                        $('#id_apartment').empty()
                         // Заполнить другое поле данными, полученными с сервера
-                        $("#section").append("<option value selected>Выберите...</option>")
+                        $("#id_section").append("<option value selected>Выберите...</option>")
                         $.each(data.section_data, function (key, value) {
 
-                            $('#section')
+                            $('#id_section')
                                 .append($("<option value=" + value.id + ">" + value.name + "</option>"));
                         });
-                        $("#apartment").append("<option value selected>Выберите...</option>")
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
                         $.each(data.apartment_data, function (key, value) {
-                            $('#apartment')
+                            $('#id_apartment')
                                 .append($("<option value=" + value.id + ">" + value.number + "</option>"));
                         });
 
 
                     },
                     error: (data) => {
-                        $('#section').empty()
-                        $('#apartment').empty()
+                        $('#id_section').empty()
+                        $('#id_apartment').empty()
                         $('#name').empty()
                         $('#name').text('не выбран')
                         $('#telephone').empty()
                         $('#telephone').text('не выбран')
-                        $("#section").append("<option value selected>Выберите...</option>")
-                        $("#apartment").append("<option value selected>Выберите...</option>")
+                        $("#id_section").append("<option value selected>Выберите...</option>")
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
                     }
 
                 });
             });
         });
         $(document).ready(function () {
-            $('#section').change(function () {
+            $('#id_section').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',
                     type: 'GET',
                     data: {section_field: $(this).val()},
                     success: function (data) {
                         // Очистить выбор в другом поле
-                        $('#apartment').empty()
+                        $('#id_apartment').empty()
                         // Заполнить другое поле данными, полученными с сервера
-                        $("#apartment").append("<option value selected>Выберите...</option>")
+                        $("#id_apartment").append("<option value selected>Выберите...</option>")
                         $.each(data.apartment_data, function (key, value) {
-                            $('#apartment')
+                            $('#id_apartment')
                                 .append($("<option value=" + value.id + ">" + value.number + "</option>"));
                         });
 
@@ -401,7 +438,7 @@
         });
 
         $(document).ready(function () {
-             if (window.location.search.split('=')[1]) {
+            if (window.location.search.split('=')[1]) {
 
                 $.ajax({
                     url: '{% url 'select_account' %}',
@@ -426,17 +463,15 @@
                         $('#id_account').val(data.owners_data.account).text(data.owners_data.account_id);
                         $('#id_houses').empty()
                         $('#id_houses')
-                                .append($("<option value=" + data.owners_data.house_id + ">" + data.owners_data.house + "</option>"));
-                        $('#section').empty()
-                        $('#section')
-                                .append($("<option value=" + data.owners_data.section_id + ">" + data.owners_data.section + "</option>"));
-                        $('#apartment').empty()
-                        $('#apartment')
-                                .append($("<option value=" + data.owners_data.apartment_id + ">" + data.owners_data.apartment + "</option>"));
+                            .append($("<option value=" + data.owners_data.house_id + ">" + data.owners_data.house + "</option>"));
+                        $('#id_section').empty()
+                        $('#id_section')
+                            .append($("<option value=" + data.owners_data.section_id + ">" + data.owners_data.section + "</option>"));
+                        $('#id_apartment').empty()
+                        $('#id_apartment')
+                            .append($("<option value=" + data.owners_data.apartment_id + ">" + data.owners_data.apartment + "</option>"));
 
                         // Заполнить другое поле данными, полученными с сервера
-
-
 
 
                         // Заполнить другое поле данными, полученными с сервера
@@ -449,9 +484,8 @@
                 });
 
 
-
             }
-            $('#apartment').change(function () {
+            $('#id_apartment').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',
                     type: 'GET',
@@ -585,7 +619,8 @@
             $('#current_amount').html(sum)
             $('#amount').attr('value', sum)
         }
-           $('.id_date').daterangepicker({
+
+        $('.id_date').daterangepicker({
             singleDatePicker: true,
             default: 'date',
             opens: 'center',
@@ -632,7 +667,6 @@
         $('.id_date').on('cancel.daterangepicker', function (ev, picker) {
             $(this).val('');
         });
-
 
 
     </script>

@@ -199,9 +199,15 @@
                 $("#filterApartment").val('0')
             }
 
-            // ...
+            $('#InvoicesTable tbody').on('click', 'td', function () {
+                var url = $(this).attr('href');
+                ;
+                if (url) {
+                    console.log(url)
+                    window.location.href = url;
+                }
 
-            // Handle click on row link
+            });
 
         });
 
@@ -284,9 +290,10 @@
                         targets: -1, // выбираем последнюю колонку
 
                         render: function (data, type, row, meta) {
+                            var url_create = "{% url 'invoice_create' pk=0  %}".replace('0', data.id);
                             var url_update = "{% url 'invoice_update' pk=0  %}".replace('0', data.id);
                             var url_delete = "{% url 'invoice_delete' pk=0  %}".replace('0', data.id);
-                            return `<a class="btn btn-default btn-sm" href="${url_update}?copy" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
+                            return `<a class="btn btn-default btn-sm" href="${url_create}" title="Копировать" data-toggle="tooltip"><i class="fa fa-clone"></i></a>` +
                                 `<a class="btn btn-default btn-sm" href="${url_update}" title="Редактировать" data-toggle="tooltip"><i class="fa fa-pencil"></i></a>` +
                                 `<a class="btn btn-default btn-sm" href="${url_delete}" title="Удалить" data-toggle="tooltip" data-pjax="0" data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"></i></a>`;
                         }
@@ -295,7 +302,7 @@
                 ],
                 createdRow: function (row, data, dataIndex) {
                     var url_detail = "{% url 'invoice_detail' pk=0  %}".replace('0', data.id);
-                    $(row).attr('href', `${url_detail}`);
+                    $(row).children('td').slice(1).attr('href', `${url_detail}`);
                 }
             });
 

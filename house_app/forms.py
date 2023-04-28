@@ -340,6 +340,8 @@ class InvoiceForm(forms.ModelForm):
         except:
             pass
         self.fields['tariff'].empty_label = 'Выберите...'
+        self.fields['apartment'].empty_label = 'Выберите...'
+        self.fields['section'].empty_label = 'Выберите...'
 
 
 class InvoiceServiceForm(ModelForm):
@@ -403,3 +405,4 @@ class TransferForm(forms.ModelForm):
         self.fields['manager'].initial = user
         self.fields['manager'].queryset = UserProfile.objects.filter(is_staff=True)
         self.fields['manager'].empty_label = 'Выберите...'
+

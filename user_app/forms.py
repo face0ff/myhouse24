@@ -67,6 +67,7 @@ class UserUpdateForm(UserChangeForm):
             user.set_password(self.cleaned_data['password1'])
             if commit:
                 user.save()
+
             print('celery')
             return user
 
