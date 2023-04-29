@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Настройка шаблонов </h1>
+
+            <ul class="breadcrumb">
+
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'invoices_list' %}">Квитанции</a></li>
+                <li class="active">Настройка шаблонов</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Список шаблонов</h3>
+                </div>
+                <div class="box-body">
+                    {% for template in object_list %}
+                        <div id="template-{{ template.id }}">
+                            <p>{{ template.name }}<span id="{{ template.id }}-type"
+                                                        class="text-bold">{% if template.type %}
+                                (по-умолчанию){% endif %}</span></p>
+                            <a href="{{ template.file.url }}"><i
+                                    class="fa fa-download" aria-hidden="true"></i> Скачать шаблон</a>
+                            <a id="{{ template.id }}" class="text-success">Назначить шаблоном по умоланию</a>
+                            <a id="{{ template.id }}" class="text-danger"
+                               data-confirm="Вы уверены, что хотите удалить этот элемент?"><i class="fa fa-trash"
+                                                                                              aria-hidden="true"></i>
+                                Удалить шаблон</a>
+                        </div>
+                    {% endfor %}
+
+                    <form id="form" method="post" enctype="multipart/form-data">
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group field-invoicetemplateform-file">
+                                    <label class="control-label" for="file">Загрузить
+                                        пользовательский шаблон</label>
+                                    <input type="hidden" name="InvoiceTemplateForm[file]" value="">{{ form.file }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group field-invoicetemplateform-title required">
+                                    <label class="control-label" for="name">Название
+                                    </label>
+                                    {{ form.name }}
+
+                                    <div class="help-block"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 text-center">
+                                    <a href="{% url 'template_config' %}" class="btn btn-default">Отменить</a>
+                                    <button type="submit" class="btn btn-success">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+        $('.text-success').click(function () {
+            let template_id = this.id
+            $.ajax({
+                url: '{% url "set_default" %}',
+                type: 'GET',
+                data: {'template_id': template_id},
+                success: (data) => {
+                    $('.text-bold').html('')
+                    $('#' + template_id + '-type').html('<b>(по-умолчанию)</b>')
+                },
+                error: (data) => {
+                    console.log('no')
+                }
+            })
+        })
+        $('.text-danger').click(function () {
+            let template_id = this.id
+            $.ajax({
+                url: '{% url "template_delete" %}',
+                type: 'GET',
+                data: {'template_id': template_id},
+                success: (data) => {
+                    console.log('yes')
+                    console.log(data)
+                    $("#template-" + template_id).css('display', 'none')
+                    $('#' + data['data'] + '-type').html('<b>(по-умолчанию)</b>')
+                },
+                error: (data) => {
+                    alert('Нам этот шаблон пригодиться')
+                }
+            })
+        })
+    </script>
+{% endblock %}

@@ -3,17 +3,20 @@
 {% load widget_tweaks %}
 
 {% block content %}
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css"/>
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
                 {% if transfers.income %}
-                Приходная ведомость {% else %} Расходная ведомость {% endif %}</h1>
+                    Приходная ведомость {% else %} Расходная ведомость {% endif %}</h1>
 
             <ul class="breadcrumb">
                 <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
                 <li><a href="{% url 'transfers_list' %}">Платежи</a></li>
                 <li class="active">{% if transfers.income %}
-                Приходная ведомость {% else %} Расходная ведомость {% endif %} №{{ transfers.number }}</li>
+                    Приходная ведомость {% else %} Расходная ведомость {% endif %} №{{ transfers.number }}</li>
             </ul>
         </section>
 
@@ -44,7 +47,8 @@
             </div>
             <div class="box">
                 <div class="box-header with-border">
-                    <h3 class="box-title">{% if transfers.income %}Приходная ведомость{% else %}Расходная ведомость{% endif %}</h3>
+                    <h3 class="box-title">{% if transfers.income %}Приходная ведомость{% else %}Расходная
+                        ведомость{% endif %}</h3>
                     <div class="box-tools">
                         <a href="{% url 'transfer_create' transfers.id %}"
                            class="btn btn-default btn-sm">
@@ -60,14 +64,20 @@
                             <span class="hidden-xs">Редактировать ведомость</span><i class="fa fa-pencil visible-xs"
                                                                                      aria-hidden="true"></i>
                         </a>
-                        <a href="/admin/account-transaction/export-one/1064?export=xls" class="btn btn-default btn-sm">
-                            <span class="hidden-xs">Выгрузить в Excel</span><i class="fa fa-pencil visible-xs"
+                        <a href="#" class="btn btn-default btn-sm">
+                            <span id="export" class="hidden-xs">Выгрузить в Excel</span><i class="fa fa-pencil visible-xs"
                                                                                aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
                 <div class="box-body">
-                    <table class="table table-bordered table-striped table-view">
+                    <table id="TransferTable" class="table table-bordered table-striped table-view">
+                        <thead class="hidden">
+                        <tr>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
                         <tbody>
                         <tr>
                             <td>Владелец квартиры</td>
@@ -80,14 +90,14 @@
                         <tr>
                             <td>Лицевой счет</td>
                             <td>
-                                 {% if transfers.account %} <a href="{% url 'account_detail' transfers.account.id %}">
+                                {% if transfers.account %} <a href="{% url 'account_detail' transfers.account.id %}">
                                     {{ transfers.account.number }} </a>{% else %}не указано{% endif %}
                             </td>
                         </tr>
                         <tr>
                             <td>Статья</td>
                             <td> {% if transfers.item %}
-                                    {{ transfers.item }}{% else %}не указано{% endif %}</td>
+                                {{ transfers.item }}{% else %}не указано{% endif %}</td>
                         </tr>
                         <tr>
                             <td>Квитанция</td>
@@ -104,7 +114,7 @@
                         <tr>
                             <td>Менеджер</td>
                             <td>
-                               {% if transfers.manager %} <a href="{% url 'user_detail' transfers.manager.id %}">
+                                {% if transfers.manager %} <a href="{% url 'user_detail' transfers.manager.id %}">
                                     {{ transfers.manager }} </a>{% else %}не указано{% endif %}
                             </td>
                         </tr>
@@ -112,13 +122,15 @@
                             <td>Сумма</td>
                             <td>
                                 <span class="text-green">{% if transfers.amount %}
-                                    {{ transfers.amount }}{% else %}не указано{% endif %}</td></span>
+                                    {{ transfers.amount }}{% else %}не указано{% endif %}</td>
+                            </span>
                             </td>
                         </tr>
                         <tr>
                             <td>Комментарий</td>
                             <td>{% if transfers.comment %}
-                                    {{ transfers.comment }}{% else %}не указано{% endif %}</td></td>
+                                {{ transfers.comment }}{% else %}не указано{% endif %}</td>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -130,7 +142,36 @@
 {% endblock %}
 
 {% block script %}
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table =$('#TransferTable').DataTable({
+                paging: false,
+                ordering: false,
+                info: false,
+                searching: false,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                    },
+                ],
 
 
+            });
+            $('.buttons-excel').css('display', 'none')
+            $('#export').on("click", function () {
+                table.buttons('.buttons-excel').trigger('click');
+            })
+        });
+
+
+    </script>
 {% endblock %}
 

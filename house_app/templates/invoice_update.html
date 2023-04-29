@@ -354,8 +354,10 @@
                     data: {tariff_id: $(this).val()},
                     success: function (data) {
                         console.log(data)
+
+                        $('#service_form tr').not(':first,:last').remove();
                         $('#id_formset-TOTAL_FORMS').val('0')
-                        $('#service_form').children('tr').remove()
+
 
 
                         $.each(data.data, function (index, item) {
@@ -366,7 +368,8 @@
                         // заполнение полей форм данными из списка
                         $.each(data.data, function (index, item) {
                             let form_idx = index;
-                            $('#id_formset-' + form_idx + '-service').val(item['id']);
+                            $('#id_formset-' + form_idx + '-id').val(item['invId']);
+                            $('#id_formset-' + form_idx + '-service').val(item['serId']);
                             $('#id_formset-' + form_idx + '-unit').val(item['unit']);
                             $('#id_formset-' + form_idx + '-cost_for_unit').val(item['price']);
                         });
@@ -519,15 +522,20 @@
         //delete SERVICE form
         function delete_service(index) {
             if (confirm('Удалить?')) {
+                console.log(index)
                 var spl = index.split('-')[1]
                 let selectedCost = $('#current_amount').text();
                 var full = 'id_formset-' + spl + '-full_cost'
+
                 let selectFull = $('#' + full).val()
+                console.log(selectFull)
                 let result = selectedCost - selectFull;
+                $('#' + full).val('0')
                 $('#current_amount').text(result);
                 $('#amount').attr('value', result)
                 $('.delete-list-service').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
-                $('#' + index + '-form').css('display', 'none');
+                $('#' + index + '-form').css('display', 'none')
+
             } else {
                 return false
             }

@@ -406,3 +406,11 @@ class TransferForm(forms.ModelForm):
         self.fields['manager'].queryset = UserProfile.objects.filter(is_staff=True)
         self.fields['manager'].empty_label = 'Выберите...'
 
+class TemplateForm(forms.ModelForm):
+    class Meta:
+        model = Template
+        fields = '__all__'
+        widgets = {
+            'name': TextInput(attrs={'class': 'form-control'}),
+            'file': forms.FileInput(attrs={'type': 'file'}),
+        }

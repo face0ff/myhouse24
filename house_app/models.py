@@ -193,3 +193,8 @@ class Transfers(models.Model):
 
     def __str__(self):
         return str(self.number).zfill(10)
+
+class Template(models.Model):
+    name = models.CharField(max_length=16, default='template', verbose_name='Шаблон')
+    type = models.BooleanField(default=False, verbose_name='Назначить шаблоном по умоланию')
+    file = models.FileField("Шаблонь", upload_to="files")

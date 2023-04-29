@@ -44,11 +44,11 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">Просмотр квитанции</h3>
                     <div class="box-tools">
-                        <a href="/admin/invoice/print/742" class="btn btn-default btn-sm">
+                        <a href="{% url 'templates_list' %}?invoice={{ invoice.id }}" class="btn btn-default btn-sm">
                             <span class="hidden-xs">Печать</span><i class="fa fa-print visible-xs"
                                                                     aria-hidden="true"></i>
                         </a>
-                        <a href="/admin/invoice/print/742" class="btn btn-default btn-sm">
+                        <a href="{% url 'templates_list' %}?invoice={{ invoice.id }}" class="btn btn-default btn-sm">
                             <span class="hidden-xs">Отправить на e-mail</span><i class="fa fa-envelope-o visible-xs"
                                                                                  aria-hidden="true"></i>
                         </a>

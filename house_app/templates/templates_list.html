@@ -1,0 +1,75 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Печатная форма документа </h1>
+
+            <ul class="breadcrumb">
+                <li><a href="{% url 'admin' %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'invoices_list' %}">Квитанции</a></li>
+                <li><a href="{% url 'invoice_detail' invoice.pk %}">Квитанция #{{ invoice.number }}</a></li>
+                <li class="active">Печатная форма документа</li>
+            </ul>
+        </section>
+
+        <section class="content">
+
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Список шаблонов</h3>
+                    <div class="box-tools">
+                        <a href="{% url 'template_config' %}" class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Настройка шаблонов</span><i class="fa fa-file-text visible-xs"
+                                                                                aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <form id="form" method="post" enctype="multipart/form-data">
+                        {% if messages %}{% for message in messages %} <p>{{ message }}</p> {% endfor %}{% endif %}
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-7 col-lg-4">
+                                <div class="form-group">
+                                    {% for template in object_list %}
+
+                                    <div class="radio">
+                                        <label for="invoice_template_id-{{ template.id }}">
+
+                                            <input type="radio" id="invoice_template_id-{{ template.id }}" name="invoice_template_id"
+                                                   value="{{ template.id }}" checked>{{ template.name }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <input type="hidden" name="invoice_template_type" value="xls">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <div class="form-group">
+                                    <button name="action_download" type="submit" class="btn btn-success">Скачать
+                                    </button>
+                                    <button name="action_send_email" type="submit" class="btn btn-default">Отправить на
+                                        e-mail
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+    <script>
+
+    </script>
+{% endblock %}

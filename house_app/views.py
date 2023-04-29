@@ -461,8 +461,6 @@ class RequestCreate(CreateView):
     success_url = reverse_lazy('requests_list')
 
 
-
-
 class RequestUpdate(UpdateView):
     model = Request
     template_name = 'request_update.html'
@@ -501,8 +499,6 @@ class MessageCreate(CreateView):
     template_name = 'message_create.html'
     form_class = MessageForm
     success_url = reverse_lazy('messages_list')
-
-
 
 
 class MessageDetail(DetailView):
@@ -548,6 +544,7 @@ def delete_selected_messages(request):
             message = get_object_or_404(Message, id=i)
             message.delete()
     return JsonResponse({}, status=200)
+
 
 class AccountsList(ListView):
     model = Account
@@ -663,7 +660,6 @@ def select_account(request):
             'account': account.number,
             'account_id': account.id
 
-
         }
         response = {
             'owners_data': owner_house,
@@ -713,7 +709,6 @@ class InvoicesList(ListView):
     template_name = 'invoices_list.html'
 
 
-
 class InvoiceCreate(CreateView):
     model = Invoice
     template_name = 'invoice_create.html'
@@ -724,19 +719,19 @@ class InvoiceCreate(CreateView):
         meters = MeterReading.objects.all()
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('pk') != None:
-            idx = int(Invoice.objects.all().last().number)+1
+            idx = int(Invoice.objects.all().last().number) + 1
             inst = get_object_or_404(Invoice, id=self.kwargs.get('pk'))
 
-            context['form'] = InvoiceForm(instance=inst, initial={'number': idx ,'apartment': inst.apartment.id})
+            context['form'] = InvoiceForm(instance=inst, initial={'number': idx, 'apartment': inst.apartment.id})
             context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
-                                                       queryset=InvoiceService.objects.filter(invoice_id=self.get_object().pk))
+                                                       queryset=InvoiceService.objects.filter(
+                                                           invoice_id=self.get_object().pk))
         else:
             context['form'] = InvoiceForm()
             context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
-                                                   queryset=InvoiceService.objects.none())
+                                                       queryset=InvoiceService.objects.none())
         context['meters'] = meters
         return context
-
 
     def post(self, *args, **kwargs):
         # print(self.request.POST)
@@ -744,10 +739,12 @@ class InvoiceCreate(CreateView):
         qs_invoice = InvoiceService.objects.filter(invoice_id=self.kwargs.get('pk'))
         form = InvoiceForm(self.request.POST)
         formset = InvoiceServiceFormSet(self.request.POST or None, queryset=InvoiceService.objects.none(),
-                                                   prefix='formset', initial=[{'id': tar.id, 'cost_for_unit': tar.cost_for_unit, 'expense': tar.expense,
-                                                    'full_cost': tar.full_cost} for tar in qs_invoice])
+                                        prefix='formset', initial=[
+                {'id': tar.id, 'cost_for_unit': tar.cost_for_unit, 'expense': tar.expense,
+                 'full_cost': tar.full_cost} for tar in qs_invoice])
         return self.form_valid(form, formset)
-    def form_valid(self, form , formset):
+
+    def form_valid(self, form, formset):
         # context = self.get_context_data()
         # formset = context['formset']
 
@@ -811,19 +808,19 @@ class InvoiceUpdate(UpdateView):
                 account.save()
             except:
                 pass
-            if self.request.GET.get('copy') == '':
-                # Получить последний идентификатор
-                last_id = Invoice.objects.all().order_by('-id').first().id
-                last_number = Invoice.objects.all().order_by('-id').first().number
-                # Увеличить на единицу
-                new_id = last_id + 1
-                # Установить имя
-                new_number = last_number + 1
-                # Сохранить новые значения
-                form.instance.id = new_id
-                form.instance.number = new_number
-                super(InvoiceUpdate, self).form_valid(form)
-                return redirect('invoice_detail', new_id)
+            # if self.request.GET.get('copy') == '':
+            #     # Получить последний идентификатор
+            #     last_id = Invoice.objects.all().order_by('-id').first().id
+            #     last_number = Invoice.objects.all().order_by('-id').first().number
+            #     # Увеличить на единицу
+            #     new_id = last_id + 1
+            #     # Установить имя
+            #     new_number = last_number + 1
+            #     # Сохранить новые значения
+            #     form.instance.id = new_id
+            #     form.instance.number = new_number
+            #     super(InvoiceUpdate, self).form_valid(form)
+            #     return redirect('invoice_detail', new_id)
 
             instances = formset.save(commit=False)
             for instance in instances:
@@ -835,6 +832,8 @@ class InvoiceUpdate(UpdateView):
                     return self.form_invalid(form)
             return super().form_valid(form)
         else:
+            print(self.request.POST)
+            print(formset.errors)
             return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -875,13 +874,13 @@ def select_invoices(request):
     invoices_list = []
     filters = Q()
 
-
     if request.GET['filterNumber']:
         filters &= Q(number=request.GET['filterNumber'])
     if request.GET['filterDateDay']:
-        filters &= Q(date__day=request.GET['filterDateDay'])
+        filters &= Q(date=request.GET['filterDateDay'])
     if request.GET['filterDateMonth']:
-        filters &= Q(date__month=request.GET['filterDateMonth'])
+        print(request.GET['filterDateMonth'])
+        filters &= Q(date__month=request.GET['filterDateMonth'].split('-')[-1])
     if request.GET['filterStatus']:
         filters &= Q(status=request.GET['filterStatus'])
     if request.GET['filterApartment']:
@@ -936,6 +935,7 @@ def delete_selected_invoice(request):
             invoice.delete()
     return JsonResponse({}, status=200)
 
+
 def invoice_unit(request):
     if request.GET.get('service_id'):
         unit = Unit.objects.get(services=request.GET.get('service_id'))
@@ -966,7 +966,6 @@ class TransfersList(ListView):
             'total_amount']
         context['expense'] = abs(expense) if expense else '0'
 
-
         return context
 
 
@@ -986,7 +985,7 @@ class TransferCreate(CreateView):
         transfer_type = self.request.GET.get('type')
         apart_account = self.request.GET.get('account')
         if self.kwargs.get('pk') != None:
-            idx = int(Transfers.objects.all().last().number)+1
+            idx = int(Transfers.objects.all().last().number) + 1
             inst = get_object_or_404(Transfers, id=self.kwargs.get('pk'))
             context['form'] = TransferForm(self.request.user, instance=inst, initial={'number': idx})
         if transfer_type == 'income' or apart_account != None:
@@ -1005,7 +1004,7 @@ class TransferCreate(CreateView):
                 account.save()
             else:
                 transfer = form.save(commit=False)
-                transfer.amount= -int(self.request.POST.get('amount').split('.')[0])
+                transfer.amount = -int(self.request.POST.get('amount').split('.')[0])
                 transfer.save()
             form.save()
             return HttpResponseRedirect(self.success_url)
@@ -1037,7 +1036,7 @@ class TransferUpdate(UpdateView):
         return context
 
     def form_valid(self, form):
-        print(self.request.GET.get('copy'))
+        print(self.request.POST)
         if self.request.POST.get('income') == 'True':
             try:
                 account = get_object_or_404(Account, id=self.request.POST.get('account'))
@@ -1138,6 +1137,9 @@ def select_owners(request):
 
 def tariff_set(request):
     tariffs = PriceTariffServices.objects.filter(tariff_id=request.GET.get('tariff_id'))
+    invserdel = InvoiceService.objects.filter(invoice__tariff=request.GET.get('tariff_id'))
+    for ins in invserdel:
+        ins.delete()
     # print(request.META['HTTP_REFERER'].split('/')[-1])
     # invSerList = InvoiceService.objects.filter(invoice_id=request.META['HTTP_REFERER'].split('/')[-1])
     # print(invSerList)
@@ -1147,9 +1149,66 @@ def tariff_set(request):
     for tariff in tariffs:
         print(tariff.tariff.id)
         tariff_dict = {
+
             'price': tariff.price,
             'id': tariff.services.id,
             'unit': tariff.services.unit.name,
         }
         tariff_list.append(tariff_dict)
     return JsonResponse({'data': tariff_list}, status=200)
+
+
+class TemplatesList(ListView):
+    model = Template
+    template_name = 'templates_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object_list'] = Template.objects.all()
+        context['invoice'] = get_object_or_404(Invoice, id=self.request.GET.get('invoice'))
+        return context
+
+
+class TemplateConfig(CreateView):
+    model = Template
+    template_name = 'template_config.html'
+    form_class = TemplateForm
+    success_url = reverse_lazy('template_config')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object_list'] = Template.objects.all()
+        return context
+
+
+def set_default(request):
+    if request.method == 'GET':
+        print(request.GET.get('template_id'))
+        old_template = Template.objects.get(type=True)
+        old_template.type = False
+        old_template.save()
+        template = get_object_or_404(Template, pk=request.GET.get('template_id'))
+        template.type = True
+        template.save()
+        return JsonResponse({}, status=200)
+
+def template_delete(request):
+    if request.method == 'GET':
+        print(request.GET.get('template_id'))
+        templates = Template.objects.all()
+        template = templates.get(pk=request.GET.get('template_id'))
+        if templates.count()>1:
+            if template.type == True:
+                template_new = templates.exclude(pk=request.GET.get('template_id')).first()
+                template_new.type = True
+                template_new.save()
+                template.delete()
+                return JsonResponse({'data': template_new.id}, status=200)
+            else:
+                template.delete()
+                return JsonResponse({}, status=200)
+        else:
+            return JsonResponse({}, status=400)
+
+
+

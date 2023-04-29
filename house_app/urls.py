@@ -60,6 +60,10 @@ urlpatterns = [
     path("select_owners/", select_owners, name='select_owners'),
 
     path("admin/tariff/set/", views.tariff_set, name='tariff_set'),
+    path("admin/templates_list/", TemplatesList.as_view(), name='templates_list'),
+    path("admin/template_config/", TemplateConfig.as_view(), name='template_config'),
+    path("set_default/", set_default, name='set_default'),
+    path("template_delete/", template_delete, name='template_delete'),
 
 
 
