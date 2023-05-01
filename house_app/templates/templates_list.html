@@ -37,12 +37,13 @@
                                 <div class="form-group">
                                     {% for template in object_list %}
 
-                                    <div class="radio">
-                                        <label for="invoice_template_id-{{ template.id }}">
+                                        <div class="radio">
+                                            <label for="invoice_template_id-{{ template.id }}">
 
-                                            <input type="radio" id="invoice_template_id-{{ template.id }}" name="invoice_template_id"
-                                                   value="{{ template.id }}" checked>{{ template.name }}</label>
-                                    </div>
+                                                <input type="radio" id="invoice_template_id-{{ template.id }}"
+                                                       name="invoice_template_id"
+                                                       value="{{ template.id }}" checked>{{ template.name }}</label>
+                                        </div>
                                     {% endfor %}
                                 </div>
 
@@ -52,8 +53,11 @@
                         <div class="row">
                             <div class="col-xs-12 text-right">
                                 <div class="form-group">
-                                    <button name="action_download" type="submit" class="btn btn-success">Скачать
-                                    </button>
+
+                                    <a id="href_download" >
+                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                        Скачать шаблон
+                                    </a>
                                     <button name="action_send_email" type="submit" class="btn btn-default">Отправить на
                                         e-mail
                                     </button>
@@ -70,6 +74,30 @@
 {% block script %}
 
     <script>
+        $(document).ready(function () {
+            download_send({{ template_default.id }})
+        })
+        $('input[type=radio]').change(function () {
+            let idx = $(this).val()
+            download_send(idx)
+        })
 
+        function download_send(idx) {
+            var invoice = window.location.href.split('=')[1]
+            $.ajax({
+                url: '{% url "template_upload" %}',
+                type: 'GET',
+                data: {'idx': idx,
+                       'invoice_id': invoice},
+                success: (data) => {
+                    if (data.href) {
+                        $('#href_download').attr('href', data.href)
+                    }
+                },
+                error: (data) => {
+                    console.log('//')
+                }
+            })
+        }
     </script>
 {% endblock %}

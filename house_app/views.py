@@ -11,6 +11,7 @@ from house_app.forms import *
 from house_app.models import House, Apartment, Section, Floor, Request
 from services_app.models import MeterReading, PriceTariffServices
 from user_app.models import UserProfile, Role
+import openpyxl
 
 
 # Create your views here.
@@ -1165,6 +1166,7 @@ class TemplatesList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['object_list'] = Template.objects.all()
+        context['template_default'] = Template.objects.get(type=True)
         context['invoice'] = get_object_or_404(Invoice, id=self.request.GET.get('invoice'))
         return context
 
@@ -1209,6 +1211,25 @@ def template_delete(request):
                 return JsonResponse({}, status=200)
         else:
             return JsonResponse({}, status=400)
+
+def template_upload(request):
+
+
+    # создание нового файла
+    workbook = openpyxl.Workbook()
+
+    # выбор активного листа
+    worksheet = workbook.active
+
+    # заполнение ячеек значениями
+    worksheet['A1'] = 'Значение 1'
+    worksheet['B1'] = 'Значение 2'
+    worksheet['C1'] = 'Значение 3'
+
+    # сохранение файла
+    workbook.save('example.xlsx')
+
+
 
 
 

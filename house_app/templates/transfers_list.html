@@ -118,6 +118,8 @@
                                         <th style="width: 110px; min-width: 110px">Сумма (грн)</th>
                                         <th style="width: 80px; min-width: 80px">&nbsp;</th>
                                     </tr>
+                                    </thead>
+                                    <thead class="filters">
                                     <tr id="w0-filters" class="filters">
                                         <td><input type="text" class="form-control" id="filterNumber"
                                                    name="number">
@@ -125,7 +127,7 @@
                                         <td><input type="date" class="form-control" name="date"
                                                    id="filterDate">
                                         </td>
-                                        <td>
+                                        <td class="filters">
                                             <select class="form-control" name="completed" id="filterCompleted">
                                                 <option hidden disabled selected value></option>
                                                 <option value="True">Проведена</option>
@@ -160,6 +162,7 @@
                                         <td>&nbsp;</td>
                                     </tr>
                                     </thead>
+
                                     <tbody>
                                     {% for transfer in page_obj %}
                                         <tr>
@@ -225,14 +228,20 @@
         });
 
         $(document).ready(function () {
+            // устанавливаем заголовок страницы
+            $('head title').text('');
 
 
             // Initialize DataTable
-            var table =$("#TransfersTable").DataTable({
+            var table = $("#TransfersTable").DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     {
                         extend: 'excelHtml5',
+                        footer: true,
+                        exportOptions: {
+                            rows: ':not(.filters)' // исключаем ячейки с классом 'no-export'
+                        },
                     },
                 ],
 

@@ -64,6 +64,7 @@ urlpatterns = [
     path("admin/template_config/", TemplateConfig.as_view(), name='template_config'),
     path("set_default/", set_default, name='set_default'),
     path("template_delete/", template_delete, name='template_delete'),
+    path("template_upload/", template_upload, name='template_upload'),
 
 
 

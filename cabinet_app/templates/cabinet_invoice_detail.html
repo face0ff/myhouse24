@@ -3,6 +3,7 @@
 
 
 {% block content %}
+
     <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css"
           href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css"/>
@@ -25,7 +26,7 @@
                 <div class="box-header with-border">
                     <h3 class="box-title"></h3>
                     <div class="box-tools">
-                        <a href="/cabinet/invoice/print/754" class="btn btn-info btn-sm">
+                        <a id="print" class="btn btn-info btn-sm">
                             <i class="fa fa-print" aria-hidden="true"></i> <span class="hidden-xs">Распечатать</span>
                         </a>
                     </div>
@@ -33,7 +34,7 @@
                 <div class="box-body">
                     <div class="table-responsive no-padding margin-top-15">
                         <table id="InvoiceTable" class="table table-bordered table-hover table-striped">
-                        <caption>Квитанция номер {{ object.number }}</caption>
+
                             <thead>
                             <tr>
                                 <th style="width: 40px; min-width: 40px;">#</th>
@@ -90,6 +91,18 @@
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
     <script>
         $(document).ready(function () {
+            // получаем данные из шаблона
+            var invoice = {
+                number: "{{ invoice.number }}",
+                date: "{{ invoice.date }}",
+                apartment: "{{ invoice.apartment }}",
+                owner: "{{ invoice.apartment.owner }}"
+            };
+
+            // устанавливаем заголовок страницы
+            $('head title').text('Квитанция: ' + invoice.number + ' Дата: ' + invoice.date + ' Квартира: ' + invoice.apartment + ' Получатель: ' + invoice.owner);
+
+            // инициализируем DataTable
             var table = $('#InvoiceTable').DataTable({
                 paging: false,
                 ordering: false,
@@ -101,14 +114,24 @@
                         extend: 'pdfHtml5',
                         footer: true // добавить флаг для включения содержимого футера в экспорт
                     },
-                ],
-
-
+                    {
+                        extend: 'print'
+                    }
+                ]
             });
-            $('.buttons-pdf').css('display', 'none')
+
+            // скрываем кнопки экспорта и печати по умолчанию
+            $('.buttons-pdf, .buttons-print').css('display', 'none');
+
+            // обработчик события для экспорта в PDF
             $('#export').on("click", function () {
                 table.buttons('.buttons-pdf').trigger('click');
-            })
+            });
+
+            // обработчик события для печати
+            $('#print').on("click", function () {
+                table.buttons('.buttons-print').trigger('click');
+            });
         });
 
 
