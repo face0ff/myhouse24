@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'admin_app',
     'services_app',
     'site_app',
-    'crispy_forms',
+    # '_forms',
     'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -151,5 +151,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+_TEMPLATE_PACK = 'bootstrap4'
 AUTH_USER_MODEL = 'user_app.UserProfile'

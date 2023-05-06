@@ -179,6 +179,9 @@
                                     </thead>
 
                                     <tbody>
+                                    {{ form.errors }}
+                                    {{ form.error_messages }}
+                                    {{ formset.error_messages }}
                                     {% for form in formset %}
 
 
@@ -198,6 +201,7 @@
                                                 </div>
                                             </td>
                                         </tr>
+
                                     {% endfor %}
                                     </tbody>
                                     <tfoot>
@@ -227,8 +231,8 @@
                             </div>
                             <div class="delete-list"></div>
 
-                            <table id="test" style="display: none">
-                                <tbody id="empty_form-service">
+                            <table id="empty_form-service" style="display: none">
+                                <tbody id="">
 
                                 <tr id="{{ formset.empty_form.prefix }}-form">
                                     {{ formset.empty_form.id }}
@@ -347,14 +351,16 @@
                 $('.set-tariff-services').val($(this).val())
             })
             $('.set-tariff-services').click(function () {
+
+                $('#service_form tbody tr').empty();
+                $('#id_formset-TOTAL_FORMS').val('0');
+                $('#id_formset-INITIAL_FORMS').val('0');
                 $.ajax({
                     url: '{% url 'tariff_set' %}',
                     type: 'GET',
                     data: {tariff_id: $(this).val()},
                     success: function (data) {
                         console.log(data)
-                        $('#service_form').children('tbody').remove()
-                        $('#id_formset-TOTAL_FORMS').val('0')
 
 
                         $.each(data.data, function (index, item) {
@@ -372,7 +378,7 @@
                         });
                     },
                     error: (data) => {
-                        console.log('xxxmmxmmmmm')
+
                     }
 
                 });
@@ -523,6 +529,7 @@
 
 
         $(document).ready(function () {
+            current_amount();
             var table = $('#table').DataTable({
                     "language": {
                         "sEmptyTable": "В таблице отсутствуют данные",
@@ -549,8 +556,8 @@
                     }
                 }
             );
-            $('#apartment').change(function () {
-                var apartmentValue = $('#apartment option:selected').text();
+            $('#id_apartment').change(function () {
+                var apartmentValue = $('#id_apartment option:selected').text();
                 table.search(apartmentValue).draw();
             });
         });
@@ -565,8 +572,27 @@
         //delete SERVICE form
         function delete_service(index) {
             if (confirm('Удалить?')) {
-                $('.delete-list-service').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
-                $('#' + index + '-form').css('display', 'none');
+                console.log(index)
+                var spl = index.split('-')[1]
+                let selectedCost = $('#current_amount').text();
+                var full = 'id_formset-' + spl + '-full_cost'
+
+                let selectFull = $('#' + full).val()
+                console.log(selectFull)
+                let result = selectedCost - selectFull;
+                if (isNaN(result)) {
+                    console.log(result)
+                    $('#current_amount').text('0.00');
+                    $('#amount').attr('value', '0.00')
+                } else {
+                    $('#' + full).val('0')
+                    $('#current_amount').text(result);
+                    $('#amount').attr('value', result)
+                }
+
+                $('.delete-list').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
+                $('#' + index + '-form').css('display', 'none')
+
             } else {
                 return false
             }
@@ -597,6 +623,10 @@
             let selectedExpense = $('#id_formset-' + spl + '-expense').val();
             let selectedCost = $('#id_formset-' + spl + '-cost_for_unit').val();
             let result = selectedExpense * selectedCost;
+            console.log(spl)
+            console.log(selectedExpense)
+            console.log(selectedCost)
+            console.log(result)
             var full = 'id_formset-' + spl + '-full_cost'
             $('#' + full).val(result);
             current_amount();

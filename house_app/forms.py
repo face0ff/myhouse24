@@ -335,7 +335,7 @@ class InvoiceForm(forms.ModelForm):
                 self.fields['houses'].initial = houses
                 self.fields['apartment'].empty_label = 'Выберите...'
                 self.fields['section'].initial = Section.objects.get(apartment__invoice=self.instance.id)
-                # self.fields['apartment'].initial = houses.apartment_set.filter(apartment__invoice=self.instance.id)
+                self.fields['tariff'].initial = Tariff.objects.filter(apartment__invoice=self.instance.id)
                 self.fields['account'].initial = Account.objects.get(apartment__invoice=self.instance.id)
         except:
             pass

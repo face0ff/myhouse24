@@ -1,9 +1,11 @@
 from django.contrib import messages
+from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from django.db.models import Q, Sum
 from django.forms import model_to_dict
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -11,7 +13,16 @@ from house_app.forms import *
 from house_app.models import House, Apartment, Section, Floor, Request
 from services_app.models import MeterReading, PriceTariffServices
 from user_app.models import UserProfile, Role
-import openpyxl
+from openpyxl import load_workbook
+import locale
+from openpyxl.styles import Font, Alignment, Side, Border
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.pagesizes import landscape, A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 
 # Create your views here.
@@ -625,9 +636,12 @@ class AccountDetail(DetailView):
 
 
 def account_delete(request, pk):
-    account = get_object_or_404(Account, id=pk)
-    account.delete()
-    return redirect('accounts_list')
+    try:
+        account = get_object_or_404(Account, id=pk)
+        account.delete()
+        return redirect('accounts_list')
+    except:
+        return redirect('accounts_list')
 
 
 def select_account(request):
@@ -720,13 +734,17 @@ class InvoiceCreate(CreateView):
         meters = MeterReading.objects.all()
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('pk') != None:
-            idx = int(Invoice.objects.all().last().number) + 1
             inst = get_object_or_404(Invoice, id=self.kwargs.get('pk'))
+            next_number = Invoice.objects.last().number + 1
+            inst.pk = None
+            inst.number = next_number
+            qs_invoice = InvoiceService.objects.filter(invoice_id=self.kwargs.get('pk'))
 
-            context['form'] = InvoiceForm(instance=inst, initial={'number': idx, 'apartment': inst.apartment.id})
-            context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
-                                                       queryset=InvoiceService.objects.filter(
-                                                           invoice_id=self.get_object().pk))
+            context['form'] = InvoiceForm(instance=inst)
+            formset = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
+                                  queryset=qs_invoice)
+            formset.management_form.initial['INITIAL_FORMS'] = 0
+            context['formset'] = formset
         else:
             context['form'] = InvoiceForm()
             context['formset'] = InvoiceServiceFormSet(self.request.POST or None, prefix='formset',
@@ -734,25 +752,15 @@ class InvoiceCreate(CreateView):
         context['meters'] = meters
         return context
 
-    def post(self, *args, **kwargs):
-        # print(self.request.POST)
-        self.object = None
-        qs_invoice = InvoiceService.objects.filter(invoice_id=self.kwargs.get('pk'))
-        form = InvoiceForm(self.request.POST)
-        formset = InvoiceServiceFormSet(self.request.POST or None, queryset=InvoiceService.objects.none(),
-                                        prefix='formset', initial=[
-                {'id': tar.id, 'cost_for_unit': tar.cost_for_unit, 'expense': tar.expense,
-                 'full_cost': tar.full_cost} for tar in qs_invoice])
-        return self.form_valid(form, formset)
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        print(self.request.POST)
 
-    def form_valid(self, form, formset):
-        # context = self.get_context_data()
-        # formset = context['formset']
 
         if formset.is_valid():
             formset.save(commit=False)
-            for obj in formset.deleted_objects:
-                obj.delete()
+            print('1')
             try:
                 account = get_object_or_404(Account, number=self.request.POST.get('account'))
                 account.balance = account.balance - int(self.request.POST.get('amount'))
@@ -760,19 +768,29 @@ class InvoiceCreate(CreateView):
             except:
                 pass
             form.save()
-            formset.save(commit=False)
             for fo in formset:
-                item = fo.save(commit=False)
-                item.invoice = form.instance
-                item.save()
+                if not fo.cleaned_data.get('DELETE'):
+                    item = fo.save(commit=False)
+                    item.invoice = form.instance
+                    try:
+                        item.save()
+                    except:
+                        messages.error(self.request, "Invalid form")
+                        print(formset.errors)
+                        return self.render_to_response(self.get_context_data(form=form))
 
             return super().form_valid(form)
         else:
-            print(self.request.POST)
+            print('22222222222222222222222222222222222222222222')
+            print(form.errors)
             print(formset.errors)
             messages.error(self.request, "Invalid form")
             return self.render_to_response(self.get_context_data(form=form))
 
+    def form_invalid(self, form):
+
+        print(form.errors)
+        return self.render_to_response(self.get_context_data(form=form))
 
 class InvoiceUpdate(UpdateView):
     model = Invoice
@@ -800,7 +818,7 @@ class InvoiceUpdate(UpdateView):
 
             invoice = self.get_object()
             previous_amount = invoice.amount
-            invoice = form.save()
+            form.save()
             try:
                 account = get_object_or_404(Account, number=self.request.POST.get('account'))
                 old_balance = account.balance
@@ -809,34 +827,20 @@ class InvoiceUpdate(UpdateView):
                 account.save()
             except:
                 pass
-            # if self.request.GET.get('copy') == '':
-            #     # Получить последний идентификатор
-            #     last_id = Invoice.objects.all().order_by('-id').first().id
-            #     last_number = Invoice.objects.all().order_by('-id').first().number
-            #     # Увеличить на единицу
-            #     new_id = last_id + 1
-            #     # Установить имя
-            #     new_number = last_number + 1
-            #     # Сохранить новые значения
-            #     form.instance.id = new_id
-            #     form.instance.number = new_number
-            #     super(InvoiceUpdate, self).form_valid(form)
-            #     return redirect('invoice_detail', new_id)
-
-            instances = formset.save(commit=False)
-            for instance in instances:
-                try:
-                    instance.invoice = invoice
-                    instance.save()
-                except IntegrityError:
-                    messages.error(self.request, "Вы пробуете записать две одинаковые услуги, это запрещено.")
-                    return self.form_invalid(form)
+            for fo in formset:
+                if not fo.cleaned_data.get('DELETE'):
+                    item = fo.save(commit=False)
+                    item.invoice = form.instance
+                    try:
+                        item.save()
+                    except IntegrityError:
+                        messages.error(self.request, "Вы пробуете записать две одинаковые услуги, это запрещено.")
+                        return self.form_invalid(form)
             return super().form_valid(form)
         else:
             print(self.request.POST)
             print(formset.errors)
             return self.render_to_response(self.get_context_data(form=form))
-
 
 class InvoiceDetail(DetailView):
     model = Invoice
@@ -1138,14 +1142,12 @@ def select_owners(request):
 
 def tariff_set(request):
     tariffs = PriceTariffServices.objects.filter(tariff_id=request.GET.get('tariff_id'))
-    invserdel = InvoiceService.objects.filter(invoice__tariff=request.GET.get('tariff_id'))
-    for ins in invserdel:
-        ins.delete()
-    # print(request.META['HTTP_REFERER'].split('/')[-1])
-    # invSerList = InvoiceService.objects.filter(invoice_id=request.META['HTTP_REFERER'].split('/')[-1])
-    # print(invSerList)
-    # for invoiceservise
-    # invSerDelete.delete()
+
+    print(request.META['HTTP_REFERER'].split('/')[5])
+    if request.META['HTTP_REFERER'].split('/')[5] == 'update':
+        invserdel = InvoiceService.objects.filter(invoice_id=request.META['HTTP_REFERER'].split('/')[6])
+        for ins in invserdel:
+            ins.delete()
     tariff_list = []
     for tariff in tariffs:
         print(tariff.tariff.id)
@@ -1194,12 +1196,13 @@ def set_default(request):
         template.save()
         return JsonResponse({}, status=200)
 
+
 def template_delete(request):
     if request.method == 'GET':
         print(request.GET.get('template_id'))
         templates = Template.objects.all()
         template = templates.get(pk=request.GET.get('template_id'))
-        if templates.count()>1:
+        if templates.count() > 1:
             if template.type == True:
                 template_new = templates.exclude(pk=request.GET.get('template_id')).first()
                 template_new.type = True
@@ -1212,24 +1215,177 @@ def template_delete(request):
         else:
             return JsonResponse({}, status=400)
 
+
 def template_upload(request):
+    template = Template.objects.get(id=request.GET.get('idx'))
+    invoice = Invoice.objects.get(id=request.GET.get('invoice_id'))
+    invoice_service = InvoiceService.objects.filter(invoice_id=request.GET.get('invoice_id'))
+    wb = load_workbook(template.file)
+
+    sheet = wb.active
+
+    # Поиск и замена значения
+    search_word = ['%invoiceAddress%',
+                   '%payCompany%',
+                   '%accountNumber%',
+                   '%invoiceNumber%',
+                   '%invoiceDate%',
+                   '%total%',
+                   '%accountBalance%',
+                   '%totalDebt%',
+                   '%invoiceDate%',
+                   '%invoiceMonth%']
+    try:
+        pay = invoice.apartment.account.balance - invoice.amount if invoice.apartment.account.balance < invoice.amount else '0.00'
+        number = invoice.apartment.account.number
+        balance = invoice.apartment.account.balance
+    except:
+        pay = 'Не заданно'
+        number = 'Не заданно'
+        balance = 'He заданно'
+
+    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+    replacement = [invoice.apartment.house.address,
+                   'moidom24',
+                   number,
+                   invoice.number,
+                   invoice.date.strftime('%d.%m.%Y'),
+                   invoice.amount,
+                   balance,
+                   pay[0],
+                   invoice.date.strftime('%d.%m.%Y'),
+                   invoice.date.strftime('%B')]
+
+    thin = Side(border_style="thin", color="000000")
+
+    for row in sheet.iter_rows():
+        for cell in row:
+
+            cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+            for search in search_word:
+                if cell.value == search:
+                    cell.value = replacement[int(search_word.index(search))]
+
+    row = 19
+    for service in invoice_service:
+        sheet.cell(row=row, column=1).value = service.service.main
+        sheet.cell(row=row, column=3).value = service.cost_for_unit
+        sheet.cell(row=row, column=5).value = service.service.unit.name
+        sheet.cell(row=row, column=7).value = service.expense
+        sheet.cell(row=row, column=9).value = service.full_cost
+        row += 1
+
+    # Сохранение изменений в файл
+    wb.save('media/files/example.xlsx')
+    if request.GET.get('send') == '1':
+        return JsonResponse({'data': '/media/files/example.xlsx'}, status=200)
+    elif request.GET.get('send') == '0' and invoice.apartment.owner.email:
+        email = EmailMessage(
+            'Вот вам квитанция',
+            'Поздравлямс',
+            None,
+            [invoice.apartment.owner.email]
+        )
+        email.attach_file('media/files/example.xlsx')
+        email.send()
+        return JsonResponse({}, status=200)
+    elif request.GET.get('send') == '2':
+
+        workbook = load_workbook(filename='media/files/example.xlsx')
+        worksheet = workbook.active
+        pdfmetrics.registerFont(TTFont('Arial', 'media/fonts/ArialMT.ttf'))
+
+        data = []
+        for row in worksheet.iter_rows(min_row=0, values_only=True):
+            data.append(row[:-1])
+        doc = SimpleDocTemplate('media/files/example.pdf', pagesize=landscape(A4))
+        elements = []
+
+        # Define table style
+        style = TableStyle([
+
+            ('BACKGROUND', (0, 0), (-1, -1), colors.beige),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Arial'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
 
 
-    # создание нового файла
-    workbook = openpyxl.Workbook()
 
-    # выбор активного листа
-    worksheet = workbook.active
+            ('SPAN', (1, 0), (6, 2)),
+            ('VALIGN', (1, 0), (6, 2), 'MIDDLE'),
+            ('SPAN', (1, 4), (6, 4)),
+            ('VALIGN', (1, 4), (6, 4), 'MIDDLE'),
+            ('SPAN', (8, 0), (9, 0)),
+            ('VALIGN', (8, 0), (9, 0), 'MIDDLE'),
+            ('SPAN', (0, 8), (3, 8)),
+            ('VALIGN', (0, 8), (3, 8), 'MIDDLE'),
+            ('SPAN', (5, 7), (7, 8)),
+            ('VALIGN', (5, 7), (7, 8), 'MIDDLE'),
+            ('SPAN', (1, 9), (6, 11)),
+            ('VALIGN', (1, 9), (6, 11), 'MIDDLE'),
+            ('SPAN', (8, 9), (9, 9)),
+            ('VALIGN', (8, 9), (9, 9), 'MIDDLE'),
 
-    # заполнение ячеек значениями
-    worksheet['A1'] = 'Значение 1'
-    worksheet['B1'] = 'Значение 2'
-    worksheet['C1'] = 'Значение 3'
+            ('VALIGN', (1, 13), (6, 13), 'MIDDLE'),
+            ('SPAN', (1, 13), (6, 13)),
+            ('VALIGN', (0, 17), (1, 17), 'MIDDLE'),
+            ('SPAN', (0, 17), (1, 17)),
+            ('VALIGN', (2, 17), (3, 17), 'MIDDLE'),
+            ('SPAN', (2, 17), (3, 17)),
+            ('VALIGN', (4, 17), (5, 17), 'MIDDLE'),
+            ('SPAN', (4, 17), (5, 17)),
+            ('VALIGN', (6, 17), (7, 17), 'MIDDLE'),
+            ('SPAN', (6, 17), (7, 17)),
 
-    # сохранение файла
-    workbook.save('example.xlsx')
+        ])
+        # Create table and apply style
 
+        table = Table(data, colWidths=70)
 
+        table.setStyle(style)
+        elements.append(table)
 
+        # Build PDF document
+        doc.build(elements)
 
+        # # Создаем PDF-файл
+        # pdf_file = canvas.Canvas('media/files/example.pdf', pagesize=landscape(A4))
+        # pdf_file.setFont('Arial', 8)
+        # x = 70
+        # y = 500
+        # table_width = len(data[0]) * x
+        # table_height = 22 * 15
+        # # Рисуем рамку вокруг таблицы
+        # pdf_file.rect(30-2, y - table_height + 13, table_width, table_height)
+        # pdf_file.setStrokeColor(colors.lightgrey)
+        # for row in data:
+        #     x = 30
+        #     for item in row:
+        #         if not item:
+        #             pdf_file.drawString(x, y, '')
+        #             pdf_file.rect(x - 2, y - 2, 70, 15, stroke=True)
+        #             x += 70
+        #
+        #         else:
+        #             if '\n' in str(item):
+        #                 pdf_file.drawString(x, y, str(item).split('\n')[0])
+        #                 y -= 15
+        #                 pdf_file.drawString(x, y, str(item).split('\n')[1])
+        #                 y += 15
+        #                 x += 70
+        #             else:
+        #                 pdf_file.drawString(x, y, str(item))
+        #                 pdf_file.rect(x - 2, y - 2, 70, 15)
+        #                 x += 70
+        #
+        #     y -= 15
+        #
+        # print(data)
+        # pdf_file.save()
 
+        return JsonResponse({'data': '/media/files/example.pdf'}, status=200)
+    else:
+        return JsonResponse({}, status=400)

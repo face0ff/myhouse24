@@ -58,9 +58,12 @@
                                         <i class="fa fa-download" aria-hidden="true"></i>
                                         Скачать шаблон
                                     </a>
-                                    <button name="action_send_email" type="submit" class="btn btn-default">Отправить на
+                                    <a id="href_email" >
+                                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                                        Отправить на
                                         e-mail
-                                    </button>
+                                    </a>
+
                                 </div>
                             </div>
                         </div>
@@ -81,18 +84,29 @@
             let idx = $(this).val()
             download_send(idx)
         })
+        $('#href_email').click(function () {
+            let idx = $(this).val()
+            download_send({{ template_default.id }}, '0')
+            alert('Улетело')
 
-        function download_send(idx) {
+        })
+
+
+        function download_send(idx, send='1') {
             var invoice = window.location.href.split('=')[1]
+            $('#href_email').attr('value', idx)
             $.ajax({
                 url: '{% url "template_upload" %}',
                 type: 'GET',
                 data: {'idx': idx,
-                       'invoice_id': invoice},
+                       'invoice_id': invoice,
+                'send': send},
                 success: (data) => {
-                    if (data.href) {
-                        $('#href_download').attr('href', data.href)
+                    console.log(data)
+                    if (data) {
+                        $('#href_download').attr('href', data.data)
                     }
+
                 },
                 error: (data) => {
                     console.log('//')

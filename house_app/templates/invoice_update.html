@@ -158,6 +158,8 @@
                                 <div class="col-xs-12 col-sm-6">
                                 </div>
                             </div>
+
+
                             <div class="table-responsive no-padding">
                                 {{ formset.management_form }}
                                 <table id="service_form"
@@ -226,9 +228,9 @@
                             </div>
                             <div class="delete-list"></div>
 
-                            <table id="test" style="display: none">
+                            <table id="empty_form-service" style="display: none">
 
-                                <tbody id="empty_form-service">
+                                <tbody id="">
 
                                 <tr id="{{ formset.empty_form.prefix }}-form">
                                     {{ formset.empty_form.id }}
@@ -261,7 +263,7 @@
 
                         </div>
                     </div>
-                    <div class="delete-list-service"></div>
+
                 </form>
                 <div class="row">
                     <div class="col-xs-12">
@@ -348,16 +350,17 @@
                 $('.set-tariff-services').val($(this).val())
             })
             $('.set-tariff-services').click(function () {
+
+
+                $('#service_form tbody tr').empty();
+                $('#id_formset-TOTAL_FORMS').val('0');
+                $('#id_formset-INITIAL_FORMS').val('0');
                 $.ajax({
                     url: '{% url 'tariff_set' %}',
                     type: 'GET',
                     data: {tariff_id: $(this).val()},
                     success: function (data) {
                         console.log(data)
-
-                        $('#service_form tr').not(':first,:last').remove();
-                        $('#id_formset-TOTAL_FORMS').val('0')
-
 
 
                         $.each(data.data, function (index, item) {
@@ -368,14 +371,14 @@
                         // заполнение полей форм данными из списка
                         $.each(data.data, function (index, item) {
                             let form_idx = index;
-                            $('#id_formset-' + form_idx + '-id').val(item['invId']);
-                            $('#id_formset-' + form_idx + '-service').val(item['serId']);
+
+                            $('#id_formset-' + form_idx + '-service').val(item['id']);
                             $('#id_formset-' + form_idx + '-unit').val(item['unit']);
                             $('#id_formset-' + form_idx + '-cost_for_unit').val(item['price']);
                         });
                     },
                     error: (data) => {
-                        console.log('xxxmmxmmmmm')
+
                     }
 
                 });
@@ -441,6 +444,53 @@
         });
 
         $(document).ready(function () {
+            if (window.location.search.split('=')[1]) {
+
+                $.ajax({
+                    url: '{% url 'select_account' %}',
+                    type: 'GET',
+                    data: {account_field: window.location.search.split('=')[1]},
+                    success: function (data) {
+                        console.log(data.owners_data)
+                        console.log(data.meters)
+                        // Очистить выбор в другом поле
+                        $('#name').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#name').append($('<a href="/admin/owner/' + data.owners_data.id + '">' + data.owners_data.first + ' ' + data.owners_data.last + '</a>'));
+                        $('#telephone').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#telephone').append($(' <a href="tel:' + data.owners_data.telephone + '">' + data.owners_data.telephone + '</a>'));
+
+                        $('#id_account').empty()
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#id_account').val(data.owners_data.account).text(data.owners_data.account_id);
+                        $('#id_houses').empty()
+                        $('#id_houses')
+                            .append($("<option value=" + data.owners_data.house_id + ">" + data.owners_data.house + "</option>"));
+                        $('#id_section').empty()
+                        $('#id_section')
+                            .append($("<option value=" + data.owners_data.section_id + ">" + data.owners_data.section + "</option>"));
+                        $('#id_apartment').empty()
+                        $('#id_apartment')
+                            .append($("<option value=" + data.owners_data.apartment_id + ">" + data.owners_data.apartment + "</option>"));
+
+                        // Заполнить другое поле данными, полученными с сервера
+
+
+                        // Заполнить другое поле данными, полученными с сервера
+
+                        $('#id_tariff').val(data.owners_data.tariff_id);
+
+
+                    },
+
+                });
+
+
+            }
             $('#id_apartment').change(function () {
                 $.ajax({
                     url: '{% url 'select_account' %}',
@@ -479,7 +529,7 @@
 
 
         $(document).ready(function () {
-            current_amount()
+            current_amount();
             var table = $('#table').DataTable({
                     "language": {
                         "sEmptyTable": "В таблице отсутствуют данные",
@@ -530,10 +580,17 @@
                 let selectFull = $('#' + full).val()
                 console.log(selectFull)
                 let result = selectedCost - selectFull;
-                $('#' + full).val('0')
-                $('#current_amount').text(result);
-                $('#amount').attr('value', result)
-                $('.delete-list-service').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
+                if (isNaN(result)) {
+                    console.log(result)
+                    $('#current_amount').text('0.00');
+                    $('#amount').attr('value', '0.00')
+                } else {
+                    $('#' + full).val('0')
+                    $('#current_amount').text(result);
+                    $('#amount').attr('value', result)
+                }
+
+                $('.delete-list').append('<input type="hidden" value="on" name="' + index + '-DELETE" id="id_' + index + '-DELETE">');
                 $('#' + index + '-form').css('display', 'none')
 
             } else {
@@ -566,6 +623,10 @@
             let selectedExpense = $('#id_formset-' + spl + '-expense').val();
             let selectedCost = $('#id_formset-' + spl + '-cost_for_unit').val();
             let result = selectedExpense * selectedCost;
+            console.log(spl)
+            console.log(selectedExpense)
+            console.log(selectedCost)
+            console.log(result)
             var full = 'id_formset-' + spl + '-full_cost'
             $('#' + full).val(result);
             current_amount();

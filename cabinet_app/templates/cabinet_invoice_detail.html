@@ -72,7 +72,7 @@
                     <div class="pull-right">
                         <a id="export" class="btn btn-sm btn-warning" download><i
                                 class="fa fa-file-pdf-o" aria-hidden="true"></i> Скачать в PDF</a>
-                        <a href="#" class="btn btn-sm btn-success"><i class="fa fa-credit-card"
+                        <a id="print" class="btn btn-sm btn-success printer" ><i class="fa fa-credit-card"
                                                                       aria-hidden="true"></i>
                             Оплатить</a>
                     </div>
@@ -91,6 +91,7 @@
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
     <script>
         $(document).ready(function () {
+            download_send({{ template_default.id }}, '2');
             // получаем данные из шаблона
             var invoice = {
                 number: "{{ invoice.number }}",
@@ -108,31 +109,42 @@
                 ordering: false,
                 info: false,
                 searching: false,
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'pdfHtml5',
-                        footer: true // добавить флаг для включения содержимого футера в экспорт
-                    },
-                    {
-                        extend: 'print'
-                    }
-                ]
+
             });
 
-            // скрываем кнопки экспорта и печати по умолчанию
-            $('.buttons-pdf, .buttons-print').css('display', 'none');
 
             // обработчик события для экспорта в PDF
-            $('#export').on("click", function () {
-                table.buttons('.buttons-pdf').trigger('click');
-            });
+
 
             // обработчик события для печати
-            $('#print').on("click", function () {
-                table.buttons('.buttons-print').trigger('click');
-            });
+
         });
+
+        function download_send(idx, send = '1') {
+            var invoice = window.location.href.split('/')[5]
+            console.log(window.location.href)
+            $('#href_email').attr('value', idx)
+            $.ajax({
+                url: '{% url "template_upload" %}',
+                type: 'GET',
+                data: {
+                    'idx': idx,
+                    'invoice_id': invoice,
+                    'send': send
+                },
+                success: (data) => {
+                    console.log(data)
+                    if (data) {
+                        $('#export').attr('href', data.data)
+                        $('#print').attr('href', data.data)
+                    }
+
+                },
+                error: (data) => {
+                    console.log('//')
+                }
+            })
+        }
 
 
     </script>
