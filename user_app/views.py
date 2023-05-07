@@ -1,4 +1,5 @@
 from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import user_passes_test
 from django.core import serializers
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -7,16 +8,18 @@ from django.http import HttpResponseRedirect, JsonResponse, request
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, FormView
 from django.contrib import messages
 
 from house_app.models import Apartment
+from house_app.views import check_user_is_staff
 from user_app.forms import *
 from user_app.models import Role, UserProfile
 
 
 # Create your views here.
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'rol'), login_url='login_admin'), name='dispatch')
 class Roles(CreateView):
     model = Role
     form_class = RoleForm
@@ -52,7 +55,7 @@ class Roles(CreateView):
         return self.render_to_response(
             self.get_context_data(formset=formset))
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'user'), login_url='login_admin'), name='dispatch')
 class UsersList(ListView):
     model = UserProfile
     template_name = 'users_list.html'
@@ -120,7 +123,7 @@ def user_delete(request, pk):
     user.delete()
     return redirect('users_list')
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'owner'), login_url='login_admin'), name='dispatch')
 class OwnersList(ListView):
     model = UserProfile
     template_name = 'owners_list.html'

@@ -396,6 +396,11 @@ class TransferForm(forms.ModelForm):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # if self.instance.id:
+        #     print(self.instance.id)
+        #     self.fields['unit'].initial = Unit.objects.get(services__invoiceservice=self.instance.id)
+        # self.fields['service'].empty_label = 'Выберите...'
+        # self.fields['unit'].empty_label = 'Выберите услугу'
 
 
         self.fields['owner'].empty_label = 'Выберите...'

@@ -1,17 +1,18 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponseRedirect, request
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 
 from django.views.generic import ListView, DetailView, TemplateView, UpdateView, CreateView
 
-
+from house_app.views import check_user_is_staff
 from site_app.forms import MainForm, SeoForm, BlockFormSet, ContactsForm, InfoForm, GalleryForm, AditGalleryForm, \
     FilesFormSet, ServiceForm
 from site_app.models import Main, Block, Contacts, Seo, Info, Gallery, AditGallery, Files, Service
 
-
-# Create your views here.
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class IndexSite(TemplateView):
     template_name = 'index.html'
 
@@ -21,7 +22,7 @@ class IndexSite(TemplateView):
         context['blockk'] = Block.objects.all()
         context['contacts'] = Contacts.objects.all()
         return context
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class InfoSite(TemplateView):
     template_name = 'info.html'
 
@@ -33,7 +34,7 @@ class InfoSite(TemplateView):
         context['aditGallery'] = AditGallery.objects.all()
         return context
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class ServiceSite(TemplateView):
     template_name = 'service.html'
 
@@ -42,7 +43,7 @@ class ServiceSite(TemplateView):
         context['blockk'] = Block.objects.filter(service_id=2)
         return context
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class ContactsSite(TemplateView):
     template_name = 'contacts.html'
 
@@ -52,7 +53,7 @@ class ContactsSite(TemplateView):
         return context
 
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class MainAdmin(CreateView):
     model = Main
     template_name = 'main_page_admin.html'
@@ -105,7 +106,7 @@ class MainAdmin(CreateView):
         return self.render_to_response(
             self.get_context_data(main_form=main_form, seo_form=seo_form, block_formset=block_formset))
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class ContactsAdmin(CreateView):
     model = Contacts
     template_name = 'contacts_admin.html'
@@ -149,7 +150,7 @@ class ContactsAdmin(CreateView):
         return self.render_to_response(
             self.get_context_data(main_form=contacts_form, seo_form=seo_form))
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class InfoAdmin(CreateView):
 
     model = Info
@@ -240,7 +241,7 @@ def del_img(request, type, id):
         item = AditGallery.objects.filter(pk=id)
         item.delete()
     return redirect('info_page')
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
 class ServiceAdmin(CreateView):
     model = Service
     template_name = 'service_admin.html'

@@ -126,10 +126,7 @@
     <script>
         $(document).ready(function () {
             console.log(window.location.search.split('='))
-            if (window.location.search != ' ') {
-                $("#id_account").val(window.location.search.split('=')[1].split('?')[0]);
-                $("#id_owner").val(window.location.search.split('=')[2]);
-            }
+
 
 
             $('#id_owner').change(function () {

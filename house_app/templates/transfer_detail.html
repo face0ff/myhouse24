@@ -50,11 +50,18 @@
                     <h3 class="box-title">{% if transfers.income %}Приходная ведомость{% else %}Расходная
                         ведомость{% endif %}</h3>
                     <div class="box-tools">
-                        <a href="{% url 'transfer_create' transfers.id %}"
+                        {% if transfers.income %}<a href="{% url 'transfer_create' transfers.id %}?type=income"
                            class="btn btn-default btn-sm">
                             <span class="hidden-xs">Копировать</span><i class="fa fa-print visible-xs"
                                                                         aria-hidden="true"></i>
                         </a>
+                        {% else %}
+                        <a href="{% url 'transfer_create' transfers.id %}?type=out"
+                           class="btn btn-default btn-sm">
+                            <span class="hidden-xs">Копировать</span><i class="fa fa-print visible-xs"
+                                                                        aria-hidden="true"></i>
+                        </a>
+                        {% endif %}
                         <a href="{% url 'transfer_delete' transfers.id %}" class="btn btn-default btn-sm"
                            data-method="post" data-confirm="Вы уверены, что хотите удалить этот элемент?">
                             <span class="hidden-xs">Удалить</span><i class="fa fa-envelope-o visible-xs"

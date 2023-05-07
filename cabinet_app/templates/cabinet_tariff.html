@@ -9,7 +9,8 @@
                 Тарифы - ЖК {{ apartment.house.name }}, кв.-{{ apartment.number }}       </h1>
 
             <ul class="breadcrumb">
-                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'owner_apartment_detail' apartment_first.id %}"><i class="fa fa-home"></i>
+                    Главная</a></li>
                 <li class="active">Тарифы - ЖК {{ apartment.house.name }}, кв.-{{ apartment.number }}</li>
             </ul>
         </section>
@@ -28,16 +29,16 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for service in services_list %}
+
+                            {% for service in servises_list %}
                                 {% for serv in service %}
-                                <tr>
-                                    <td>{{ serv.main }}</td>
-                                    <td>{{ serv.unit }}</td>
-                                    {% for price in serv.pricetariffservices_set.all %}
-                                    <td>{{ price.price }}</td>
-                                        {% endfor %}
-                                </tr>
-                                    {% endfor %}
+                                    <tr>
+                                        <td>{{ serv.services.main }}</td>
+                                        <td>{{ serv.services.unit }}</td>
+                                        <td>{{ serv.price }}</td>
+
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
                             </tbody>
                         </table>

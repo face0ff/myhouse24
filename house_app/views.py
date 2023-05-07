@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from django.db.models import Q, Sum
@@ -7,6 +8,7 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, CreateView, UpdateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from house_app.forms import *
@@ -25,8 +27,14 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 
-# Create your views here.
 
+def check_user_is_staff(user, obj):
+    if hasattr(user.role, obj) and getattr(user.role, obj):
+        return True
+    return False
+
+# Create your views here.
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'house'), login_url='login_admin'), name='dispatch')
 class HousesList(ListView):
     model = House
     template_name = 'houses_list.html'
@@ -253,7 +261,7 @@ class ApartmentDetail(DetailView):
     model = Apartment
     template_name = 'apartment_detail.html'
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'apartment'), login_url='login_admin'), name='dispatch')
 class ApartmentsList(ListView):
     model = Apartment
     template_name = 'apartments_list.html'
@@ -406,7 +414,7 @@ class RequestDetail(DetailView):
     model = Request
     template_name = 'request_detail.html'
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'application'), login_url='login_admin'), name='dispatch')
 class RequestsList(ListView):
     model = Request
     template_name = 'requests_list.html'
@@ -500,7 +508,7 @@ def select_apart(request):
         }
         return JsonResponse(data, status=200)
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'message'), login_url='login_admin'), name='dispatch')
 class MessagesList(ListView):
     model = Message
     template_name = 'messages_list.html'
@@ -557,7 +565,7 @@ def delete_selected_messages(request):
             message.delete()
     return JsonResponse({}, status=200)
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'personal_account'), login_url='login_admin'), name='dispatch')
 class AccountsList(ListView):
     model = Account
     template_name = 'accounts_list.html'
@@ -718,7 +726,7 @@ def select_account(request):
         }
         return JsonResponse(response, status=200)
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'invoice'), login_url='login_admin'), name='dispatch')
 class InvoicesList(ListView):
     model = Invoice
     template_name = 'invoices_list.html'
@@ -955,7 +963,7 @@ def invoice_unit(request):
         }
         return JsonResponse(response, status=200)
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'cashbox'), login_url='login_admin'), name='dispatch')
 class TransfersList(ListView):
     model = Transfers
     template_name = 'transfers_list.html'
@@ -1018,7 +1026,8 @@ class TransferCreate(CreateView):
             # Выводим только те ошибки, которые присутствуют в форме
 
             return render(self.request, self.template_name, {'form': form})
-
+    def form_invalid(self, form):
+        print(form.errors)
 
 class TransferUpdate(UpdateView):
     model = Transfers
@@ -1230,11 +1239,11 @@ def template_upload(request):
                    '%accountNumber%',
                    '%invoiceNumber%',
                    '%invoiceDate%',
-                   '%total%',
                    '%accountBalance%',
                    '%totalDebt%',
                    '%invoiceDate%',
-                   '%invoiceMonth%']
+                   '%invoiceMonth%',
+                   '%total%']
     try:
         pay = invoice.apartment.account.balance - invoice.amount if invoice.apartment.account.balance < invoice.amount else '0.00'
         number = invoice.apartment.account.number
@@ -1250,13 +1259,15 @@ def template_upload(request):
                    number,
                    invoice.number,
                    invoice.date.strftime('%d.%m.%Y'),
-                   invoice.amount,
                    balance,
                    pay[0],
                    invoice.date.strftime('%d.%m.%Y'),
-                   invoice.date.strftime('%B')]
+                   invoice.date.strftime('%B'),
+                   invoice.amount]
 
     thin = Side(border_style="thin", color="000000")
+    border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    font = Font(name='Arial', size=14, bold=True)
 
     for row in sheet.iter_rows():
         for cell in row:
@@ -1274,6 +1285,13 @@ def template_upload(request):
         sheet.cell(row=row, column=7).value = service.expense
         sheet.cell(row=row, column=9).value = service.full_cost
         row += 1
+
+    sheet.cell(row=row, column=7).value = "РАЗОМ:"
+    sheet.cell(row=row, column=9).value = float(invoice.amount)
+    for column in range(1, 12):
+        sheet.cell(row=row, column=column).border = border
+        sheet.cell(row=row, column=column).font = font
+
 
     # Сохранение изменений в файл
     wb.save('media/files/example.xlsx')
@@ -1299,6 +1317,7 @@ def template_upload(request):
         for row in worksheet.iter_rows(min_row=0, values_only=True):
             data.append(row[:-1])
         doc = SimpleDocTemplate('media/files/example.pdf', pagesize=landscape(A4))
+        doc.leftMargin = doc.rightMargin = doc.topMargin = doc.bottomMargin = 36
         elements = []
 
         # Define table style

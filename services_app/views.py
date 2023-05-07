@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
@@ -9,18 +10,20 @@ from django.http import HttpResponseRedirect, request, JsonResponse, HttpRespons
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView, DetailView
 from django.contrib import messages
 from copy import deepcopy
 
 from house_app.models import House, Section, Apartment
+from house_app.views import check_user_is_staff
 from services_app.forms import ServicesForm, ServicesFormSet, UnitFormSet, TariffForm, PriceTariffServicesFormset, \
     PriceTariffServicesForm, RequisiteForm, ItemForm, MeterForm
 from services_app.models import Services, Unit, Tariff, PriceTariffServices, Requisite, Item, MeterReading
 from datetime import datetime
 
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'service'), login_url='login_admin'), name='dispatch')
 class ServicesAdmin(CreateView):
     model = Services
     template_name = 'services.html'
@@ -71,7 +74,7 @@ class ServicesAdmin(CreateView):
         return self.render_to_response(
             self.get_context_data(unit_formset=unit_formset, services_formset=services_formset))
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'tariff'), login_url='login_admin'), name='dispatch')
 class TariffsList(ListView):
     model = Tariff
     template_name = 'tariffs_list.html'
@@ -217,7 +220,7 @@ class TariffUpdate(UpdateView):
             self.get_context_data(tariff_form=tariff_form, price_formset=price_formset))
 
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'requisites'), login_url='login_admin'), name='dispatch')
 class Requisite(CreateView):
     model = Requisite
     template_name = 'requisite.html'
@@ -268,7 +271,7 @@ class ItemUpdate(UpdateView):
     form_class = ItemForm
     success_url = reverse_lazy('items')
 
-
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'meter'), login_url='login_admin'), name='dispatch')
 class MeterList(ListView):
     model = MeterReading
     template_name = 'meter_list.html'
