@@ -107,7 +107,7 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 125px; min-width: 125px">№</th>
-                                        <th style="width: 125px; min-width: 125px"><a class="desc" data-sort="sortDate"
+                                        <th style="width: 125px; min-width: 125px"><a class="sortDate" data-value="1" data-sort="sortDate"
                                                                                       id="sortDate">Дата</a>
                                         </th>
                                         <th style="width: 120px; min-width: 120px">Статус</th>
@@ -211,6 +211,7 @@
 
     <script>
         $(document).ready(function () {
+            localStorage.date = 1
             // ...
             if (window.location.search != ' ') {
                 $("#filterAccount").val(window.location.search.split('=')[1]);
@@ -226,10 +227,22 @@
                 window.location.href = url
             });
         });
+        $('.sortDate').click(function () {
+            if (localStorage.date == 1) {
+                $('#sortDate').html('Дата <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 0
+            } else {
+                $('#sortDate').html('Недата <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 1
+
+
+            }
+        })
 
         $(document).ready(function () {
             // устанавливаем заголовок страницы
             $('head title').text('');
+
 
 
             // Initialize DataTable
@@ -280,6 +293,8 @@
                 info: false,
 
 
+
+
                 ajax: {
                     url: "{% url 'select_transfers' %}",
                     type: "GET",
@@ -294,6 +309,8 @@
                         d.filterAccount = $("#filterAccount").val();
                         d.filterIncome = $("#filterIncome").val();
                         d.page = d.start / d.length + 1;
+                        d.sortDate = localStorage.date;
+
 
 
                     }
@@ -331,7 +348,7 @@
             });
 
             // Handle filter fields
-            $("#filterNumber, #filterDate, #filterCompleted, #filterItem, #filterOwner, #filterAccount, #filterIncome").on("keyup change", function () {
+            $("#filterNumber, #filterDate, #filterCompleted, #filterItem, #filterOwner, #filterAccount, #filterIncome, #sortDate").on("keyup change click", function () {
                 $("#TransfersTable").DataTable().draw();
             });
 

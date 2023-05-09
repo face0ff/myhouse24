@@ -108,10 +108,10 @@
                                     <tr>
                                         <th><input type="checkbox" id="delete_all" class="delete_all" value=""></th>
                                         <th style="width: 5%">№ квитанции</th>
-                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
-                                                                                    id="sort-name-span">Дата </span>
-                                        <th style="width: 7%" class="sorting"><span style="color: #72afd2"
-                                                                                    id="sort-name-span">Месяц </span>
+                                        <th style="width: 7%" class="sortDate"><span style="color: #72afd2"
+                                                                                    id="sortDate">Дата </span>
+                                        <th style="width: 7%" class="sortDate"><span style="color: #72afd2"
+                                                                                    id="sortMonth">Месяц </span>
                                         <th>Статус</th>
                                         <th>Квартира</th>
                                         <th>Владелец</th>
@@ -192,6 +192,7 @@
 
     <script>
         $(document).ready(function () {
+            localStorage.date = 1
 
             if (window.location.search != ' ') {
                 $("#filterApartment").val(window.location.search.split('=')[1]);
@@ -210,6 +211,28 @@
             });
 
         });
+        $('#sortDate').click(function () {
+            if (localStorage.date == 1) {
+                $('#sortDate').html('Дата <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 0
+            } else {
+                $('#sortDate').html('Недата <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 1
+
+
+            }
+        })
+        $('#sortMonth').click(function () {
+            if (localStorage.date == 1) {
+                $('#sortMonth').html('Месяц <i class="fa fa-sort-alpha-desc"></i>')
+                localStorage.date = 0
+            } else {
+                $('#sortMonth').html('Немесяц <i class="fa fa-sort-alpha-asc"></i>')
+                localStorage.date = 1
+
+
+            }
+        })
 
         $(document).ready(function () {
 
@@ -263,6 +286,8 @@
                         d.filterDone = $("#filterDone").val();
                         d.filterAmount = $("#filterAmount").val();
                         d.page = d.start / d.length + 1;
+                        d.sortDate = localStorage.date;
+
                     }
                 },
                 columns: [
@@ -307,7 +332,7 @@
             });
 
             // Handle filter fields
-            $("#filterNumber, #filterDateMonth, #filterDateDay, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount").on("keyup change", function () {
+            $("#filterNumber, #filterDateMonth, #filterDateDay, #filterStatus, #filterApartment, #filterOwner, #filterDone, #filterAmount, #sortDate, #sortMonth").on("keyup change click", function () {
                 $("#InvoicesTable").DataTable().draw();
             });
 

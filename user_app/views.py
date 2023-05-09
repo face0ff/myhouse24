@@ -55,7 +55,7 @@ class Roles(CreateView):
         return self.render_to_response(
             self.get_context_data(formset=formset))
 
-@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'user'), login_url='login_admin'), name='dispatch')
+@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'users'), login_url='login_admin'), name='dispatch')
 class UsersList(ListView):
     model = UserProfile
     template_name = 'users_list.html'

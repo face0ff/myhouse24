@@ -81,7 +81,7 @@ class MeterForm(forms.ModelForm):
         queryset=Section.objects.all()
     )
     apartment = forms.ModelChoiceField(
-        required=False,
+        required=True,
         widget=forms.Select(
             attrs={'class': 'form-control', 'id': 'apartment_field'}),
         queryset=Apartment.objects.all()

@@ -880,7 +880,7 @@ def invoice_delete(request, pk):
 
 
 def select_invoices(request):
-    # print(request.GET['filterNumber'])
+    print(request.GET)
     draw = request.GET['draw']
 
     invoices = Invoice.objects.all()
@@ -905,7 +905,11 @@ def select_invoices(request):
     if request.GET['filterAmount']:
         filters &= Q(amount=request.GET['filterAmount'])
 
-    invoices = invoices.filter(filters)
+    if request.GET['sortDate'] == '1':
+        invoices = invoices.filter(filters).order_by('date')
+    elif request.GET['sortDate'] == '0':
+        invoices = invoices.filter(filters).order_by('-date')
+
 
     for invoice in invoices:
         # print(invoice.number)
@@ -938,8 +942,9 @@ def delete_selected_invoice(request):
     list_k = list(request.GET.keys())
     if request.GET.keys():
         for idk in list_k[0].split(','):
-            invoice = get_object_or_404(Invoice, id=idk)
-            invoice.delete()
+            if idk != '':
+                invoice = get_object_or_404(Invoice, id=idk)
+                invoice.delete()
 
     if request.GET.get('id'):
         id_invoice = request.GET.get('id')
@@ -1080,15 +1085,18 @@ class TransferDetail(DetailView):
 def transfer_delete(request, pk):
     transfer = get_object_or_404(Transfers, id=pk)
     if transfer.income:
-        account = Account.objects.get(transfers=pk)
-        account.balance = account.balance - transfer.amount
-        account.save()
+        try:
+            account = get_object_or_404(Account, transfers=pk)
+            account.balance = account.balance - transfer.amount
+            account.save()
+        except:
+            print('xo xo xo')
     transfer.delete()
     return redirect('transfers_list')
 
 
 def select_transfers(request):
-    # print(request.GET['filterNumber'])
+    print(request.GET)
     draw = request.GET['draw']
 
     transfers = Transfers.objects.all()
@@ -1110,8 +1118,10 @@ def select_transfers(request):
     if request.GET['filterIncome']:
         filters &= Q(income=request.GET['filterIncome'])
 
-    transfers = transfers.filter(filters)
-
+    if request.GET['sortDate'] == '1':
+        transfers = transfers.filter(filters).order_by('date')
+    elif request.GET['sortDate'] == '0':
+        transfers = transfers.filter(filters).order_by('-date')
     for trans in transfers:
         # print(invoice.number)
         transfer_dict = {
