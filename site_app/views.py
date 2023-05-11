@@ -12,7 +12,7 @@ from site_app.forms import MainForm, SeoForm, BlockFormSet, ContactsForm, InfoFo
     FilesFormSet, ServiceForm
 from site_app.models import Main, Block, Contacts, Seo, Info, Gallery, AditGallery, Files, Service
 
-@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
+
 class IndexSite(TemplateView):
     template_name = 'index.html'
 
@@ -22,7 +22,7 @@ class IndexSite(TemplateView):
         context['blockk'] = Block.objects.all()
         context['contacts'] = Contacts.objects.all()
         return context
-@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
+
 class InfoSite(TemplateView):
     template_name = 'info.html'
 
@@ -34,7 +34,7 @@ class InfoSite(TemplateView):
         context['aditGallery'] = AditGallery.objects.all()
         return context
 
-@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
+
 class ServiceSite(TemplateView):
     template_name = 'service.html'
 
@@ -43,7 +43,7 @@ class ServiceSite(TemplateView):
         context['blockk'] = Block.objects.filter(service_id=2)
         return context
 
-@method_decorator(user_passes_test(lambda u: check_user_is_staff(u, 'site_management'), login_url='login_admin'), name='dispatch')
+
 class ContactsSite(TemplateView):
     template_name = 'contacts.html'
 
@@ -59,7 +59,10 @@ class MainAdmin(CreateView):
     template_name = 'main_page_admin.html'
     form_class = MainForm
     inst = Main.objects.all().first()
+    print(inst)
+    print('11111111111111111111111111111111111111111')
     obj_seo = get_object_or_404(Seo, pk=inst.seo.pk)
+    print("22222222")
     qs = Block.objects.filter(service_id=1)
 
     def get_success_url(self):

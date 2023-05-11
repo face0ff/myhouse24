@@ -19,8 +19,8 @@ env = environ.Env(DEBUG=(bool, False))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-# DEBUG = env('DEBUG')
-DEBUG = True
+DEBUG = env('DEBUG')
+# DEBUG = True
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'admin_app',
     'services_app',
     'site_app',
-    # '_forms',
     'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -138,8 +137,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_PORT = '587'
-EMAIL_HOST_USER='konnad1986@gmail.com'
-EMAIL_HOST_PASSWORD='nhlgldjwbrcmxysu'
+EMAIL_HOST_USER=env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=env('EMAIL_HOST_PASSWORD')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -153,3 +152,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 _TEMPLATE_PACK = 'bootstrap4'
 AUTH_USER_MODEL = 'user_app.UserProfile'
+
+

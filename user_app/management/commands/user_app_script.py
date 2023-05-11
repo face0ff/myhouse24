@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from user_app.models import *
@@ -23,22 +22,12 @@ class Command(BaseCommand):
                                     rol=True, users=False, requisites=True)
             print('user create successful')
 
-
-        if User.objects.count() == 0:
-            username = 'admin'
-            email = 'admin@mail.com'
-            password = '1542'
-            admin = User.objects.create_superuser(email=email, username=username, password=password)
-            admin.is_active = True
-            admin.is_staff = True
-            admin.is_superuser = True
-            admin.save()
-        else:
-            print('Админа в студию')
-        if UserProfile.objects.count() == 0:
-            for index in range(5):
-                UserProfile.objects.create(id=(index+1), email=index, is_staff=False, is_active=True,
-                                           date_joined=datetime.datetime.now(), user_id=(index+1), first_name=index, last_name=index,
-                                           patronymic=index, avatar='index', telephone=index, viber=index, telegram='index',
-                                           notes=index, status='is_active', role=Role.objects.get(pk=(index+1)))
-            print('user create successful')
+    if UserProfile.objects.count() == 0:
+        for index in range(5):
+            UserProfile.objects.create(id=(index + 1), email='123@gmail.com', is_staff=False, is_active=True,
+                                       date_joined=datetime.datetime.now(), user_id=(index + 1), first_name=index,
+                                       last_name=index, password='12345678Qw',
+                                       patronymic=index, avatar='index', telephone=index, viber=index,
+                                       telegram='index',
+                                       notes=index, status='is_active', role=Role.objects.get(pk=(index + 1)))
+        print('user create successful')

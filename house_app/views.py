@@ -29,7 +29,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 
 def check_user_is_staff(user, obj):
-    if hasattr(user.role, obj) and getattr(user.role, obj):
+    if hasattr(user.role, obj) and getattr(user.role, obj) or user.is_superuser:
         return True
     return False
 
