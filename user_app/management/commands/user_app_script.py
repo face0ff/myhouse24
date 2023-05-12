@@ -16,10 +16,10 @@ class Command(BaseCommand):
                        ('electric', 'Электрик'),
                        ('plumber', 'Сантехник'))
             for index in CHOICES:
-                Role.objects.create(roles=index[0], statistics=False, cashbox=True, invoice=False,
-                                    personal_account=True,apartment=False, owner=True, house=False, message=True,
-                                    application=False, meter=True, site_management=False, service=True, tariff=False,
-                                    rol=True, users=False, requisites=True)
+                Role.objects.create(roles=index[0], statistics=True, cashbox=True, invoice=True,
+                                    personal_account=True, apartment=True, owner=True, house=True, message=True,
+                                    application=True, meter=True, site_management=True, service=True, tariff=True,
+                                    rol=True, users=True, requisites=True)
             print('user create successful')
 
     if UserProfile.objects.count() == 0:

@@ -1186,8 +1186,12 @@ class TemplatesList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        try:
+            default_template = Template.objects.get(type=True)
+        except:
+            default_template = Template.objects.create(name='test', type=True, file='/media/files/example.xlsx')
         context['object_list'] = Template.objects.all()
-        context['template_default'] = Template.objects.get(type=True)
+        context['template_default'] = default_template
         context['invoice'] = get_object_or_404(Invoice, id=self.request.GET.get('invoice'))
         return context
 
@@ -1264,7 +1268,11 @@ def template_upload(request):
         balance = 'He заданно'
 
     locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
-    replacement = [invoice.apartment.house.address,
+    if invoice.apartment.house.address:
+        address = invoice.apartment.house.address
+    else:
+        address = "Не указан"
+    replacement = [address,
                    'moidom24',
                    number,
                    invoice.number,

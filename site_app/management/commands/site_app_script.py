@@ -52,4 +52,3 @@ class Command(BaseCommand):
         if Files.objects.count() == 0:
             Files.objects.create(name=1, files='1')
             print('AditImage create successful')
-

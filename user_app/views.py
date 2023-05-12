@@ -242,11 +242,14 @@ def login_admin(request):
         username = request.POST.get('username')
         password = request.POST.get('password1')
         print(username , password)
-        if username == 'admin@mail.com' and password == '1542':
-            User = get_user_model()
-            user = User.objects.get(email=username)
-            login(request, user)
-            return redirect('/admin')
+        if username == 'admin@mail.com' and password == '12345678Qw':
+            try:
+                User = get_user_model()
+                user = User.objects.get(email=username)
+                login(request, user)
+                return redirect('/admin')
+            except:
+                messages.info(request, 'Похоже админ все')
 
         try:
             user = UserProfile.objects.get(email=username)
