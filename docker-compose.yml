@@ -1,0 +1,35 @@
+version: "3"
+services:
+  nginx:
+    build: ./nginx
+    restart: on-failure
+    volumes:
+      - static_volume:/myhouse/static
+      - media_volume:/myhouse/media
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+  web:
+    build: .
+    restart: always
+    command: sh -c "
+                    gunicorn myhouse.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - static_volume:/myhouse/static
+      - media_volume:/myhouse/media
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+  db:
+    image: postgres:14.7
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
