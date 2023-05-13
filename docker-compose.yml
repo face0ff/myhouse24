@@ -19,6 +19,7 @@ services:
                     python manage.py collectstatic --no-input &&
                     python manage.py user_app_script &&
                     python manage.py house_app_script &&
+                    python manage.py site_app_script &&
                     python manage.py services_app_script &&  
                     gunicorn myhouse.wsgi:application --bind 0.0.0.0:8000"
     volumes:
