@@ -1,12 +1,42 @@
 from random import randint
 
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, AbstractUser
 from django.db import models
 from django.utils import timezone
 
 
-class UserProfile(AbstractBaseUser):
+# class CustomUserManager(BaseUserManager):
+#
+#     def create_user(self, email, password, **extra_fields):
+#         extra_fields.setdefault('is_staff', False)
+#         extra_fields.setdefault('is_superuser', False)
+#         if not email:
+#             raise ValueError('The Email must be set')
+#         email = self.normalize_email(email)
+#         user = self.model(email=email, **extra_fields)
+#         user.set_password(password)
+#         user.save()
+#         return user
+#
+#     def create_superuser(self, email, password, **extra_fields):
+#         extra_fields.setdefault('is_staff', True)
+#         extra_fields.setdefault('is_superuser', True)
+#
+#         if extra_fields.get('is_staff') is not True:
+#             raise ValueError('Superuser must have is_staff=True.')
+#         if extra_fields.get('is_superuser') is not True:
+#             raise ValueError('Superuser must have is_superuser=True.')
+#
+#         return self.create_user(email, password, **extra_fields)
+
+
+class UserProfile(AbstractUser):
     email = models.EmailField('E-mail', unique=True)
+
+    # username = None
+    # objects = CustomUserManager()
+    username = models.CharField(max_length=32, default='user')
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     date_joined = models.DateField(default=timezone.now)
@@ -27,6 +57,7 @@ class UserProfile(AbstractBaseUser):
     role = models.ForeignKey('Role', on_delete=models.PROTECT, null=True, blank=True, verbose_name='Роль')
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
 
     class Meta:
         verbose_name = 'Профиль'
@@ -63,10 +94,3 @@ class Role(models.Model):
     class Meta:
         verbose_name = 'Роль'
         verbose_name_plural = 'Роли'
-
-
-
-
-
-
-
