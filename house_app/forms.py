@@ -408,8 +408,10 @@ class TransferForm(forms.ModelForm):
         self.fields['account'].empty_label = 'Выберите...'
         self.fields['item'].empty_label = 'Выберите...'
         self.fields['manager'].initial = user
-        self.fields['manager'].queryset = UserProfile.objects.filter(is_staff=True)
+        self.fields['manager'].queryset = UserProfile.objects.filter(role_id__lt=4)
         self.fields['manager'].empty_label = 'Выберите...'
+
+
 
 class TemplateForm(forms.ModelForm):
     class Meta:
