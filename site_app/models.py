@@ -62,7 +62,7 @@ class Contacts(models.Model):
     map = models.CharField("Код карты", max_length=200, null=True, blank=True)
     fio = models.CharField("ФИО", max_length=200, null=True, blank=True)
     address = models.CharField("Адрес", max_length=100, null=True, blank=True)
-    location = models.CharField("Локация", max_length=100, null=True, blank=True)
+    location = models.CharField("Локация", max_length=500, null=True, blank=True)
     phone = models.CharField("Телефон", max_length=15, null=True, blank=True)
     email = models.CharField("E-mail", max_length=30, null=True, blank=True)
     seo = models.OneToOneField(Seo, on_delete=models.PROTECT)

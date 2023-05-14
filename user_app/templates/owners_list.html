@@ -140,7 +140,20 @@
                                                 {% else %}
                                                     <td><small class="label label-warning">Новый</small></td>
                                                 {% endif %}
-                                                <td>{{ owner }}</td>
+                                                <td>{% for personal_account in personal_accounts %}
+                                                    {% if personal_account.balance >= 0 %}
+                                                        {% if personal_account.apartment.owner == owner %}
+                                                            Нет
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                    {% for personal_account in personal_accounts %}
+                                                        {% if personal_account.balance < 0 %}
+                                                            {% if personal_account.apartment.owner == owner %}
+                                                                Да
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}</td>
                                                 <td>
                                                     <div class="btn-group pull-right"><a
                                                             class="btn btn-default btn-sm"

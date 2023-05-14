@@ -172,6 +172,7 @@
     </div>
 {% endblock %}
 {% block script %}
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.5/jquery.inputmask.min.js"></script>
     <script>
         let generatePassword = function () {
             let randomstring = Math.random().toString(36).slice(-8);
@@ -238,6 +239,7 @@
     $('#id_birth_date').on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
+    $('#phone-field').inputmask("+38(999)999-9999");
     </script>
 
 

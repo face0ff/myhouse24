@@ -17,12 +17,20 @@ class RoleForm(ModelForm):
 
 RoleFormSet = modelformset_factory(Role, form=RoleForm, extra=0)
 
-class UserForm(UserCreationForm):
 
+class UserForm(UserCreationForm):
     class Meta:
         model = UserProfile
         fields = ['email', 'first_name', 'last_name', 'status', 'role', 'telephone', 'password1', 'password2']
-
+        widgets = {
+            'telephone': forms.TextInput(attrs={'type': "text", 'class': 'form-control', 'id': "phone-field",
+                                                'name': "phone", 'placeholder': "Номер телефона",
+                                                'data-rule-required': "true", 'data-rule-minlength': "10",
+                                                'data-msg': "Введите номер телефона", 'style': 'width:auto',
+                                                "required minlength": "17", "pattern": "\+\d{2}\(\d{3}\)\d{3}-\d{4}",
+                                                "maxlength": "17",
+                                                "title": "Введить 12 цифр "})
+        }
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -40,13 +48,24 @@ class UserForm(UserCreationForm):
         return user
 
 
-
 class UserUpdateForm(UserChangeForm):
     password1 = forms.CharField(required=False, label='Пароль')
     password2 = forms.CharField(required=False, label='Повторить пароль')
+
     class Meta:
         model = UserProfile
         fields = ['email', 'first_name', 'last_name', 'telephone', 'password1', 'password2']
+
+        widgets = {
+            'telephone': forms.TextInput(attrs={'type': "text", 'class': 'form-control', 'id': "phone-field",
+                                                'name': "phone", 'placeholder': "Номер телефона",
+                                                'data-rule-required': "true", 'data-rule-minlength': "10",
+                                                'data-msg': "Введите номер телефона", 'style': 'width:auto',
+                                                "required minlength": "17", "pattern": "\+\d{2}\(\d{3}\)\d{3}-\d{4}",
+                                                "maxlength": "17",
+                                                "title": "Введить 12 цифр "})
+        }
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -61,7 +80,7 @@ class UserUpdateForm(UserChangeForm):
         user = super().save(commit=False)
         if not self.cleaned_data['password1']:
             if commit:
-                user.save(update_fields = ['email', 'first_name', 'last_name', 'telephone'])
+                user.save(update_fields=['email', 'first_name', 'last_name', 'telephone'])
             return user
         else:
             user.set_password(self.cleaned_data['password1'])
@@ -73,11 +92,10 @@ class UserUpdateForm(UserChangeForm):
 
 
 class OwnerForm(UserCreationForm):
-
-
     class Meta:
         model = UserProfile
-        fields = ['avatar', 'first_name', 'last_name', 'patronymic', 'birth_date', 'telephone', 'viber', 'telegram', 'email', 'status', 'user_id', 'notes', 'password1', 'password2']
+        fields = ['avatar', 'first_name', 'last_name', 'patronymic', 'birth_date', 'telephone', 'viber', 'telegram',
+                  'email', 'status', 'user_id', 'notes', 'password1', 'password2']
 
         widgets = {
             'user_id': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -85,7 +103,13 @@ class OwnerForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
-            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'telephone': forms.TextInput(attrs={'type': "text", 'class': 'form-control', 'id': "phone-field",
+                                                'name': "phone", 'placeholder': "Номер телефона",
+                                                'data-rule-required': "true", 'data-rule-minlength': "10",
+                                                'data-msg': "Введите номер телефона", 'style': 'width:auto',
+                                                "required minlength": "17", "pattern": "\+\d{2}\(\d{3}\)\d{3}-\d{4}",
+                                                "maxlength": "17",
+                                                "title": "Введить 12 цифр "}),
             'viber': forms.TextInput(attrs={'class': 'form-control'}),
             'telegram': forms.TextInput(attrs={'class': 'form-control'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control'}),
@@ -95,8 +119,8 @@ class OwnerForm(UserCreationForm):
             'password2': forms.TextInput(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
 
-
         }
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -129,7 +153,13 @@ class OwnerUpdateForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
-            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'telephone': forms.TextInput(attrs={'type': "text", 'class': 'form-control', 'id': "phone-field",
+                                                'name': "phone", 'placeholder': "Номер телефона",
+                                                'data-rule-required': "true", 'data-rule-minlength': "10",
+                                                'data-msg': "Введите номер телефона", 'style': 'width:auto',
+                                                "required minlength": "17", "pattern": "\+\d{2}\(\d{3}\)\d{3}-\d{4}",
+                                                "maxlength": "17",
+                                                "title": "Введить 12 цифр "}),
             'viber': forms.TextInput(attrs={'class': 'form-control'}),
             'telegram': forms.TextInput(attrs={'class': 'form-control'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control'}),
@@ -140,6 +170,7 @@ class OwnerUpdateForm(UserCreationForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
 
         }
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -152,8 +183,9 @@ class OwnerUpdateForm(UserCreationForm):
         user = super().save(commit=False)
         if not self.cleaned_data['password1']:
             if commit:
-                user.save(update_fields=['avatar', 'first_name', 'last_name', 'patronymic', 'birth_date', 'telephone', 'viber', 'telegram',
-                  'email', 'status', 'user_id', 'notes'])
+                user.save(update_fields=['avatar', 'first_name', 'last_name', 'patronymic', 'birth_date', 'telephone',
+                                         'viber', 'telegram',
+                                         'email', 'status', 'user_id', 'notes'])
             return user
         else:
             user.set_password(self.cleaned_data['password1'])

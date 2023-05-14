@@ -252,8 +252,11 @@ class HouseUpdate(UpdateView):
 
 
 def house_delete(request, pk):
-    item = get_object_or_404(House, id=pk)
-    item.delete()
+    try:
+        item = get_object_or_404(House, id=pk)
+        item.delete()
+    except:
+        print('neviydet')
     return redirect('houses_list')
 
 
@@ -391,8 +394,11 @@ class ApartmentUpdate(UpdateView):
 
 
 def apartment_delete(request, pk):
-    apart = get_object_or_404(Apartment, id=pk)
-    apart.delete()
+    try:
+        apart = get_object_or_404(Apartment, id=pk)
+        apart.delete()
+    except:
+        print('nelzia')
     return redirect('apartments_list')
 
 
@@ -710,6 +716,10 @@ def select_account(request):
                 account = None
                 tariff = None
 
+        account = get_object_or_404(Account, apartment=request.GET.get('apartment_field'))
+        tariff = get_object_or_404(Tariff, apartment=request.GET.get('apartment_field'))
+
+
         owner_house = {
             'id': owner.id,
             'first': owner.first_name,
@@ -867,6 +877,9 @@ def invoice_delete(request, pk):
     try:
         invoice_service = get_object_or_404(InvoiceService, id=pk)
         invoice_service.delete()
+    except:
+        pass
+    try:
         account = Account.objects.get(apartment__invoice=pk)
         invoice = get_object_or_404(Invoice, id=pk)
         account.balance = account.balance + invoice.amount

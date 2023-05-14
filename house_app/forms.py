@@ -106,7 +106,7 @@ class ApartmentForm(forms.ModelForm):
         if self.cleaned_data['account_number']:
             try:
                 prev_acc.update(apartment_id='')
-                account = Account.objects.get(number=self.cleaned_data['account_number'])
+                account = Account.objects.create(number=self.cleaned_data['account_number'])
                 print(account)
                 account.apartment_id = apartment
                 account.save()
@@ -115,7 +115,7 @@ class ApartmentForm(forms.ModelForm):
                     apartment.save()
 
             except:
-                account = Account.objects.create(number=self.cleaned_data['account_number'])
+                account = Account.objects.get(number=self.cleaned_data['account_number'])
                 if commit:
                     apartment.save()
                     account.apartment_id = apartment

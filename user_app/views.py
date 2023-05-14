@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, FormView
 from django.contrib import messages
 
-from house_app.models import Apartment
+from house_app.models import Apartment, Account
 from house_app.views import check_user_is_staff
 from user_app.forms import *
 from user_app.models import Role, UserProfile
@@ -131,6 +131,7 @@ class OwnersList(ListView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         object_list = UserProfile.objects.filter(role_id__isnull=True)
+
         if self.request.GET.get('filter-name') == '1':
             object_list = object_list.order_by('last_name')
         if self.request.GET.get('filter-name') == '0':
@@ -161,17 +162,17 @@ class OwnersList(ListView):
             )
             owners_idx = [x.owner.id for x in apartments if x.owner]
             object_list = object_list.filter(pk__in=owners_idx)
-        # if self.request.GET.get('debt'):
-        #     if self.request.GET.get('debt') == 'yes':
-        #         personal_accounts = PersonalAccount.objects.select_related('apartment',
-        #                                                                    'apartment__owner').filter(balance__lt=0)
-        #         owners_idx = [x.apartment.owner.id for x in personal_accounts if x.apartment and x.apartment.owner]
-        #         object_list = object_list.filter(pk__in=owners_idx)
-        #     else:
-        #         personal_accounts = PersonalAccount.objects.select_related('apartment',
-        #                                                                    'apartment__owner').filter(balance__gte=0)
-        #         owners_idx = [x.apartment.owner.id for x in personal_accounts if x.apartment and x.apartment.owner]
-        #         object_list = object_list.filter(pk__in=owners_idx)
+        if self.request.GET.get('debt'):
+            if self.request.GET.get('debt') == 'yes':
+                personal_accounts = Account.objects.select_related('apartment',
+                                                                           'apartment__owner').filter(balance__lt=0)
+                owners_idx = [x.apartment.owner.id for x in personal_accounts if x.apartment and x.apartment.owner]
+                object_list = object_list.filter(pk__in=owners_idx)
+            else:
+                personal_accounts = Account.objects.select_related('apartment',
+                                                                           'apartment__owner').filter(balance__gte=0)
+                owners_idx = [x.apartment.owner.id for x in personal_accounts if x.apartment and x.apartment.owner]
+                object_list = object_list.filter(pk__in=owners_idx)
 
 
         paginator = Paginator(object_list, 5)  # 3 posts in each page
@@ -186,6 +187,7 @@ class OwnersList(ListView):
             object_list = paginator.page(paginator.num_pages)
         context['object_list'] = object_list
         context['houses'] = House.objects.all()
+        context['personal_accounts'] = Account.objects.select_related('apartment', 'apartment__owner').all()
         context['page'] = page
         return context
 
